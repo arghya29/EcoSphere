@@ -1,0 +1,227 @@
+// EcoSphere — Prisma schema (Postgres / Neon)
+// Implements the data model from the developer proposal, plus the
+// adapter tables NextAuth needs for Credentials + Google + Postgres sessions.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Auth (NextAuth + credentials) ----------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String? // null for OAuth-only accounts
+  image         String?
+  createdAt     DateTime  @default(now())
+
+  accounts      Account[]
+  sessions      Session[]
+  organizations Organization[] @relation("OrgOwner")
+  memberships   Membership[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------- Domain model ----------
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  ownerId   String
+  createdAt DateTime @default(now())
+
+  owner      User         @relation("OrgOwner", fields: [ownerId], references: [id])
+  members    Membership[]
+  suppliers  Supplier[]
+  facilities Facility[]
+  routes     Route[]
+  activities Activity[]
+  reports    Report[]
+}
+
+// Kept minimal for V1 (single-org-per-user is the common case), but
+// modeled as a join table so multi-tenant/roles can be added later
+// without a schema migration that touches every other table.
+model Membership {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  role           String   @default("OWNER") // OWNER | MEMBER (future: ADMIN, VIEWER)
+  createdAt      DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+}
+
+model Supplier {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  location       String?
+  category       String?
+  latitude       Float?
+  longitude      Float?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  activities   Activity[]
+  routesFrom   Route[]      @relation("RouteOriginSupplier")
+
+  @@index([organizationId])
+}
+
+model Facility {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  type           String? // Manufacturing | Storage | Office | ...
+  location       String?
+  latitude       Float?
+  longitude      Float?
+  createdAt      DateTime @default(now())
+
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  activities        Activity[]
+  routesFromHere    Route[]      @relation("RouteOriginFacility")
+  routesToHere      Route[]      @relation("RouteDestinationFacility")
+
+  @@index([organizationId])
+}
+
+enum TransportMode {
+  TRUCK
+  RAIL
+  AIR
+  SEA
+  OTHER
+}
+
+model Route {
+  id             String        @id @default(cuid())
+  organizationId String
+  // A route can originate from a Supplier OR a Facility, and always
+  // terminates at a Facility (factory/warehouse/customer node).
+  originSupplierId String?
+  originFacilityId String?
+  destinationId     String
+  mode              TransportMode @default(TRUCK)
+  distanceKm        Float
+  createdAt         DateTime      @default(now())
+
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  originSupplier  Supplier?    @relation("RouteOriginSupplier", fields: [originSupplierId], references: [id])
+  originFacility  Facility?    @relation("RouteOriginFacility", fields: [originFacilityId], references: [id])
+  destination     Facility     @relation("RouteDestinationFacility", fields: [destinationId], references: [id])
+  activities      Activity[]
+
+  @@index([organizationId])
+}
+
+enum EmissionScope {
+  SCOPE_1
+  SCOPE_2
+  SCOPE_3
+}
+
+model EmissionFactor {
+  id       String        @id @default(cuid())
+  category String        @unique // "diesel", "electricity_UK-grid", "air_freight", ...
+  scope    EmissionScope
+  value    Float // CO2e per unit
+  unit     String // "kgCO2e/litre", "kgCO2e/kWh", "kgCO2e/tonne-km"
+  source   String? // citation, e.g. "DEFRA 2024", "EPA eGRID 2023"
+
+  activities Activity[]
+}
+
+enum ActivityType {
+  FUEL
+  ELECTRICITY
+  FREIGHT
+  OTHER
+}
+
+model Activity {
+  id             String       @id @default(cuid())
+  organizationId String
+  type           ActivityType
+  supplierId     String?
+  facilityId     String?
+  routeId        String?
+  amount         Float // litres, kWh, tonne-km, etc.
+  unit           String
+  factorId       String
+  emissionsKg    Float // precomputed: amount * factor.value
+  dateRecorded   DateTime
+  createdAt      DateTime     @default(now())
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  supplier     Supplier?      @relation(fields: [supplierId], references: [id])
+  facility     Facility?      @relation(fields: [facilityId], references: [id])
+  route        Route?         @relation(fields: [routeId], references: [id])
+  factor       EmissionFactor @relation(fields: [factorId], references: [id])
+
+  @@index([organizationId])
+  @@index([dateRecorded])
+}
+
+enum ReportFormat {
+  PDF
+  CSV
+  JSON
+}
+
+model Report {
+  id             String       @id @default(cuid())
+  organizationId String
+  format         ReportFormat
+  createdAt      DateTime     @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}

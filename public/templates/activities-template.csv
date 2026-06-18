@@ -1,0 +1,4 @@
+facility_id,route_id,supplier_id,factor_category,amount,unit,date
+,,,"diesel",500,"litre","2026-01-31"
+,,,"electricity_UK-grid",2000,"kWh","2026-01-31"
+,,,"air_freight",4000,"tonne-km","2026-02-15"
