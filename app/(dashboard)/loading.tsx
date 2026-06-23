@@ -1,4 +1,7 @@
 export default function DashboardLoading() {
+  const sidebarDelay = ["delay-0", "delay-75", "delay-150", "delay-200", "delay-300", "delay-[375ms]"];
+  const cardDelay = ["delay-0", "delay-100", "delay-200"];
+
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">
       {/* Sidebar skeleton */}
@@ -8,8 +11,7 @@ export default function DashboardLoading() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-9 w-full animate-pulse rounded-md bg-muted"
-              style={{ animationDelay: `${i * 75}ms` }}
+              className={`h-9 w-full animate-pulse rounded-md bg-muted ${sidebarDelay[i]}`}
             />
           ))}
         </div>
@@ -22,8 +24,7 @@ export default function DashboardLoading() {
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="h-32 animate-pulse rounded-lg bg-muted"
-              style={{ animationDelay: `${i * 100}ms` }}
+              className={`h-32 animate-pulse rounded-lg bg-muted ${cardDelay[i]}`}
             />
           ))}
         </div>
