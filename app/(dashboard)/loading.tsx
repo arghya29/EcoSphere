@@ -1,6 +1,13 @@
 export default function DashboardLoading() {
-  const sidebarDelay = ["delay-0", "delay-75", "delay-150", "delay-200", "delay-300", "delay-[375ms]"];
-  const cardDelay = ["delay-0", "delay-100", "delay-200"];
+  const sidebarDelay = [
+    "[animation-delay:0ms]",
+    "[animation-delay:75ms]",
+    "[animation-delay:150ms]",
+    "[animation-delay:200ms]",
+    "[animation-delay:300ms]",
+    "[animation-delay:375ms]",
+  ];
+  const cardDelay = ["[animation-delay:0ms]", "[animation-delay:100ms]", "[animation-delay:200ms]"];
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">
