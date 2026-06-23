@@ -23,12 +23,13 @@ reviews:
   poem: false
   in_progress_fortune: false
   abort_on_close: true
-
-# Review PRs targeting both dev and main
-# (feature → dev for contributors, dev → main for you)
-base_branches:
-  - "dev"
-  - "main"
+  auto_review:
+    enabled: true
+    drafts: false
+    # Review PRs targeting both dev (contributor PRs) and main (your dev→main PRs)
+    base_branches:
+      - "dev"
+      - "main"
 
 anti_slop:
   enabled: true
