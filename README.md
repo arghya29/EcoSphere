@@ -3,6 +3,7 @@
 [![CI](https://github.com/arghya29/EcoSphere/actions/workflows/ci.yml/badge.svg)](https://github.com/arghya29/EcoSphere/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://eco-sphere-pi.vercel.app)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)](./CONTRIBUTING.md)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)]()
 
 Supply-chain carbon intelligence, built entirely on free and open-source tools. Map your suppliers, facilities, and transport routes, import usage data, and EcoSphere computes Scope 1, 2, and 3 emissions and flags the hotspots worth acting on first.
