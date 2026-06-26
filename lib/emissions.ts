@@ -102,7 +102,7 @@ export function aggregateByMonth(activities: ActivityWithFactor[]): { month: str
   const totals = new Map<string, number>();
   for (const activity of activities) {
     const d = new Date(activity.dateRecorded);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
     const emissions = activity.emissionsKg ?? calculateActivityEmissions(activity.amount, activity.factor.value);
     totals.set(key, (totals.get(key) ?? 0) + emissions);
   }
