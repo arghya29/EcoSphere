@@ -126,8 +126,16 @@ export function SupplyChainGraph({
     <div className="h-[420px] w-full rounded-md border border-border" role="img" aria-label="Supply chain network diagram">
       <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} fitView proOptions={{ hideAttribution: true }}>
         <Background />
-        <Controls aria-label="Graph zoom and pan controls" />
-        <MiniMap pannable zoomable ariaLabel="Graph minimap" />
+        <Controls
+          className="!bg-background/80 !border-border !shadow-sm [&>button]:!bg-background [&>button]:!border-border [&>button]:!text-foreground [&>button:hover]:!bg-muted"
+          aria-label="Graph zoom and pan controls"
+        />
+        <MiniMap
+          className="!bg-background/80 !border-border !shadow-sm !rounded-md"
+          pannable
+          zoomable
+          ariaLabel="Graph minimap"
+        />
       </ReactFlow>
     </div>
   );
