@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function GlobalError({
@@ -22,7 +23,7 @@ export default function GlobalError({
         <div className="mt-6 flex items-center justify-center gap-3">
           <Button onClick={reset}>Try again</Button>
           <Button variant="outline" asChild>
-            <a href="/">Back to home</a>
+            <Link href="/">Back to home</Link>
           </Button>
         </div>
       </div>
