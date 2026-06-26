@@ -11,7 +11,7 @@ export default function GlobalError({
 }) {
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
-      <div className="text-center max-w-md">
+      <div className="text-center max-w-md" role="alert">
         <h1 className="text-4xl font-bold font-display text-destructive">
           Something went wrong
         </h1>
