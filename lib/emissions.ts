@@ -34,6 +34,27 @@ export function calculateActivityEmissions(amount: number, factorValue: number):
 }
 
 /**
+ * Derives an activity's type from its routing and emission-factor
+ * category. A row with a route is FREIGHT; otherwise a category whose
+ * name contains "electricity" (in any casing) is ELECTRICITY, and
+ * everything else is FUEL.
+ *
+ * The electricity match is case-insensitive so factor categories like
+ * "Grid Electricity" or "ELECTRICITY_grid" are classified correctly —
+ * the `category` column is a free-form string, so casing isn't
+ * guaranteed. The upload pipeline should call this rather than
+ * re-deriving the rule inline.
+ */
+export function deriveActivityType(
+  category: string,
+  hasRoute: boolean
+): 'FREIGHT' | 'ELECTRICITY' | 'FUEL' {
+  if (hasRoute) return 'FREIGHT';
+  if (category.toLowerCase().includes('electricity')) return 'ELECTRICITY';
+  return 'FUEL';
+}
+
+/**
  * Aggregates a list of activities (each already joined with its
  * EmissionFactor) into a Scope 1/2/3 breakdown, in kg CO2e.
  */
