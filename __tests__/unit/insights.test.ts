@@ -59,6 +59,45 @@ describe('generateInsights', () => {
     expect(airInsight?.detail).toContain('rail');
   });
 
+  it('computes the air-freight share against Scope 3 (not total), matching the label', () => {
+    // Regression for #14: the text says "% of your Scope 3 emissions" but the
+    // percentage was divided by scopes.total. With airEmissions = 6000 and
+    // scope3 = 8000, the correct Scope-3 share is 75% — NOT 60% (6000/10000).
+    const result = generateInsights({
+      scopes: scopes({ total: 10000, scope3: 8000 }),
+      topSuppliers: [],
+      topFacilities: [],
+      routes: [
+        { id: 'r1', name: 'Route A', emissionsKg: 6000, mode: 'AIR' },
+        { id: 'r2', name: 'Route B', emissionsKg: 2000, mode: 'TRUCK' },
+      ],
+    });
+    const airInsight = result.find((i) => i.id === 'air-freight-share');
+    expect(airInsight).toBeDefined();
+    expect(airInsight?.text).toContain('75%');
+    expect(airInsight?.text).toContain('Scope 3');
+    expect(airInsight?.text).not.toContain('60%');
+  });
+
+  it('does not divide by zero when Scope 3 is zero for the air-freight insight', () => {
+    // Defensive: if route emissions exist but scope3 somehow aggregates to 0,
+    // pct should be 0 rather than NaN/Infinity.
+    const result = generateInsights({
+      scopes: scopes({ total: 5000, scope3: 0 }),
+      topSuppliers: [],
+      topFacilities: [],
+      routes: [
+        { id: 'r1', name: 'Route A', emissionsKg: 3000, mode: 'AIR' },
+        { id: 'r2', name: 'Route B', emissionsKg: 1000, mode: 'TRUCK' },
+      ],
+    });
+    const airInsight = result.find((i) => i.id === 'air-freight-share');
+    expect(airInsight).toBeDefined();
+    expect(airInsight?.text).toContain('0%');
+    expect(airInsight?.text).not.toContain('NaN');
+    expect(airInsight?.text).not.toContain('Infinity');
+  });
+
   it('flags an individual high-emission air route even if air is not the majority overall', () => {
     const result = generateInsights({
       scopes: scopes({ total: 10000, scope3: 4000 }),
