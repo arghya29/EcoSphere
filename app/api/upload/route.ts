@@ -37,9 +37,9 @@ const uploadSchema = z.discriminatedUnion('kind', [
     kind: z.literal('activities'),
     rows: z.array(
       z.object({
-        facility_id: z.string().optional(),
-        route_id: z.string().optional(),
-        supplier_id: z.string().optional(),
+        facility_id: z.string().nullish(),
+        route_id: z.string().nullish(),
+        supplier_id: z.string().nullish(),
         factor_category: z.string().min(1),
         amount: z.coerce.number().positive(),
         unit: z.string().min(1),
