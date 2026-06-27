@@ -1,4 +1,4 @@
-import { calculateActivityEmissions, aggregateByScope, aggregateByEntity, aggregateByMonth } from '@/lib/emissions';
+import { calculateActivityEmissions, aggregateByScope, aggregateByEntity, aggregateByMonth, deriveActivityType } from '@/lib/emissions';
 import type { ActivityWithFactor } from '@/lib/emissions';
 
 function makeActivity(
@@ -143,5 +143,27 @@ describe('aggregateByMonth', () => {
     ];
     const result = aggregateByMonth(activities);
     expect(result).toEqual([{ month: '2026-03', emissionsKg: 42 }]);
+  });
+});
+
+describe('deriveActivityType', () => {
+  it('classifies a row with a route as FREIGHT regardless of category', () => {
+    expect(deriveActivityType('air_freight', true)).toBe('FREIGHT');
+    expect(deriveActivityType('Grid Electricity', true)).toBe('FREIGHT');
+  });
+
+  it('classifies a lowercase electricity category as ELECTRICITY', () => {
+    expect(deriveActivityType('electricity_UK-grid', false)).toBe('ELECTRICITY');
+  });
+
+  it('classifies a capitalized/uppercase electricity category as ELECTRICITY (case-insensitive)', () => {
+    // Regression for #17: case-sensitive .includes('electricity') mislabelled these as FUEL.
+    expect(deriveActivityType('Grid Electricity', false)).toBe('ELECTRICITY');
+    expect(deriveActivityType('ELECTRICITY_grid', false)).toBe('ELECTRICITY');
+    expect(deriveActivityType('Purchased Electricity', false)).toBe('ELECTRICITY');
+  });
+
+  it('classifies a non-electricity, non-routed category as FUEL', () => {
+    expect(deriveActivityType('diesel', false)).toBe('FUEL');
   });
 });

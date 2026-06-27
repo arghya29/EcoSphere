@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireOrg, isErrorResponse } from '@/lib/session';
 import { z } from 'zod';
-import { calculateActivityEmissions } from '@/lib/emissions';
+import { calculateActivityEmissions, deriveActivityType } from '@/lib/emissions';
 
 // Accepts already-parsed rows (the client parses CSV/XLSX with
 // PapaParse/SheetJS per the spec, then POSTs structured JSON here).
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       return prisma.activity.create({
         data: {
           organizationId: ctx.organizationId,
-          type: r.route_id ? 'FREIGHT' : factor.category.includes('electricity') ? 'ELECTRICITY' : 'FUEL',
+          type: deriveActivityType(factor.category, Boolean(r.route_id)),
           facilityId: r.facility_id,
           routeId: r.route_id,
           supplierId: r.supplier_id,
