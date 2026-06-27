@@ -60,7 +60,7 @@ export function generateInsights(params: {
   const airRoutes = routes.filter((r) => r.mode === 'AIR');
   const airEmissions = airRoutes.reduce((sum, r) => sum + r.emissionsKg, 0);
   if (totalRouteEmissions > 0 && airEmissions / totalRouteEmissions > 0.5) {
-    const pct = Math.round((airEmissions / scopes.total) * 100);
+    const pct = scopes.scope3 > 0 ? Math.round((airEmissions / scopes.scope3) * 100) : 0;
     const railSaving = Math.round(MODE_SHIFT_SAVINGS.AIR_TO_RAIL * 100);
     const seaSaving = Math.round(MODE_SHIFT_SAVINGS.AIR_TO_SEA * 100);
     insights.push({

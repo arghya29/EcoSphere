@@ -1,4 +1,4 @@
-import { calculateActivityEmissions, aggregateByScope, aggregateByEntity, aggregateByMonth } from '@/lib/emissions';
+import { calculateActivityEmissions, aggregateByScope, aggregateByEntity, aggregateByMonth, deriveActivityType } from '@/lib/emissions';
 import type { ActivityWithFactor } from '@/lib/emissions';
 
 function makeActivity(
@@ -128,5 +128,42 @@ describe('aggregateByMonth', () => {
       { month: '2026-01', emissionsKg: 300 },
       { month: '2026-02', emissionsKg: 50 },
     ]);
+  });
+
+  it('buckets a midnight-UTC first-of-month date by UTC, not local timezone', () => {
+    // An activity recorded at exactly 2026-03-01T00:00:00Z must land in March
+    // regardless of the server/browser timezone. With local-timezone getters a
+    // UTC-behind zone (e.g. America/Los_Angeles) would resolve this to the
+    // previous day and misgroup it under February.
+    const activities = [
+      makeActivity({
+        dateRecorded: new Date('2026-03-01T00:00:00Z'),
+        emissionsKg: 42,
+      }),
+    ];
+    const result = aggregateByMonth(activities);
+    expect(result).toEqual([{ month: '2026-03', emissionsKg: 42 }]);
+  });
+});
+
+describe('deriveActivityType', () => {
+  it('classifies a row with a route as FREIGHT regardless of category', () => {
+    expect(deriveActivityType('air_freight', true)).toBe('FREIGHT');
+    expect(deriveActivityType('Grid Electricity', true)).toBe('FREIGHT');
+  });
+
+  it('classifies a lowercase electricity category as ELECTRICITY', () => {
+    expect(deriveActivityType('electricity_UK-grid', false)).toBe('ELECTRICITY');
+  });
+
+  it('classifies a capitalized/uppercase electricity category as ELECTRICITY (case-insensitive)', () => {
+    // Regression for #17: case-sensitive .includes('electricity') mislabelled these as FUEL.
+    expect(deriveActivityType('Grid Electricity', false)).toBe('ELECTRICITY');
+    expect(deriveActivityType('ELECTRICITY_grid', false)).toBe('ELECTRICITY');
+    expect(deriveActivityType('Purchased Electricity', false)).toBe('ELECTRICITY');
+  });
+
+  it('classifies a non-electricity, non-routed category as FUEL', () => {
+    expect(deriveActivityType('diesel', false)).toBe('FUEL');
   });
 });

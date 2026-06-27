@@ -34,6 +34,27 @@ export function calculateActivityEmissions(amount: number, factorValue: number):
 }
 
 /**
+ * Derives an activity's type from its routing and emission-factor
+ * category. A row with a route is FREIGHT; otherwise a category whose
+ * name contains "electricity" (in any casing) is ELECTRICITY, and
+ * everything else is FUEL.
+ *
+ * The electricity match is case-insensitive so factor categories like
+ * "Grid Electricity" or "ELECTRICITY_grid" are classified correctly —
+ * the `category` column is a free-form string, so casing isn't
+ * guaranteed. The upload pipeline should call this rather than
+ * re-deriving the rule inline.
+ */
+export function deriveActivityType(
+  category: string,
+  hasRoute: boolean
+): 'FREIGHT' | 'ELECTRICITY' | 'FUEL' {
+  if (hasRoute) return 'FREIGHT';
+  if (category.toLowerCase().includes('electricity')) return 'ELECTRICITY';
+  return 'FUEL';
+}
+
+/**
  * Aggregates a list of activities (each already joined with its
  * EmissionFactor) into a Scope 1/2/3 breakdown, in kg CO2e.
  */
@@ -102,7 +123,7 @@ export function aggregateByMonth(activities: ActivityWithFactor[]): { month: str
   const totals = new Map<string, number>();
   for (const activity of activities) {
     const d = new Date(activity.dateRecorded);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
     const emissions = activity.emissionsKg ?? calculateActivityEmissions(activity.amount, activity.factor.value);
     totals.set(key, (totals.get(key) ?? 0) + emissions);
   }
