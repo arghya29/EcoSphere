@@ -17,7 +17,17 @@ import {
   Menu,
   X,
   LogOut,
+  User,
+  ChevronsUpDown,
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -26,7 +36,6 @@ const NAV_ITEMS = [
   { href: '/analysis', label: 'Emissions', icon: BarChart3 },
   { href: '/insights', label: 'Insights', icon: Lightbulb },
   { href: '/reports', label: 'Reports', icon: FileDown },
-  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export function DashboardNav({ userName }: { userName: string }) {
@@ -55,13 +64,9 @@ export function DashboardNav({ userName }: { userName: string }) {
       {mobileOpen && (
         <nav id="mobile-nav" aria-label="Primary" className="border-b border-border bg-card md:hidden">
           <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
-          <button
-            onClick={() => signOut({ callbackUrl: '/' })}
-            className="flex w-full items-center gap-2 border-t border-border px-4 py-3 text-sm text-muted-foreground hover:bg-muted"
-          >
-            <LogOut className="h-4 w-4" aria-hidden="true" />
-            Log out
-          </button>
+          <div className="border-t border-border p-3">
+            <AccountMenu userName={userName} onNavigate={() => setMobileOpen(false)} />
+          </div>
         </nav>
       )}
 
@@ -74,17 +79,8 @@ export function DashboardNav({ userName }: { userName: string }) {
         <nav aria-label="Primary" className="flex-1 py-3">
           <NavLinks pathname={pathname} />
         </nav>
-        <div className="border-t border-border p-4">
-          <p className="truncate text-xs text-muted-foreground" title={userName}>
-            {userName}
-          </p>
-          <button
-            onClick={() => signOut({ callbackUrl: '/' })}
-            className="mt-2 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <LogOut className="h-4 w-4" aria-hidden="true" />
-            Log out
-          </button>
+        <div className="border-t border-border p-3">
+          <AccountMenu userName={userName} />
         </div>
       </aside>
     </>
@@ -115,5 +111,63 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
         );
       })}
     </ul>
+  );
+}
+
+function getInitial(name: string): string {
+  const trimmed = name.trim();
+  return trimmed ? trimmed.charAt(0).toUpperCase() : 'A';
+}
+
+function AccountMenu({ userName, onNavigate }: { userName: string; onNavigate?: () => void }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-label="Open account menu"
+        className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          <span
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground"
+            aria-hidden="true"
+          >
+            {getInitial(userName)}
+          </span>
+          <span className="truncate" title={userName}>
+            {userName}
+          </span>
+        </span>
+        <ChevronsUpDown className="h-4 w-4 shrink-0" aria-hidden="true" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" side="top" sideOffset={8} className="w-56">
+        <DropdownMenuLabel className="truncate" title={userName}>
+          {userName}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/profile" onClick={onNavigate} className="flex items-center gap-2">
+            <User className="h-4 w-4" aria-hidden="true" />
+            Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/settings" onClick={onNavigate} className="flex items-center gap-2">
+            <Settings className="h-4 w-4" aria-hidden="true" />
+            Settings
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={(event) => {
+            event.preventDefault();
+            signOut({ callbackUrl: '/' });
+          }}
+          className="flex items-center gap-2 text-destructive focus:text-destructive"
+        >
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+          Log out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
