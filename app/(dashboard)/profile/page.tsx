@@ -41,11 +41,11 @@ export default function ProfilePage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="profile-name">Name</Label>
-              <Input id="profile-name" defaultValue={name} disabled />
+              <Input id="profile-name" value={name} readOnly />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="profile-email">Email</Label>
-              <Input id="profile-email" defaultValue={email} disabled />
+              <Input id="profile-email" value={email} readOnly />
             </div>
           </div>
 

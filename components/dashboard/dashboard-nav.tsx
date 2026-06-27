@@ -123,7 +123,7 @@ function AccountMenu({ userName, onNavigate }: { userName: string; onNavigate?: 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label="Open account menu"
+        aria-label={userName ? `${userName} account menu` : 'Account menu'}
         className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span className="flex min-w-0 items-center gap-2">
