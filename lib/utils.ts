@@ -27,3 +27,15 @@ export function findUnauthorizedIds(referencedIds: string[], ownedIds: string[])
   const owned = new Set(ownedIds);
   return referencedIds.filter((id) => !owned.has(id));
 }
+
+/**
+ * Normalizes an optional foreign-key string: trims it, and treats an empty or
+ * whitespace-only value as "not provided" by returning undefined. This keeps a
+ * blank `""` from slipping past an ownership check (which would skip falsy IDs)
+ * only to fail later as an invalid foreign key at write time.
+ */
+export function normalizeOptionalId(id: string | undefined | null): string | undefined {
+  if (id == null) return undefined;
+  const trimmed = id.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}

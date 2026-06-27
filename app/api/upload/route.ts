@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireOrg, isErrorResponse } from '@/lib/session';
 import { z } from 'zod';
 import { calculateActivityEmissions, deriveActivityType } from '@/lib/emissions';
-import { findUnauthorizedIds } from '@/lib/utils';
+import { findUnauthorizedIds, normalizeOptionalId } from '@/lib/utils';
 
 // Accepts already-parsed rows (the client parses CSV/XLSX with
 // PapaParse/SheetJS per the spec, then POSTs structured JSON here).
@@ -92,6 +92,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Normalize each row's optional foreign keys up front: blank/whitespace IDs
+  // become undefined so they're treated as "no reference" consistently — both
+  // by the ownership check below and by the create payload. Without this a
+  // blank "" would skip the ownership check yet still reach Prisma as an
+  // invalid foreign key.
+  const rows = parsed.data.rows.map((r) => ({
+    ...r,
+    facility_id: normalizeOptionalId(r.facility_id),
+    route_id: normalizeOptionalId(r.route_id),
+    supplier_id: normalizeOptionalId(r.supplier_id),
+  }));
+
   // Verify every referenced facility/route/supplier belongs to the caller's
   // organization. Without this, a signed-in user could attach activities to
   // another org's entities by passing their IDs (the README guarantees all
@@ -99,13 +111,13 @@ export async function POST(req: NextRequest) {
   // owned IDs with one scoped findMany per entity type, then reject any
   // referenced ID that isn't owned — before opening the write transaction.
   const facilityIds = Array.from(
-    new Set(parsed.data.rows.map((r) => r.facility_id).filter((id): id is string => Boolean(id)))
+    new Set(rows.map((r) => r.facility_id).filter((id): id is string => Boolean(id)))
   );
   const routeIds = Array.from(
-    new Set(parsed.data.rows.map((r) => r.route_id).filter((id): id is string => Boolean(id)))
+    new Set(rows.map((r) => r.route_id).filter((id): id is string => Boolean(id)))
   );
   const supplierIds = Array.from(
-    new Set(parsed.data.rows.map((r) => r.supplier_id).filter((id): id is string => Boolean(id)))
+    new Set(rows.map((r) => r.supplier_id).filter((id): id is string => Boolean(id)))
   );
 
   const [ownedFacilities, ownedRoutes, ownedSuppliers] = await Promise.all([
@@ -145,7 +157,7 @@ export async function POST(req: NextRequest) {
   }
 
   const created = await prisma.$transaction(
-    parsed.data.rows.map((r) => {
+    rows.map((r) => {
       const factor = factorByCategory.get(r.factor_category)!;
       const emissionsKg = calculateActivityEmissions(r.amount, factor.value);
       return prisma.activity.create({

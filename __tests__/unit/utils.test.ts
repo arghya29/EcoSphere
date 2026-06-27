@@ -1,4 +1,4 @@
-import { findUnauthorizedIds, formatKg, formatPercent } from '@/lib/utils';
+import { findUnauthorizedIds, normalizeOptionalId, formatKg, formatPercent } from '@/lib/utils';
 
 describe('findUnauthorizedIds', () => {
   it('returns an empty array when every referenced id is owned', () => {
@@ -21,6 +21,31 @@ describe('findUnauthorizedIds', () => {
 
   it('preserves the order of referenced ids and does not deduplicate input', () => {
     expect(findUnauthorizedIds(['b', 'a', 'b'], ['a'])).toEqual(['b', 'b']);
+  });
+});
+
+describe('normalizeOptionalId', () => {
+  it('returns undefined for an empty string', () => {
+    // Regression for the blank-FK edge case: "" must not slip past the
+    // ownership check only to fail later as an invalid foreign key.
+    expect(normalizeOptionalId('')).toBeUndefined();
+  });
+
+  it('returns undefined for a whitespace-only string', () => {
+    expect(normalizeOptionalId('   ')).toBeUndefined();
+  });
+
+  it('returns undefined for null or undefined input', () => {
+    expect(normalizeOptionalId(null)).toBeUndefined();
+    expect(normalizeOptionalId(undefined)).toBeUndefined();
+  });
+
+  it('trims and returns a non-empty id', () => {
+    expect(normalizeOptionalId('  facility-123  ')).toBe('facility-123');
+  });
+
+  it('returns a clean id unchanged', () => {
+    expect(normalizeOptionalId('cuid-abc')).toBe('cuid-abc');
   });
 });
 
