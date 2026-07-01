@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireOrg, isErrorResponse } from '@/lib/session';
 import { routesPayloadSchema } from '@/lib/validations';
+import { findUnauthorizedIds } from '@/lib/utils';
+import { normalizeAndValidateRoutes } from './validate';
 
 export async function GET() {
   const ctx = await requireOrg();
@@ -29,17 +31,63 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  for (const r of parsed.data.routes) {
-    if (!r.originSupplierId && !r.originFacilityId) {
-      return NextResponse.json(
-        { success: false, error: 'Each route needs an originSupplierId or originFacilityId.' },
-        { status: 400 }
-      );
-    }
+  // Normalize optional origin IDs (blank/whitespace -> undefined) and trim the
+  // required destination ID, then validate presence on the normalized values —
+  // so a whitespace-only destinationId is rejected with a clean 400 instead of
+  // silently reaching Prisma as an invalid foreign key.
+  const validation = normalizeAndValidateRoutes(parsed.data.routes);
+  if (!validation.ok) {
+    return NextResponse.json({ success: false, error: validation.error }, { status: 400 });
+  }
+  const { routes } = validation;
+
+  // Verify every referenced entity belongs to the caller's organization before
+  // writing. originSupplierId references a Supplier; originFacilityId and the
+  // required destinationId both reference a Facility. Without this check, a
+  // signed-in user could point a route at another org's supplier/facility by
+  // passing its ID. This mirrors the check already performed in /api/upload.
+  const supplierIds = Array.from(
+    new Set(routes.map((r) => r.originSupplierId).filter((id): id is string => Boolean(id)))
+  );
+  const facilityIds = Array.from(
+    new Set(
+      routes
+        .flatMap((r) => [r.originFacilityId, r.destinationId])
+        .filter((id): id is string => Boolean(id))
+    )
+  );
+
+  const [ownedSuppliers, ownedFacilities] = await Promise.all([
+    supplierIds.length
+      ? prisma.supplier.findMany({
+          where: { id: { in: supplierIds }, organizationId: ctx.organizationId },
+          select: { id: true },
+        })
+      : Promise.resolve([]),
+    facilityIds.length
+      ? prisma.facility.findMany({
+          where: { id: { in: facilityIds }, organizationId: ctx.organizationId },
+          select: { id: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const unauthorized = [
+    ...findUnauthorizedIds(supplierIds, ownedSuppliers.map((s: { id: string }) => s.id)).map((id) => `supplier ${id}`),
+    ...findUnauthorizedIds(facilityIds, ownedFacilities.map((f: { id: string }) => f.id)).map((id) => `facility ${id}`),
+  ];
+  if (unauthorized.length > 0) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: `These referenced entities do not belong to your organization: ${unauthorized.join(', ')}`,
+      },
+      { status: 400 }
+    );
   }
 
   const created = await prisma.$transaction(
-    parsed.data.routes.map((r) =>
+    routes.map((r) =>
       prisma.route.create({
         data: { ...r, organizationId: ctx.organizationId },
       })
