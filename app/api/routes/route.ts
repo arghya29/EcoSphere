@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireOrg, isErrorResponse } from '@/lib/session';
 import { routesPayloadSchema } from '@/lib/validations';
-import { findUnauthorizedIds, normalizeOptionalId } from '@/lib/utils';
+import { findUnauthorizedIds } from '@/lib/utils';
+import { normalizeAndValidateRoutes } from './validate';
 
 export async function GET() {
   const ctx = await requireOrg();
@@ -31,23 +32,14 @@ export async function POST(req: NextRequest) {
   }
 
   // Normalize optional origin IDs (blank/whitespace -> undefined) and trim the
-  // required destination ID, so blank values are handled consistently by the
-  // presence check, the ownership check, and the write.
-  const routes = parsed.data.routes.map((r) => ({
-    ...r,
-    originSupplierId: normalizeOptionalId(r.originSupplierId),
-    originFacilityId: normalizeOptionalId(r.originFacilityId),
-    destinationId: r.destinationId.trim(),
-  }));
-
-  for (const r of routes) {
-    if (!r.originSupplierId && !r.originFacilityId) {
-      return NextResponse.json(
-        { success: false, error: 'Each route needs an originSupplierId or originFacilityId.' },
-        { status: 400 }
-      );
-    }
+  // required destination ID, then validate presence on the normalized values —
+  // so a whitespace-only destinationId is rejected with a clean 400 instead of
+  // silently reaching Prisma as an invalid foreign key.
+  const validation = normalizeAndValidateRoutes(parsed.data.routes);
+  if (!validation.ok) {
+    return NextResponse.json({ success: false, error: validation.error }, { status: 400 });
   }
+  const { routes } = validation;
 
   // Verify every referenced entity belongs to the caller's organization before
   // writing. originSupplierId references a Supplier; originFacilityId and the
