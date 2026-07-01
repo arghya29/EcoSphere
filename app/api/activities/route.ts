@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireOrg, isErrorResponse } from '@/lib/session';
 import { activitiesPayloadSchema } from '@/lib/validations';
 import { calculateActivityEmissions } from '@/lib/emissions';
+import { findUnauthorizedIds, normalizeOptionalId } from '@/lib/utils';
 
 export async function GET() {
   const ctx = await requireOrg();
@@ -44,8 +45,73 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Normalize each activity's optional foreign keys: blank/whitespace IDs
+  // become undefined so they're treated as "no reference" consistently — both
+  // by the ownership check below and by the create payload. Without this a
+  // blank "" would skip the ownership check yet still reach Prisma as an
+  // invalid foreign key.
+  const activities = parsed.data.activities.map((a) => ({
+    ...a,
+    supplierId: normalizeOptionalId(a.supplierId),
+    facilityId: normalizeOptionalId(a.facilityId),
+    routeId: normalizeOptionalId(a.routeId),
+  }));
+
+  // Verify every referenced supplier/facility/route belongs to the caller's
+  // organization before writing. Without this, a signed-in user could attach
+  // activities to another org's entities simply by passing their IDs (the
+  // README guarantees all data is scoped to the signed-in user's organization).
+  // We resolve the owned IDs with one scoped findMany per entity type, then
+  // reject any referenced ID that isn't owned — before opening the write
+  // transaction. This mirrors the check already performed in /api/upload.
+  const supplierIds = Array.from(
+    new Set(activities.map((a) => a.supplierId).filter((id): id is string => Boolean(id)))
+  );
+  const facilityIds = Array.from(
+    new Set(activities.map((a) => a.facilityId).filter((id): id is string => Boolean(id)))
+  );
+  const routeIds = Array.from(
+    new Set(activities.map((a) => a.routeId).filter((id): id is string => Boolean(id)))
+  );
+
+  const [ownedSuppliers, ownedFacilities, ownedRoutes] = await Promise.all([
+    supplierIds.length
+      ? prisma.supplier.findMany({
+          where: { id: { in: supplierIds }, organizationId: ctx.organizationId },
+          select: { id: true },
+        })
+      : Promise.resolve([]),
+    facilityIds.length
+      ? prisma.facility.findMany({
+          where: { id: { in: facilityIds }, organizationId: ctx.organizationId },
+          select: { id: true },
+        })
+      : Promise.resolve([]),
+    routeIds.length
+      ? prisma.route.findMany({
+          where: { id: { in: routeIds }, organizationId: ctx.organizationId },
+          select: { id: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const unauthorized = [
+    ...findUnauthorizedIds(supplierIds, ownedSuppliers.map((s: { id: string }) => s.id)).map((id) => `supplier ${id}`),
+    ...findUnauthorizedIds(facilityIds, ownedFacilities.map((f: { id: string }) => f.id)).map((id) => `facility ${id}`),
+    ...findUnauthorizedIds(routeIds, ownedRoutes.map((r: { id: string }) => r.id)).map((id) => `route ${id}`),
+  ];
+  if (unauthorized.length > 0) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: `These referenced entities do not belong to your organization: ${unauthorized.join(', ')}`,
+      },
+      { status: 400 }
+    );
+  }
+
   const created = await prisma.$transaction(
-    parsed.data.activities.map((a) => {
+    activities.map((a) => {
       const factor = factorByCategory.get(a.factorCategory)!;
       const emissionsKg = calculateActivityEmissions(a.amount, factor.value);
       return prisma.activity.create({

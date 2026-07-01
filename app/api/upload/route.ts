@@ -1,53 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireOrg, isErrorResponse } from '@/lib/session';
-import { z } from 'zod';
 import { calculateActivityEmissions, deriveActivityType } from '@/lib/emissions';
 import { findUnauthorizedIds, normalizeOptionalId } from '@/lib/utils';
-
-// Accepts already-parsed rows (the client parses CSV/XLSX with
-// PapaParse/SheetJS per the spec, then POSTs structured JSON here).
-// `kind` tells us which table the rows belong to.
-const uploadSchema = z.discriminatedUnion('kind', [
-  z.object({
-    kind: z.literal('suppliers'),
-    rows: z.array(
-      z.object({
-        name: z.string().min(1),
-        location: z.string().optional(),
-        category: z.string().optional(),
-        latitude: z.coerce.number().optional(),
-        longitude: z.coerce.number().optional(),
-      })
-    ),
-  }),
-  z.object({
-    kind: z.literal('facilities'),
-    rows: z.array(
-      z.object({
-        name: z.string().min(1),
-        type: z.string().optional(),
-        location: z.string().optional(),
-        latitude: z.coerce.number().optional(),
-        longitude: z.coerce.number().optional(),
-      })
-    ),
-  }),
-  z.object({
-    kind: z.literal('activities'),
-    rows: z.array(
-      z.object({
-        facility_id: z.string().nullish(),
-        route_id: z.string().nullish(),
-        supplier_id: z.string().nullish(),
-        factor_category: z.string().min(1),
-        amount: z.coerce.number().positive(),
-        unit: z.string().min(1),
-        date: z.coerce.date(),
-      })
-    ),
-  }),
-]);
+import { uploadSchema } from './schema';
 
 export async function POST(req: NextRequest) {
   const ctx = await requireOrg();

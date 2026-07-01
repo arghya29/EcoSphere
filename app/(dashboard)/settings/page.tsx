@@ -24,11 +24,11 @@ export default function SettingsPage() {
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="account-name">Name</Label>
-            <Input id="account-name" defaultValue={session?.user?.name ?? ''} disabled />
+            <Input id="account-name" value={session?.user?.name ?? ''} readOnly disabled />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="account-email">Email</Label>
-            <Input id="account-email" defaultValue={session?.user?.email ?? ''} disabled />
+            <Input id="account-email" value={session?.user?.email ?? ''} readOnly disabled />
           </div>
           <p className="text-xs text-muted-foreground sm:col-span-2">
             Editing account details isn&apos;t available in this build yet — it&apos;s a natural next addition once
