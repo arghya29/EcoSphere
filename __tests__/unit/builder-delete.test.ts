@@ -33,6 +33,8 @@ describe('guardNodeDeletion', () => {
   it('uses the entity word in the message (supplier vs facility)', () => {
     const supplier = guardNodeDeletion('supplier', 2);
     const facility = guardNodeDeletion('facility', 2);
+    expect(supplier.blocked).toBe(true);
+    expect(facility.blocked).toBe(true);
     if (supplier.blocked) expect(supplier.error).toContain('This supplier is still used by 2 routes');
     if (facility.blocked) expect(facility.error).toContain('This facility is still used by 2 routes');
   });

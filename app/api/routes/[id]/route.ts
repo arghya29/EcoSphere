@@ -17,16 +17,22 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   }
 
   // Nothing structural references a route; only historical activities point at
-  // it. Detach those (their emissions stay recorded; only the route
-  // attribution is cleared), then delete — atomically. A route therefore has
-  // no dependents that can block its removal.
-  await prisma.$transaction([
+  // it (nullable FK). Detach those (their emissions stay recorded; only the
+  // route attribution is cleared), then delete — both org-scoped, in one atomic
+  // transaction. deleteMany keeps the delete race-safe: if the route was
+  // removed by a concurrent request, count is 0 and we return a stable 404
+  // instead of throwing P2025.
+  const [, deleted] = await prisma.$transaction([
     prisma.activity.updateMany({
       where: { routeId: id, organizationId: ctx.organizationId },
       data: { routeId: null },
     }),
-    prisma.route.delete({ where: { id } }),
+    prisma.route.deleteMany({ where: { id, organizationId: ctx.organizationId } }),
   ]);
+
+  if (deleted.count === 0) {
+    return NextResponse.json({ success: false, error: 'Route not found' }, { status: 404 });
+  }
 
   return NextResponse.json({ success: true, data: { id } });
 }
