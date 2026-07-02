@@ -3,6 +3,7 @@ import { Inter, Lexend, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '@/components/ui/toast';
 import { AuthSessionProvider } from '@/components/shared/session-provider';
+import { SkipToContent } from '@/components/shared/skip-to-content';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend', display: 'swap', weight: ['500', '600', '700'] });
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${lexend.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans">
+        <SkipToContent />
         <AuthSessionProvider>
           <ToastProvider>{children}</ToastProvider>
         </AuthSessionProvider>

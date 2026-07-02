@@ -17,6 +17,7 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const errorRef = React.useRef<HTMLDivElement>(null);
 
   const {
     register,
@@ -61,7 +62,7 @@ export function LoginForm() {
           {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
         {serverError && (
-          <p role="alert" className="text-sm text-destructive">
+          <p role="alert" ref={errorRef} className="text-sm text-destructive" tabIndex={-1}>
             {serverError}
           </p>
         )}
