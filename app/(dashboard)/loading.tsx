@@ -2,9 +2,8 @@ import { SkeletonTitle, SkeletonCard, SkeletonChart } from '@/components/ui/skel
 
 export default function DashboardLoading() {
   return (
-    <div
+    <output
       className="flex flex-col gap-6 p-6"
-      role="status"
       aria-live="polite"
       aria-label="Loading dashboard"
     >
@@ -17,6 +16,6 @@ export default function DashboardLoading() {
       </div>
 
       <SkeletonChart />
-    </div>
+    </output>
   );
 }

@@ -20,7 +20,7 @@ export default function AnalysisPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col gap-6" role="status" aria-live="polite">
+        <output className="flex flex-col gap-6" aria-live="polite" aria-label="Loading emissions analysis">
           <SkeletonTitle />
           <div className="grid gap-4 lg:grid-cols-2">
             <SkeletonChart className="h-80" />
@@ -28,7 +28,7 @@ export default function AnalysisPage() {
             <SkeletonChart className="h-80" />
             <SkeletonChart className="h-80" />
           </div>
-        </div>
+        </output>
       ) : summary ? (
         <>
           <div className="grid gap-4 lg:grid-cols-2">
