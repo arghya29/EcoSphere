@@ -28,6 +28,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -64,8 +65,11 @@ export function DashboardNav({ userName }: { userName: string }) {
       {mobileOpen && (
         <nav id="mobile-nav" aria-label="Primary" className="border-b border-border bg-card md:hidden">
           <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
-          <div className="border-t border-border p-3">
-            <AccountMenu userName={userName} onNavigate={() => setMobileOpen(false)} />
+          <div className="border-t border-border p-3 flex items-center gap-2">
+            <ThemeToggle />
+            <div className="flex-1">
+              <AccountMenu userName={userName} onNavigate={() => setMobileOpen(false)} />
+            </div>
           </div>
         </nav>
       )}
@@ -79,8 +83,11 @@ export function DashboardNav({ userName }: { userName: string }) {
         <nav aria-label="Primary" className="flex-1 py-3">
           <NavLinks pathname={pathname} />
         </nav>
-        <div className="border-t border-border p-3">
-          <AccountMenu userName={userName} />
+        <div className="border-t border-border p-3 flex items-center gap-1">
+          <ThemeToggle />
+          <div className="flex-1">
+            <AccountMenu userName={userName} />
+          </div>
         </div>
       </aside>
     </>
