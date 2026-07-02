@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { Trash2 } from 'lucide-react';
 import { useApi } from '@/hooks/use-api';
 import { SupplyChainGraph } from '@/components/graph/supply-chain-graph';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,17 +9,27 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
-} from '@/components/ui/dialog';
+import { EmptyState } from '@/components/ui/empty-state';
 import { useToast } from '@/components/ui/toast';
+import { EntityForm, ManageList } from '@/components/builder';
 import type { SupplierRecord, FacilityRecord, RouteRecord } from '@/types/api';
+import { Database } from 'lucide-react';
+
+const SUPPLIER_FIELDS = [
+  { key: 'name', label: 'Name', required: true },
+  { key: 'category', label: 'Category' },
+  { key: 'location', label: 'Location' },
+  { key: 'latitude', label: 'Latitude', type: 'number' as const },
+  { key: 'longitude', label: 'Longitude', type: 'number' as const },
+];
+
+const FACILITY_FIELDS = [
+  { key: 'name', label: 'Name', required: true },
+  { key: 'type', label: 'Type', placeholder: 'Manufacturing, Storage\u2026' },
+  { key: 'location', label: 'Location' },
+  { key: 'latitude', label: 'Latitude', type: 'number' as const },
+  { key: 'longitude', label: 'Longitude', type: 'number' as const },
+];
 
 export default function BuilderPage() {
   const { data: suppliers, refetch: refetchSuppliers } = useApi<SupplierRecord[]>('/api/suppliers');
@@ -49,7 +58,13 @@ export default function BuilderPage() {
 
         <TabsContent value="supplier">
           <div className="grid gap-6 lg:grid-cols-2">
-            <AddSupplierForm onCreated={refetchSuppliers} />
+            <EntityForm
+              title="Supplier"
+              apiEndpoint="/api/suppliers"
+              fields={SUPPLIER_FIELDS}
+              payloadKey="suppliers"
+              onCreated={refetchSuppliers}
+            />
             <ManageList
               title="Existing suppliers"
               noun="supplier"
@@ -67,7 +82,13 @@ export default function BuilderPage() {
 
         <TabsContent value="facility">
           <div className="grid gap-6 lg:grid-cols-2">
-            <AddFacilityForm onCreated={refetchFacilities} />
+            <EntityForm
+              title="Facility"
+              apiEndpoint="/api/facilities"
+              fields={FACILITY_FIELDS}
+              payloadKey="facilities"
+              onCreated={refetchFacilities}
+            />
             <ManageList
               title="Existing facilities"
               noun="facility"
@@ -105,217 +126,7 @@ export default function BuilderPage() {
 function describeRoute(route: RouteRecord): string {
   const origin = route.originSupplier?.name ?? route.originFacility?.name ?? 'Unknown origin';
   const destination = route.destination?.name ?? 'Unknown destination';
-  return `${origin} → ${destination} · ${route.mode} · ${route.distanceKm}km`;
-}
-
-function ManageList<T extends { id: string }>({
-  title,
-  noun,
-  emptyText,
-  items,
-  describe,
-  deleteUrl,
-  onDeleted,
-}: {
-  title: string;
-  noun: string;
-  emptyText: string;
-  items: T[];
-  describe: (item: T) => string;
-  deleteUrl: (item: T) => string;
-  onDeleted: () => void;
-}) {
-  const { toast } = useToast();
-  const [pending, setPending] = React.useState<T | null>(null);
-  const [isDeleting, setIsDeleting] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  const closeDialog = () => {
-    if (isDeleting) return;
-    setPending(null);
-    setError(null);
-  };
-
-  const confirmRemove = async () => {
-    if (!pending) return;
-    setIsDeleting(true);
-    setError(null);
-    try {
-      const res = await fetch(deleteUrl(pending), { method: 'DELETE' });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || !json.success) {
-        const message = json.error ?? `Could not remove this ${noun}.`;
-        setError(message);
-        toast({ title: `Could not remove ${noun}`, description: message, variant: 'destructive' });
-        return;
-      }
-      toast({ title: `${noun.charAt(0).toUpperCase()}${noun.slice(1)} removed`, description: describe(pending) });
-      setPending(null);
-      setError(null);
-      onDeleted();
-    } catch {
-      const message = 'Something went wrong. Please try again.';
-      setError(message);
-      toast({ title: `Could not remove ${noun}`, description: message, variant: 'destructive' });
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-foreground">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{emptyText}</p>
-        ) : (
-          <ul className="flex flex-col divide-y divide-border">
-            {items.map((item) => (
-              <li key={item.id} className="flex items-center justify-between gap-3 py-2.5">
-                <span className="min-w-0 truncate text-sm text-foreground">{describe(item)}</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="shrink-0"
-                  aria-label={`Remove ${noun} ${describe(item)}`}
-                  onClick={() => {
-                    setError(null);
-                    setPending(item);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </CardContent>
-
-      <Dialog
-        open={pending !== null}
-        onOpenChange={(open) => {
-          if (!open) closeDialog();
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Remove {noun}?</DialogTitle>
-            <DialogDescription>
-              {pending ? `"${describe(pending)}" will be removed. This can't be undone.` : ''}
-            </DialogDescription>
-          </DialogHeader>
-          {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isDeleting}>
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button type="button" variant="destructive" onClick={confirmRemove} disabled={isDeleting}>
-              {isDeleting ? 'Removing…' : 'Remove'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
-  );
-}
-
-function AddSupplierForm({ onCreated }: { onCreated: () => void }) {
-  const { toast } = useToast();
-  const [form, setForm] = React.useState({ name: '', location: '', category: '', latitude: '', longitude: '' });
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    const res = await fetch('/api/suppliers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ suppliers: [{ ...form, latitude: form.latitude || undefined, longitude: form.longitude || undefined }] }),
-    });
-    const json = await res.json();
-    setIsSubmitting(false);
-    if (!res.ok || !json.success) {
-      toast({ title: 'Could not add supplier', description: json.error, variant: 'destructive' });
-      return;
-    }
-    toast({ title: 'Supplier added', description: form.name });
-    setForm({ name: '', location: '', category: '', latitude: '', longitude: '' });
-    onCreated();
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-foreground">New supplier</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
-          <Field label="Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
-          <Field label="Category" value={form.category} onChange={(v) => setForm({ ...form, category: v })} />
-          <Field label="Location" value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
-          <div className="flex gap-2">
-            <Field label="Latitude" value={form.latitude} onChange={(v) => setForm({ ...form, latitude: v })} type="number" />
-            <Field label="Longitude" value={form.longitude} onChange={(v) => setForm({ ...form, longitude: v })} type="number" />
-          </div>
-          <Button type="submit" disabled={isSubmitting} className="sm:col-span-2 sm:w-fit">
-            {isSubmitting ? 'Adding…' : 'Add supplier'}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-}
-
-function AddFacilityForm({ onCreated }: { onCreated: () => void }) {
-  const { toast } = useToast();
-  const [form, setForm] = React.useState({ name: '', type: '', location: '', latitude: '', longitude: '' });
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    const res = await fetch('/api/facilities', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ facilities: [{ ...form, latitude: form.latitude || undefined, longitude: form.longitude || undefined }] }),
-    });
-    const json = await res.json();
-    setIsSubmitting(false);
-    if (!res.ok || !json.success) {
-      toast({ title: 'Could not add facility', description: json.error, variant: 'destructive' });
-      return;
-    }
-    toast({ title: 'Facility added', description: form.name });
-    setForm({ name: '', type: '', location: '', latitude: '', longitude: '' });
-    onCreated();
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-foreground">New facility</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
-          <Field label="Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
-          <Field label="Type" value={form.type} onChange={(v) => setForm({ ...form, type: v })} placeholder="Manufacturing, Storage…" />
-          <Field label="Location" value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
-          <div className="flex gap-2">
-            <Field label="Latitude" value={form.latitude} onChange={(v) => setForm({ ...form, latitude: v })} type="number" />
-            <Field label="Longitude" value={form.longitude} onChange={(v) => setForm({ ...form, longitude: v })} type="number" />
-          </div>
-          <Button type="submit" disabled={isSubmitting} className="sm:col-span-2 sm:w-fit">
-            {isSubmitting ? 'Adding…' : 'Add facility'}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
+  return `${origin} \u2192 ${destination} \u00B7 ${route.mode} \u00B7 ${route.distanceKm}km`;
 }
 
 function AddRouteForm({
@@ -371,7 +182,13 @@ function AddRouteForm({
   };
 
   if (suppliers.length === 0 && facilities.length === 0) {
-    return <p className="text-sm text-muted-foreground">Add at least one supplier or facility before creating routes.</p>;
+    return (
+      <EmptyState
+        icon={Database}
+        title="No suppliers or facilities yet"
+        description="Add at least one supplier or facility in the tabs above before creating routes."
+      />
+    );
   }
 
   return (
@@ -428,7 +245,7 @@ function AddRouteForm({
           </div>
           <Field label="Distance (km)" value={distanceKm} onChange={setDistanceKm} type="number" />
           <Button type="submit" disabled={isSubmitting} className="sm:col-span-2 sm:w-fit">
-            {isSubmitting ? 'Adding…' : 'Add route'}
+            {isSubmitting ? 'Adding\u2026' : 'Add route'}
           </Button>
         </form>
       </CardContent>
