@@ -14,19 +14,12 @@ export function ProgressBar({
   const pct = Math.min(Math.round((value / max) * 100), 100);
 
   return (
-    <div
-      role="progressbar"
-      aria-valuenow={value}
-      aria-valuemin={0}
-      aria-valuemax={max}
+    <progress
+      value={value}
+      max={max}
       aria-label={label ?? `Progress: ${pct}%`}
-      className={cn('h-2 w-full overflow-hidden rounded-full bg-muted', className)}
-    >
-      <div
-        className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
-        style={{ width: `${pct}%` }}
-      />
-    </div>
+      className={cn('h-2 w-full overflow-hidden rounded-full accent-primary', className)}
+    />
   );
 }
 

@@ -53,10 +53,11 @@ export function validateColumns(kind: UploadSchemaKind, headers: string[]): stri
 
 export function validateRows(kind: UploadSchemaKind, rows: Record<string, string>[]): ValidationError[] {
   const errors: ValidationError[] = [];
+  const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
-    const rowNum = i + 1;
+    const rowNum = i + 2;
 
     if (kind === 'activities') {
       if (!row.factor_category || row.factor_category.trim() === '') {
@@ -68,7 +69,7 @@ export function validateRows(kind: UploadSchemaKind, rows: Record<string, string
       if (!row.unit || row.unit.trim() === '') {
         errors.push({ column: 'unit', message: `Row ${rowNum}: unit is required` });
       }
-      if (!row.date || isNaN(Date.parse(row.date))) {
+      if (!row.date || !isoDatePattern.test(row.date) || isNaN(Date.parse(row.date))) {
         errors.push({ column: 'date', message: `Row ${rowNum}: date must be a valid date (YYYY-MM-DD)` });
       }
     }
