@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import type { ApiResponse } from '@/types/api';
 
 export interface ApiState<T> {
   data: T | null;
@@ -18,6 +19,17 @@ const defaultOptions: Required<UseApiOptions> = {
   retries: 2,
   retryDelay: 1000,
 };
+
+class HttpError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+  }
+}
+
+function shouldRetry(error: unknown): boolean {
+  if (!(error instanceof HttpError)) return true;
+  return error.status === 429 || error.status >= 500;
+}
 
 export function useApi<T>(
   url: string,
@@ -38,26 +50,28 @@ export function useApi<T>(
       setIsLoading(true);
       setError(null);
 
-      while (attempt <= retries && !cancelled) {
-        try {
-          const res = await fetch(url, { signal: abortController.signal });
-          const json = await res.json();
-          if (!res.ok || !json.success) {
-            throw new Error(json.error ?? `Request to ${url} failed`);
-          }
-          if (!cancelled) setData(json.data as T);
-          return;
-        } catch (e) {
-          if (cancelled || (e instanceof DOMException && e.name === 'AbortError')) return;
-          attempt++;
-          if (attempt > retries) {
-            if (!cancelled) setError(e instanceof Error ? e.message : 'Unknown error');
+      try {
+        while (attempt <= retries && !cancelled) {
+          try {
+            const res = await fetch(url, { signal: abortController.signal });
+            const json = (await res.json().catch(() => ({}))) as ApiResponse<T>;
+            if (!res.ok || !json.success) {
+              throw new HttpError(json.error ?? `Request to ${url} failed`, res.status);
+            }
+            if (!cancelled) setData(json.data as T);
             return;
+          } catch (e) {
+            if (cancelled || (e instanceof DOMException && e.name === 'AbortError')) return;
+            attempt++;
+            if (attempt > retries || !shouldRetry(e)) {
+              if (!cancelled) setError(e instanceof Error ? e.message : 'Unknown error');
+              return;
+            }
+            if (!cancelled) await new Promise((r) => setTimeout(r, retryDelay * 2 ** (attempt - 1)));
           }
-          if (!cancelled) await new Promise((r) => setTimeout(r, retryDelay * attempt));
-        } finally {
-          if (!cancelled) setIsLoading(false);
         }
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     };
 

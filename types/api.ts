@@ -61,11 +61,9 @@ export interface ActivityRecord {
   route?: RouteRecord | null;
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  error?: string;
-}
+export type ApiResponse<T> =
+  | { success: true; data: T; error?: never }
+  | { success: false; data?: never; error?: string };
 
 export interface MutationState<T> {
   data: T | null;

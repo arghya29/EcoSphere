@@ -38,7 +38,7 @@ export default function DashboardPage() {
 
       {summaryError ? (
         <Card>
-          <CardContent className="flex items-center gap-3 py-4 text-destructive">
+          <CardContent className="flex items-center gap-3 py-4 text-destructive" role="alert">
             <AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
             <p className="text-sm">{summaryError}</p>
           </CardContent>
