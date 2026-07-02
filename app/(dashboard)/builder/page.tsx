@@ -1,10 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Database } from 'lucide-react';
 import { useApi } from '@/hooks/use-api';
 import { SupplyChainGraph } from '@/components/graph/supply-chain-graph';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -169,7 +170,11 @@ function ManageList<T extends { id: string }>({
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{emptyText}</p>
+          <EmptyState
+            icon={Database}
+            title={emptyText}
+            description=""
+          />
         ) : (
           <ul className="flex flex-col divide-y divide-border">
             {items.map((item) => (
@@ -371,7 +376,13 @@ function AddRouteForm({
   };
 
   if (suppliers.length === 0 && facilities.length === 0) {
-    return <p className="text-sm text-muted-foreground">Add at least one supplier or facility before creating routes.</p>;
+    return (
+      <EmptyState
+        icon={Database}
+        title="No suppliers or facilities yet"
+        description="Add at least one supplier or facility in the tabs above before creating routes."
+      />
+    );
   }
 
   return (
