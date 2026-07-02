@@ -24,6 +24,17 @@ const MODE_COLOR: Record<string, string> = {
   OTHER: '#6b7280',
 };
 
+type WithCoords<T> = T & { latitude: number; longitude: number };
+
+// A coordinate value of 0 is valid (the equator / the prime meridian), so test
+// for a finite number rather than truthiness. A `latitude && longitude` check
+// treats 0 as "missing" and would silently drop those entities from the map.
+function hasCoords<T extends { latitude: number | null; longitude: number | null }>(
+  entity: T,
+): entity is WithCoords<T> {
+  return Number.isFinite(entity.latitude) && Number.isFinite(entity.longitude);
+}
+
 function FitBounds({ points }: { points: [number, number][] }) {
   const map = useMap();
   React.useEffect(() => {
@@ -47,8 +58,8 @@ export function MapView({
   const facilityById = new Map(facilities.map((f) => [f.id, f]));
 
   const allPoints: [number, number][] = [
-    ...suppliers.filter((s) => s.latitude && s.longitude).map((s) => [s.latitude!, s.longitude!] as [number, number]),
-    ...facilities.filter((f) => f.latitude && f.longitude).map((f) => [f.latitude!, f.longitude!] as [number, number]),
+    ...suppliers.filter(hasCoords).map((s) => [s.latitude, s.longitude] as [number, number]),
+    ...facilities.filter(hasCoords).map((f) => [f.latitude, f.longitude] as [number, number]),
   ];
 
   if (allPoints.length === 0) {
@@ -71,9 +82,9 @@ export function MapView({
         <FitBounds points={allPoints} />
 
         {suppliers
-          .filter((s) => s.latitude && s.longitude)
+          .filter(hasCoords)
           .map((s) => (
-            <Marker key={s.id} position={[s.latitude!, s.longitude!]} icon={supplierIcon}>
+            <Marker key={s.id} position={[s.latitude, s.longitude]} icon={supplierIcon}>
               <Popup>
                 <strong>{s.name}</strong>
                 <br />
@@ -89,9 +100,9 @@ export function MapView({
           ))}
 
         {facilities
-          .filter((f) => f.latitude && f.longitude)
+          .filter(hasCoords)
           .map((f) => (
-            <Marker key={f.id} position={[f.latitude!, f.longitude!]} icon={supplierIcon}>
+            <Marker key={f.id} position={[f.latitude, f.longitude]} icon={supplierIcon}>
               <Popup>
                 <strong>{f.name}</strong>
                 <br />
@@ -105,7 +116,7 @@ export function MapView({
         {routes.map((r) => {
           const origin = r.originSupplierId ? supplierById.get(r.originSupplierId) : facilityById.get(r.originFacilityId ?? '');
           const destination = facilityById.get(r.destinationId);
-          if (!origin?.latitude || !origin?.longitude || !destination?.latitude || !destination?.longitude) return null;
+          if (!origin || !destination || !hasCoords(origin) || !hasCoords(destination)) return null;
           return (
             <Polyline
               key={r.id}
