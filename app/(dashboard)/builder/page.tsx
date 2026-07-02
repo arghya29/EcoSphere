@@ -6,12 +6,11 @@ import { SupplyChainGraph } from '@/components/graph/supply-chain-graph';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useToast } from '@/components/ui/toast';
-import { EntityForm, ManageList } from '@/components/builder';
+import { EntityForm, Field, ManageList } from '@/components/builder';
 import type { SupplierRecord, FacilityRecord, RouteRecord } from '@/types/api';
 import { Database } from 'lucide-react';
 
@@ -253,26 +252,3 @@ function AddRouteForm({
   );
 }
 
-function Field({
-  label,
-  value,
-  onChange,
-  type = 'text',
-  required,
-  placeholder,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  required?: boolean;
-  placeholder?: string;
-}) {
-  const id = React.useId();
-  return (
-    <div className="flex flex-1 flex-col gap-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <Input id={id} type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required} placeholder={placeholder} />
-    </div>
-  );
-}

@@ -43,22 +43,35 @@ export function EntityForm({ title, apiEndpoint, fields, payloadKey, onCreated }
       })
     );
 
-    const res = await fetch(apiEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ [payloadKey]: [body] }),
-    });
-    const json = await res.json();
-    setIsSubmitting(false);
+    try {
+      const res = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [payloadKey]: [body] }),
+      });
+      const json = await res.json().catch(() => ({}));
 
-    if (!res.ok || !json.success) {
-      toast({ title: `Could not add ${title.toLowerCase()}`, description: json.error, variant: 'destructive' });
-      return;
+      if (!res.ok || !json.success) {
+        toast({
+          title: `Could not add ${title.toLowerCase()}`,
+          description: json.error ?? 'Something went wrong. Please try again.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      toast({ title: `${title} added`, description: form.name || form[fields[0]?.key] });
+      setForm(initialForm);
+      onCreated();
+    } catch {
+      toast({
+        title: `Could not add ${title.toLowerCase()}`,
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    toast({ title: `${title} added`, description: form.name || form[fields[0]?.key] });
-    setForm(initialForm);
-    onCreated();
   };
 
   const setValue = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
@@ -91,7 +104,7 @@ export function EntityForm({ title, apiEndpoint, fields, payloadKey, onCreated }
   );
 }
 
-function Field({
+export function Field({
   label,
   value,
   onChange,
