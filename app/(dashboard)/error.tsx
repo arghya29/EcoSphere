@@ -15,14 +15,10 @@ export default function DashboardError({
         title="Dashboard error"
         description="Something went wrong while loading this page. This may be a temporary issue with your connection or session."
         error={error}
+        digest={error.digest}
         onRetry={reset}
         showHomeLink={false}
       />
-      <div className="text-center">
-        <p className="text-xs text-muted-foreground">
-          Reference: {error.digest ?? 'N/A'}
-        </p>
-      </div>
     </div>
   );
 }

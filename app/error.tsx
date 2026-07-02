@@ -15,14 +15,10 @@ export default function GlobalError({
         title="Something went wrong"
         description="An unexpected error occurred. You can try again or go back to the home page."
         error={error}
+        digest={error.digest}
         onRetry={reset}
         showHomeLink={true}
       />
-      {error.digest && (
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          Error reference: {error.digest}
-        </p>
-      )}
     </div>
   );
 }

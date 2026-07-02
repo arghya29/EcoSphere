@@ -6,12 +6,14 @@ export function ErrorDisplay({
   title = 'Something went wrong',
   description = 'An unexpected error occurred.',
   error,
+  digest,
   onRetry,
   showHomeLink = true,
 }: {
   title?: string;
   description?: string;
   error?: Error | null;
+  digest?: string;
   onRetry?: () => void;
   showHomeLink?: boolean;
 }) {
@@ -23,6 +25,11 @@ export function ErrorDisplay({
         </div>
         <h1 className="font-display text-2xl font-semibold">{title}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        {digest && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Error reference: {digest}
+          </p>
+        )}
         {error && process.env.NODE_ENV === 'development' && (
           <pre className="mt-4 overflow-x-auto rounded-md bg-muted p-4 text-left font-mono-data text-xs text-muted-foreground">
             {error.message}
