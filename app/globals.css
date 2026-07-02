@@ -53,6 +53,7 @@
     --scope1: 222 47% 30%;  /* ink blue — direct/owned */
     --scope2: 36 70% 45%;   /* amber-bronze — purchased energy */
     --scope3: 4 55% 48%;    /* brick red — indirect/supply chain */
+    --mobile-nav-height: 57px;
   }
 
   .dark {
@@ -117,7 +118,22 @@
     border-radius: 3px;
   }
   .container-padding {
-    @apply px-3 sm:px-4 md:px-6;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-padding {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .container-padding {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
   }
 }
 

@@ -51,6 +51,7 @@ export function DashboardNav({ userName }: { userName: string }) {
           <span className="text-sm">EcoSphere</span>
         </Link>
         <button
+          type="button"
           onClick={() => setMobileOpen((v) => !v)}
           aria-expanded={mobileOpen}
           aria-controls="mobile-nav"
@@ -62,7 +63,7 @@ export function DashboardNav({ userName }: { userName: string }) {
       </div>
 
       {mobileOpen && (
-        <nav id="mobile-nav" aria-label="Primary" className="fixed inset-0 top-[57px] z-30 overflow-y-auto border-b border-border bg-card md:hidden">
+        <nav id="mobile-nav" aria-label="Primary" className="fixed inset-x-0 bottom-0 top-[var(--mobile-nav-height)] z-30 overflow-y-auto border-b border-border bg-card md:hidden">
           <div className="flex flex-col min-h-full">
             <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
             <div className="mt-auto border-t border-border p-3">
