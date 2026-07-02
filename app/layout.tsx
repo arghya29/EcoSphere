@@ -4,6 +4,7 @@ import './globals.css';
 import { ToastProvider } from '@/components/ui/toast';
 import { AuthSessionProvider } from '@/components/shared/session-provider';
 import { ThemeProvider } from '@/components/shared/theme-provider';
+import { THEME_INIT_SCRIPT } from '@/components/shared/theme-script';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend', display: 'swap', weight: ['500', '600', '700'] });
@@ -21,15 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                var theme = localStorage.getItem('ecosphere-theme');
-                if (!theme) {
-                  theme = window.matchMedia('(prefers-color-scheme:light)').matches ? 'light' : 'dark';
-                }
-                document.documentElement.classList.toggle('dark', theme === 'dark');
-              })();
-            `,
+            __html: THEME_INIT_SCRIPT,
           }}
         />
       </head>
