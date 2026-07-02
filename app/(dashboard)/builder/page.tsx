@@ -173,7 +173,7 @@ function ManageList<T extends { id: string }>({
           <EmptyState
             icon={Database}
             title={emptyText}
-            description=""
+            description={`Add a ${noun} to make it available in your supply-chain builder.`}
           />
         ) : (
           <ul className="flex flex-col divide-y divide-border">

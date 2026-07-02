@@ -21,11 +21,11 @@ export default function InsightsPage() {
       </div>
 
       {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2" role="status" aria-live="polite">
+        <output className="grid gap-4 sm:grid-cols-2" aria-live="polite" aria-label="Loading insights">
           {Array.from({ length: 2 }).map((_, i) => (
             <SkeletonCard key={i} className="h-32" />
           ))}
-        </div>
+        </output>
       ) : insights.length === 0 ? (
         <EmptyState
           icon={Lightbulb}
