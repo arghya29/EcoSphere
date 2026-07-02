@@ -89,7 +89,7 @@ The Leaflet map uses OpenStreetMap tiles, which require internet access. If you'
    - `NEXTAUTH_SECRET`: Generate a new secret
    - `NEXTAUTH_URL`: Set to your Vercel deployment URL (e.g., `https://your-app.vercel.app`)
 4. Deploy
-5. After the first deploy, run `npm run db:push` and `npm run db:seed` locally against your production `DATABASE_URL`
+5. Apply schema changes to production through your migration workflow before or during deployment. Do not run `db:push` or `db:seed` against production; reserve seeding for local development or staging data.
 
 ## Testing
 
