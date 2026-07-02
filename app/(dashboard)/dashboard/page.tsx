@@ -21,15 +21,16 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Your organization&apos;s carbon footprint at a glance.</p>
+      <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
+        <div className="min-w-0">
+          <h1 className="font-display text-xl sm:text-2xl font-semibold">Dashboard</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">Your organization&apos;s carbon footprint at a glance.</p>
         </div>
-        <Button asChild>
+        <Button asChild size="sm" className="shrink-0">
           <Link href="/upload">
             <Upload className="h-4 w-4" aria-hidden="true" />
-            Upload data
+            <span className="hidden sm:inline">Upload data</span>
+            <span className="sm:hidden">Upload</span>
           </Link>
         </Button>
       </div>

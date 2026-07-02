@@ -45,27 +45,29 @@ export function DashboardNav({ userName }: { userName: string }) {
   return (
     <>
       {/* Mobile top bar */}
-      <div className="flex items-center justify-between border-b border-border p-4 md:hidden">
+      <div className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm p-3 md:hidden">
         <Link href="/dashboard" className="flex items-center gap-2 font-display text-base font-semibold">
           <Ship className="h-5 w-5" aria-hidden="true" />
-          EcoSphere
+          <span className="text-sm">EcoSphere</span>
         </Link>
         <button
           onClick={() => setMobileOpen((v) => !v)}
           aria-expanded={mobileOpen}
           aria-controls="mobile-nav"
           aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          className="rounded-md p-2 hover:bg-muted"
+          className="rounded-md p-2 hover:bg-muted focus-ring"
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {mobileOpen && (
-        <nav id="mobile-nav" aria-label="Primary" className="border-b border-border bg-card md:hidden">
-          <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
-          <div className="border-t border-border p-3">
-            <AccountMenu userName={userName} onNavigate={() => setMobileOpen(false)} />
+        <nav id="mobile-nav" aria-label="Primary" className="fixed inset-0 top-[57px] z-30 overflow-y-auto border-b border-border bg-card md:hidden">
+          <div className="flex flex-col min-h-full">
+            <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+            <div className="mt-auto border-t border-border p-3">
+              <AccountMenu userName={userName} onNavigate={() => setMobileOpen(false)} />
+            </div>
           </div>
         </nav>
       )}
