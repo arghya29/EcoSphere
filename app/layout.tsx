@@ -21,7 +21,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans">
         <SkipToContent />
         <AuthSessionProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <main id="main-content" tabIndex={-1}>
+              {children}
+            </main>
+          </ToastProvider>
         </AuthSessionProvider>
       </body>
     </html>

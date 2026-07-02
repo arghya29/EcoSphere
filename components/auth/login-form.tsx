@@ -25,6 +25,12 @@ export function LoginForm() {
     formState: { errors },
   } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
 
+  React.useEffect(() => {
+    if (serverError) {
+      errorRef.current?.focus();
+    }
+  }, [serverError]);
+
   const onSubmit = async (data: LoginInput) => {
     setServerError(null);
     setIsSubmitting(true);
