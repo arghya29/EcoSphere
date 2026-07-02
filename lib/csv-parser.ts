@@ -4,6 +4,13 @@ import * as XLSX from 'xlsx';
 export interface ParsedFile {
   headers: string[];
   rows: Record<string, string>[];
+  fileName: string;
+  rowCount: number;
+}
+
+export interface ValidationError {
+  column: string;
+  message: string;
 }
 
 export async function parseFile(file: File): Promise<ParsedFile> {
@@ -15,7 +22,7 @@ export async function parseFile(file: File): Promise<ParsedFile> {
     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json<Record<string, string>>(firstSheet, { raw: false, defval: '' });
     const headers = rows.length > 0 ? Object.keys(rows[0]) : [];
-    return { headers, rows };
+    return { headers, rows, fileName: file.name, rowCount: rows.length };
   }
 
   return new Promise((resolve, reject) => {
@@ -24,7 +31,7 @@ export async function parseFile(file: File): Promise<ParsedFile> {
       skipEmptyLines: true,
       complete: (result) => {
         const headers = result.meta.fields ?? [];
-        resolve({ headers, rows: result.data });
+        resolve({ headers, rows: result.data, fileName: file.name, rowCount: result.data.length });
       },
       error: (err) => reject(err),
     });
@@ -42,4 +49,36 @@ export const REQUIRED_COLUMNS: Record<UploadSchemaKind, string[]> = {
 export function validateColumns(kind: UploadSchemaKind, headers: string[]): string[] {
   const missing = REQUIRED_COLUMNS[kind].filter((col) => !headers.includes(col));
   return missing;
+}
+
+export function validateRows(kind: UploadSchemaKind, rows: Record<string, string>[]): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const rowNum = i + 1;
+
+    if (kind === 'activities') {
+      if (!row.factor_category || row.factor_category.trim() === '') {
+        errors.push({ column: 'factor_category', message: `Row ${rowNum}: factor_category is required` });
+      }
+      if (!row.amount || isNaN(Number(row.amount)) || Number(row.amount) <= 0) {
+        errors.push({ column: 'amount', message: `Row ${rowNum}: amount must be a positive number` });
+      }
+      if (!row.unit || row.unit.trim() === '') {
+        errors.push({ column: 'unit', message: `Row ${rowNum}: unit is required` });
+      }
+      if (!row.date || isNaN(Date.parse(row.date))) {
+        errors.push({ column: 'date', message: `Row ${rowNum}: date must be a valid date (YYYY-MM-DD)` });
+      }
+    }
+
+    if (kind === 'suppliers' || kind === 'facilities') {
+      if (!row.name || row.name.trim() === '') {
+        errors.push({ column: 'name', message: `Row ${rowNum}: name is required` });
+      }
+    }
+  }
+
+  return errors;
 }
