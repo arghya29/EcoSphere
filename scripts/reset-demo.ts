@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { DEMO_USER_EMAIL, DEMO_ORG_NAME } from './demo-constants';
 
 const prisma = new PrismaClient();
 
@@ -6,24 +7,24 @@ async function main() {
   console.log('Resetting demo seed dataset…');
 
   const org = await prisma.organization.findFirst({
-    where: { name: 'Seed Demo Organization' },
+    where: { name: DEMO_ORG_NAME },
   });
 
   if (org) {
-    console.log(`Deleting organization "${org.name}" (${org.id})…`);
+    console.log(`Deleting demo seed organization (${org.id})…`);
     await prisma.organization.delete({
       where: { id: org.id },
     });
   } else {
-    console.log('Seed Demo Organization not found.');
+    console.log('Seed demo organization not found.');
   }
 
   const user = await prisma.user.findUnique({
-    where: { email: 'demo-seed-user@ecosphere.dev' },
+    where: { email: DEMO_USER_EMAIL },
   });
 
   if (user) {
-    console.log(`Deleting user "${user.email}" (${user.id})…`);
+    console.log(`Deleting demo seed user (${user.id})…`);
     await prisma.user.delete({
       where: { id: user.id },
     });
