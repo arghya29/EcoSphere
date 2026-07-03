@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import type { DashboardSummary, SupplierRecord, FacilityRecord, RouteRecord } from '@/types/api';
+import { SkeletonCard } from '@/components/ui/skeleton';
 import { Upload } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -75,7 +76,7 @@ function SkeletonStats() {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4" aria-hidden="true">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="h-24 animate-pulse rounded-lg border border-border bg-muted" />
+        <SkeletonCard key={i} />
       ))}
     </div>
   );
