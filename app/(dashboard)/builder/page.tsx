@@ -148,7 +148,7 @@ function AddRouteForm({
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!originId || !destinationId || !distanceKm) {
-      toast({ title: 'Fill in all fields', variant: 'destructive' });
+      toast.error('Fill in all fields');
       return;
     }
     setIsSubmitting(true);
@@ -170,10 +170,10 @@ function AddRouteForm({
     const json = await res.json();
     setIsSubmitting(false);
     if (!res.ok || !json.success) {
-      toast({ title: 'Could not add route', description: json.error, variant: 'destructive' });
+      toast.error('Could not add route', json.error);
       return;
     }
-    toast({ title: 'Route added' });
+    toast.success('Route added');
     setOriginId('');
     setDestinationId('');
     setDistanceKm('');

@@ -52,23 +52,21 @@ export function EntityForm({ title, apiEndpoint, fields, payloadKey, onCreated }
       const json = await res.json().catch(() => ({}));
 
       if (!res.ok || !json.success) {
-        toast({
-          title: `Could not add ${title.toLowerCase()}`,
-          description: json.error ?? 'Something went wrong. Please try again.',
-          variant: 'destructive',
-        });
+        toast.error(
+          `Could not add ${title.toLowerCase()}`,
+          json.error ?? 'Something went wrong. Please try again.'
+        );
         return;
       }
 
-      toast({ title: `${title} added`, description: form.name || form[fields[0]?.key] });
+      toast.success(`${title} added`, form.name || form[fields[0]?.key]);
       setForm(initialForm);
       onCreated();
     } catch {
-      toast({
-        title: `Could not add ${title.toLowerCase()}`,
-        description: 'Something went wrong. Please try again.',
-        variant: 'destructive',
-      });
+      toast.error(
+        `Could not add ${title.toLowerCase()}`,
+        'Something went wrong. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
