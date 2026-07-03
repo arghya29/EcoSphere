@@ -28,6 +28,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -45,27 +46,38 @@ export function DashboardNav({ userName }: { userName: string }) {
   return (
     <>
       {/* Mobile top bar */}
-      <div className="flex items-center justify-between border-b border-border p-4 md:hidden">
+      <div className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm p-3 md:hidden">
         <Link href="/dashboard" className="flex items-center gap-2 font-display text-base font-semibold">
           <Ship className="h-5 w-5" aria-hidden="true" />
-          EcoSphere
+          <span className="text-sm">EcoSphere</span>
         </Link>
         <button
+          type="button"
           onClick={() => setMobileOpen((v) => !v)}
           aria-expanded={mobileOpen}
           aria-controls="mobile-nav"
           aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          className="rounded-md p-2 hover:bg-muted"
+          className="rounded-md p-2 hover:bg-muted focus-ring"
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {mobileOpen && (
-        <nav id="mobile-nav" aria-label="Primary" className="border-b border-border bg-card md:hidden">
-          <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
-          <div className="border-t border-border p-3">
-            <AccountMenu userName={userName} onNavigate={() => setMobileOpen(false)} />
+        <nav id="mobile-nav" aria-label="Primary" className="fixed inset-x-0 bottom-0 top-[var(--mobile-nav-height)] z-30 overflow-y-auto border-b border-border bg-card md:hidden">
+          <div className="flex flex-col min-h-full">
+            <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+            <div className="mt-auto border-t border-border p-3">
+              <div className="flex items-center gap-1">
+                <ThemeToggle />
+                <div className="flex-1">
+                  <AccountMenu
+                    userName={userName}
+                    onNavigate={() => setMobileOpen(false)}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </nav>
       )}
@@ -79,8 +91,11 @@ export function DashboardNav({ userName }: { userName: string }) {
         <nav aria-label="Primary" className="flex-1 py-3">
           <NavLinks pathname={pathname} />
         </nav>
-        <div className="border-t border-border p-3">
-          <AccountMenu userName={userName} />
+        <div className="border-t border-border p-3 flex items-center gap-1">
+          <ThemeToggle />
+          <div className="flex-1">
+            <AccountMenu userName={userName} />
+          </div>
         </div>
       </aside>
     </>
@@ -89,18 +104,18 @@ export function DashboardNav({ userName }: { userName: string }) {
 
 function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
-    <ul className="flex flex-col gap-0.5 px-2">
+    <ul className="flex flex-col gap-0.5 px-2" role="list">
       {NAV_ITEMS.map((item) => {
         const isActive = pathname === item.href;
         const Icon = item.icon;
         return (
-          <li key={item.href}>
+          <li key={item.href} role="listitem">
             <Link
               href={item.href}
               onClick={onNavigate}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-ring',
                 isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >

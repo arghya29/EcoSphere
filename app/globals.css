@@ -53,6 +53,7 @@
     --scope1: 222 47% 30%;  /* ink blue — direct/owned */
     --scope2: 36 70% 45%;   /* amber-bronze — purchased energy */
     --scope3: 4 55% 48%;    /* brick red — indirect/supply chain */
+    --mobile-nav-height: 57px;
   }
 
   .dark {
@@ -85,12 +86,27 @@
   * {
     @apply border-border;
   }
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
   body {
     @apply bg-background text-foreground antialiased;
   }
   .font-mono-data {
     font-family: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
     font-feature-settings: 'tnum' 1;
+  }
+}
+
+@layer components {
+  .focus-ring {
+    outline: none;
+  }
+
+  .focus-ring:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 }
 
@@ -101,6 +117,47 @@
   .manifest-rule {
     @apply border-t border-dashed border-border;
   }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  .container-padding {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-padding {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .container-padding {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+}
+
+/* Smooth theme transitions — opt in via the class below */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, fill 0.3s ease, stroke 0.3s ease !important;
 }
 
 /* Respect reduced-motion preference globally */

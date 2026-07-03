@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import type { DashboardSummary, SupplierRecord, FacilityRecord, RouteRecord } from '@/types/api';
+import { SkeletonCard } from '@/components/ui/skeleton';
 import { Upload } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -21,15 +22,16 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Your organization&apos;s carbon footprint at a glance.</p>
+      <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
+        <div className="min-w-0">
+          <h1 className="font-display text-xl sm:text-2xl font-semibold">Dashboard</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">Your organization&apos;s carbon footprint at a glance.</p>
         </div>
-        <Button asChild>
+        <Button asChild size="sm" className="shrink-0">
           <Link href="/upload">
             <Upload className="h-4 w-4" aria-hidden="true" />
-            Upload data
+            <span className="hidden sm:inline">Upload data</span>
+            <span className="sm:hidden">Upload</span>
           </Link>
         </Button>
       </div>
@@ -75,7 +77,7 @@ function SkeletonStats() {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4" aria-hidden="true">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="h-24 animate-pulse rounded-lg border border-border bg-muted" />
+        <SkeletonCard key={i} />
       ))}
     </div>
   );
