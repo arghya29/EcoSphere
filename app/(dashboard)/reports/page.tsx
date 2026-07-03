@@ -5,8 +5,9 @@ import { useApi } from '@/hooks/use-api';
 import { useToast } from '@/components/ui/toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { downloadJsonReport, downloadCsvReport, downloadPdfReport } from '@/lib/reports';
-import { FileText, FileSpreadsheet, FileJson } from 'lucide-react';
+import { FileText, FileSpreadsheet, FileJson, FileDown } from 'lucide-react';
 import type { DashboardSummary, InsightRecord } from '@/types/api';
 
 interface ReportRecord {
@@ -89,7 +90,11 @@ export default function ReportsPage() {
         </CardHeader>
         <CardContent>
           {!history || history.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No reports generated yet.</p>
+            <EmptyState
+              icon={FileDown}
+              title="No reports generated yet"
+              description="Export your first report above — it will appear here in the history."
+            />
           ) : (
             <ul className="flex flex-col gap-2">
               {history.map((r) => (
