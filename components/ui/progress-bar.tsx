@@ -11,7 +11,7 @@ export function ProgressBar({
   className?: string;
   label?: string;
 }) {
-  const pct = Math.min(Math.round((value / max) * 100), 100);
+  const pct = Math.min(Math.max(Math.round((value / max) * 100), 0), 100);
 
   return (
     <progress
