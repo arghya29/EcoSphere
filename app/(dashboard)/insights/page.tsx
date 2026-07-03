@@ -2,7 +2,9 @@
 
 import { useApi } from '@/hooks/use-api';
 import { InsightCard } from '@/components/dashboard/insight-card';
-import { Card, CardContent } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SkeletonCard } from '@/components/ui/skeleton';
+import { Lightbulb } from 'lucide-react';
 import type { InsightRecord } from '@/types/api';
 
 export default function InsightsPage() {
@@ -19,14 +21,19 @@ export default function InsightsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <output className="grid gap-4 sm:grid-cols-2" aria-live="polite" aria-label="Loading insights">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <SkeletonCard key={i} className="h-32" />
+          ))}
+        </output>
       ) : insights.length === 0 ? (
-        <Card>
-          <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            No insights yet — they appear once you have enough activity data for a clear pattern to emerge (e.g.
-            one supplier dominating your footprint, or a high-carbon transport mode).
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Lightbulb}
+          title="No insights yet"
+          description="Insights appear once you have enough activity data for a clear pattern to emerge — for example, one supplier dominating your footprint, or a high-carbon transport mode."
+          actionLabel="Upload data"
+          actionHref="/upload"
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {insights.map((insight) => (

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Trash2, Database } from 'lucide-react';
 import { useApi } from '@/hooks/use-api';
 import { SupplyChainGraph } from '@/components/graph/supply-chain-graph';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +13,6 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { useToast } from '@/components/ui/toast';
 import { EntityForm, Field, ManageList } from '@/components/builder';
 import type { SupplierRecord, FacilityRecord, RouteRecord } from '@/types/api';
-import { Database } from 'lucide-react';
 
 const SUPPLIER_FIELDS = [
   { key: 'name', label: 'Name', required: true },
@@ -125,7 +125,7 @@ export default function BuilderPage() {
 function describeRoute(route: RouteRecord): string {
   const origin = route.originSupplier?.name ?? route.originFacility?.name ?? 'Unknown origin';
   const destination = route.destination?.name ?? 'Unknown destination';
-  return `${origin} \u2192 ${destination} \u00B7 ${route.mode} \u00B7 ${route.distanceKm}km`;
+  return `${origin} → ${destination} · ${route.mode} · ${route.distanceKm}km`;
 }
 
 function AddRouteForm({
