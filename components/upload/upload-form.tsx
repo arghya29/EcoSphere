@@ -1,11 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { parseFile, validateColumns, type ParsedFile, type UploadSchemaKind } from '@/lib/csv-parser';
+import { parseFile, validateColumns, validateRows, type ParsedFile, type UploadSchemaKind } from '@/lib/csv-parser';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { ProgressSteps } from '@/components/ui/progress-bar';
 import { useToast } from '@/components/ui/toast';
-import { UploadCloud, FileSpreadsheet, AlertTriangle, Loader2 } from 'lucide-react';
+import { UploadCloud, FileSpreadsheet, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const SCHEMA_LABELS: Record<UploadSchemaKind, { title: string; description: string; example: string }> = {
@@ -26,12 +27,16 @@ const SCHEMA_LABELS: Record<UploadSchemaKind, { title: string; description: stri
   },
 };
 
+const UPLOAD_STEPS = ['Select file', 'Review & validate', 'Confirm import'];
+
 export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUploaded?: () => void }) {
   const { toast } = useToast();
   const [parsed, setParsed] = React.useState<ParsedFile | null>(null);
   const [missingColumns, setMissingColumns] = React.useState<string[]>([]);
+  const [rowErrors, setRowErrors] = React.useState<{ column: string; message: string }[]>([]);
   const [isDragging, setIsDragging] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [step, setStep] = React.useState(0);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const label = SCHEMA_LABELS[kind];
 
@@ -39,7 +44,11 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
     try {
       const result = await parseFile(file);
       setParsed(result);
-      setMissingColumns(validateColumns(kind, result.headers));
+      const missing = validateColumns(kind, result.headers);
+      setMissingColumns(missing);
+      const errors = missing.length === 0 ? validateRows(kind, result.rows) : [];
+      setRowErrors(errors);
+      setStep(missing.length === 0 && errors.length === 0 ? 1 : 0);
     } catch (err) {
       toast({ title: 'Could not read file', description: 'Check that it is a valid CSV or Excel file.', variant: 'destructive' });
     }
@@ -55,6 +64,7 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
   const onConfirm = async () => {
     if (!parsed) return;
     setIsSubmitting(true);
+    setStep(2);
     try {
       const rows = parsed.rows.map((row) => {
         if (kind === 'activities') {
@@ -91,6 +101,7 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
 
       toast({ title: 'Upload complete', description: `${json.data.length} ${label.title.toLowerCase()} imported.` });
       setParsed(null);
+      setStep(0);
       onUploaded?.();
     } catch (err) {
       toast({
@@ -98,6 +109,7 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
         description: err instanceof Error ? err.message : 'Please check your file and try again.',
         variant: 'destructive',
       });
+      setStep(1);
     } finally {
       setIsSubmitting(false);
     }
@@ -106,55 +118,89 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-foreground">{label.title}</CardTitle>
-        <CardDescription>
-          Expected columns: <span className="font-mono-data">{label.description}</span>
-        </CardDescription>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <CardTitle className="text-foreground">{label.title}</CardTitle>
+            <CardDescription>
+              Expected columns: <span className="font-mono-data">{label.description}</span>
+            </CardDescription>
+          </div>
+        </div>
+        {parsed && <ProgressSteps steps={UPLOAD_STEPS} currentStep={step} className="mt-3" />}
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={onDrop}
-          className={cn(
-            'flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed p-8 text-center transition-colors',
-            isDragging ? 'border-primary bg-muted' : 'border-border'
-          )}
-        >
-          <UploadCloud className="h-7 w-7 text-muted-foreground" aria-hidden="true" />
-          <p className="text-sm text-muted-foreground">Drag and drop a CSV or Excel file here, or</p>
-          <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()}>
-            Choose file
-          </Button>
-          <input
-            ref={inputRef}
-            type="file"
-            accept=".csv,.xlsx,.xls"
-            className="hidden"
-            aria-label={`Upload ${label.title} file`}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleFile(file);
+        {step === 0 && (
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
             }}
-          />
-        </div>
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={onDrop}
+            className={cn(
+              'flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed p-8 text-center transition-colors',
+              isDragging ? 'border-primary bg-muted' : 'border-border'
+            )}
+          >
+            <UploadCloud className="h-7 w-7 text-muted-foreground" aria-hidden="true" />
+            <p className="text-sm text-muted-foreground">Drag and drop a CSV or Excel file here, or</p>
+            <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()}>
+              Choose file
+            </Button>
+            <input
+              ref={inputRef}
+              type="file"
+              accept=".csv,.xlsx,.xls"
+              className="hidden"
+              aria-label={`Upload ${label.title} file`}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFile(file);
+              }}
+            />
+          </div>
+        )}
 
-        {parsed && (
+        {parsed && step >= 1 && (
           <div className="flex flex-col gap-3">
             {missingColumns.length > 0 && (
               <div role="alert" className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                <span>Missing required column(s): {missingColumns.join(', ')}. Add them and re-upload.</span>
+                <div>
+                  <p className="font-medium">Missing required columns</p>
+                  <p>{missingColumns.join(', ')}. Add them and re-upload.</p>
+                </div>
               </div>
             )}
+
+            {rowErrors.length > 0 && (
+              <div role="alert" className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-sm text-amber-600">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <div>
+                  <p className="font-medium">Data validation issues</p>
+                  <ul className="mt-1 list-inside list-disc">
+                    {rowErrors.slice(0, 5).map((err, i) => (
+                      <li key={i}>{err.message}</li>
+                    ))}
+                    {rowErrors.length > 5 && <li>...and {rowErrors.length - 5} more issue(s)</li>}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {missingColumns.length === 0 && rowErrors.length === 0 && (
+              <div className="flex items-start gap-2 rounded-md border border-green-500/40 bg-green-500/5 p-3 text-sm text-green-600">
+                <CheckCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>All validations passed.</span>
+              </div>
+            )}
+
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
-              {parsed.rows.length} rows detected. Preview of the first 5:
+              {parsed.fileName} &mdash; {parsed.rowCount} rows detected. Preview of the first 5:
             </div>
-            <div className="overflow-x-auto rounded-md border border-border">
+
+            <div className="overflow-x-auto rounded-md border border-border scrollbar-thin">
               <table className="w-full text-left text-xs">
                 <thead className="bg-muted">
                   <tr>
@@ -178,15 +224,20 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
                 </tbody>
               </table>
             </div>
+
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={() => setParsed(null)}>
+              <Button type="button" variant="ghost" onClick={() => { setParsed(null); setStep(0); }}>
                 Cancel
               </Button>
-              <Button type="button" onClick={onConfirm} disabled={missingColumns.length > 0 || isSubmitting}>
+              <Button
+                type="button"
+                onClick={onConfirm}
+                disabled={missingColumns.length > 0 || rowErrors.length > 0 || isSubmitting}
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                    Importing…
+                    Importing&hellip;
                   </>
                 ) : (
                   'Confirm & process'

@@ -3,7 +3,8 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { UploadForm } from '@/components/upload/upload-form';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Download, Info } from 'lucide-react';
 
 export default function UploadPage() {
   return (
@@ -14,6 +15,20 @@ export default function UploadPage() {
           Import your suppliers, facilities, and activity data. We&apos;ll show a preview before anything is saved.
         </p>
       </div>
+
+      <Card className="bg-muted/50">
+        <CardContent className="flex items-start gap-3 py-4 text-sm">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <div className="text-muted-foreground">
+            <p className="font-medium text-foreground">Before you start</p>
+            <ul className="mt-1 list-inside list-disc space-y-1">
+              <li>Download a template for the correct column format</li>
+              <li>Use the Supply-Chain Builder to find entity IDs for linking</li>
+              <li>Latitude and longitude are optional but improve map accuracy</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="suppliers">
         <TabsList>

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { ChartPie } from '@/components/charts/chart-pie';
 import { ChartBar } from '@/components/charts/chart-bar';
 import { ChartLine } from '@/components/charts/chart-line';
+import { SkeletonChart, SkeletonTitle } from '@/components/ui/skeleton';
 import { formatKg } from '@/lib/utils';
 import type { DashboardSummary } from '@/types/api';
 
@@ -19,7 +20,15 @@ export default function AnalysisPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <output className="flex flex-col gap-6" aria-live="polite" aria-label="Loading emissions analysis">
+          <SkeletonTitle />
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SkeletonChart className="h-80" />
+            <SkeletonChart className="h-80" />
+            <SkeletonChart className="h-80" />
+            <SkeletonChart className="h-80" />
+          </div>
+        </output>
       ) : summary ? (
         <>
           <div className="grid gap-4 lg:grid-cols-2">
