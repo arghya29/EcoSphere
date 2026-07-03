@@ -60,3 +60,14 @@ export interface ActivityRecord {
   facility?: FacilityRecord | null;
   route?: RouteRecord | null;
 }
+
+export type ApiResponse<T> =
+  | { success: true; data: T; error?: never }
+  | { success: false; data?: never; error?: string };
+
+export interface MutationState<T> {
+  data: T | null;
+  isLoading: boolean;
+  error: string | null;
+  isSuccess: boolean;
+}
