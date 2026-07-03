@@ -26,6 +26,13 @@ const FACTORS = [
 async function main() {
   console.log('Ensuring emission factors are seeded…');
   for (const f of FACTORS) {
+async function main() {
+  if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_DEMO_SEED) {
+    throw new Error('Refusing to run seed-demo.ts against a production environment without ALLOW_DEMO_SEED=true');
+  }
+
+  console.log('Ensuring emission factors are seeded…');
+  for (const f of FACTORS) {
     await prisma.emissionFactor.upsert({
       where: { category: f.category },
       update: f,
@@ -38,12 +45,9 @@ async function main() {
 
   // Idempotency: Clean reset of existing demo seed user and organization if they exist
   console.log('Checking for existing demo seed dataset to clean up…');
-  const existingUserForCleanup = await prisma.user.findUnique({ where: { email: demoEmail } });
-  const existingOrg = existingUserForCleanup
-    ? await prisma.organization.findFirst({
-        where: { name: orgName, ownerId: existingUserForCleanup.id },
-      })
-    : null;
+  const existingOrg = await prisma.organization.findFirst({
+    where: { name: orgName },
+  });
   if (existingOrg) {
     console.log(`Deleting existing organization "${existingOrg.name}"…`);
     await prisma.organization.delete({
