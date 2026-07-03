@@ -3,6 +3,7 @@ import { Inter, Lexend, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '@/components/ui/toast';
 import { AuthSessionProvider } from '@/components/shared/session-provider';
+import { ErrorLogger } from '@/components/shared/error-logger';
 import { SkipToContent } from '@/components/shared/skip-to-content';
 import { ThemeProvider } from '@/components/shared/theme-provider';
 import { THEME_INIT_SCRIPT } from '@/components/shared/theme-script';
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <main id="main-content" tabIndex={-1}>
                 {children}
               </main>
+              <ErrorLogger />
             </ToastProvider>
           </ThemeProvider>
         </AuthSessionProvider>
