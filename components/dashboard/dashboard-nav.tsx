@@ -96,18 +96,18 @@ export function DashboardNav({ userName }: { userName: string }) {
 
 function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
-    <ul className="flex flex-col gap-0.5 px-2">
+    <ul className="flex flex-col gap-0.5 px-2" role="list">
       {NAV_ITEMS.map((item) => {
         const isActive = pathname === item.href;
         const Icon = item.icon;
         return (
-          <li key={item.href}>
+          <li key={item.href} role="listitem">
             <Link
               href={item.href}
               onClick={onNavigate}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-ring',
                 isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >

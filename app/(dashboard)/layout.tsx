@@ -12,9 +12,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       <DashboardNav userName={session.user?.name ?? session.user?.email ?? 'Account'} />
-      <main id="main" className="flex-1 bg-background">
+      <section className="flex-1 bg-background">
         <div className="container max-w-6xl py-6">{children}</div>
-      </main>
+      </section>
     </div>
   );
 }

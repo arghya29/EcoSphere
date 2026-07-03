@@ -3,6 +3,7 @@ import { Inter, Lexend, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '@/components/ui/toast';
 import { AuthSessionProvider } from '@/components/shared/session-provider';
+import { SkipToContent } from '@/components/shared/skip-to-content';
 import { ThemeProvider } from '@/components/shared/theme-provider';
 import { THEME_INIT_SCRIPT } from '@/components/shared/theme-script';
 
@@ -27,9 +28,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="font-sans">
+        <SkipToContent />
         <AuthSessionProvider>
           <ThemeProvider>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              <main id="main-content" tabIndex={-1}>
+                {children}
+              </main>
+            </ToastProvider>
           </ThemeProvider>
         </AuthSessionProvider>
       </body>
