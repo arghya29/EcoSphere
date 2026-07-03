@@ -28,6 +28,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -67,7 +68,15 @@ export function DashboardNav({ userName }: { userName: string }) {
           <div className="flex flex-col min-h-full">
             <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
             <div className="mt-auto border-t border-border p-3">
-              <AccountMenu userName={userName} onNavigate={() => setMobileOpen(false)} />
+              <div className="flex items-center gap-1">
+                <ThemeToggle />
+                <div className="flex-1">
+                  <AccountMenu
+                    userName={userName}
+                    onNavigate={() => setMobileOpen(false)}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </nav>
@@ -82,8 +91,11 @@ export function DashboardNav({ userName }: { userName: string }) {
         <nav aria-label="Primary" className="flex-1 py-3">
           <NavLinks pathname={pathname} />
         </nav>
-        <div className="border-t border-border p-3">
-          <AccountMenu userName={userName} />
+        <div className="border-t border-border p-3 flex items-center gap-1">
+          <ThemeToggle />
+          <div className="flex-1">
+            <AccountMenu userName={userName} />
+          </div>
         </div>
       </aside>
     </>
@@ -92,18 +104,18 @@ export function DashboardNav({ userName }: { userName: string }) {
 
 function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
-    <ul className="flex flex-col gap-0.5 px-2">
+    <ul className="flex flex-col gap-0.5 px-2" role="list">
       {NAV_ITEMS.map((item) => {
         const isActive = pathname === item.href;
         const Icon = item.icon;
         return (
-          <li key={item.href}>
+          <li key={item.href} role="listitem">
             <Link
               href={item.href}
               onClick={onNavigate}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-ring',
                 isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >

@@ -105,7 +105,14 @@ types/            — Shared TypeScript types
 hooks/            — Custom React hooks
 __tests__/        — Jest unit tests and Playwright E2E tests
 public/templates/ — Downloadable CSV template files
+docs/             — Additional documentation
 ```
+
+For detailed documentation, see:
+- [Architecture Overview](docs/ARCHITECTURE.md) — Data flow, tech stack, and key decisions
+- [API Reference](docs/API.md) — All API route documentation with request/response examples
+- [Component Reference](docs/COMPONENTS.md) — UI component catalog and usage patterns
+- [Setup Guide](docs/SETUP.md) — Detailed setup instructions and troubleshooting
 
 ---
 
