@@ -1,0 +1,73 @@
+import * as React from 'react';
+import { X, CheckCircle2, AlertTriangle, XCircle, Info } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
+
+export interface ToastProps {
+  id: string;
+  title: string;
+  description?: string;
+  variant?: ToastVariant;
+  onClose: () => void;
+}
+
+export function Toast({ title, description, variant = 'info', onClose }: ToastProps) {
+  const [isMounted, setIsMounted] = React.useState(false);
+  const [isExiting, setIsExiting] = React.useState(false);
+
+  // Auto-dismiss after 4 seconds
+  React.useEffect(() => {
+    setIsMounted(true);
+    const timer = setTimeout(() => {
+      handleClose();
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleClose = () => {
+    setIsExiting(true);
+    setTimeout(() => {
+      onClose();
+    }, 300); // match transition duration
+  };
+
+  const icons = {
+    success: <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />,
+    error: <XCircle className="h-5 w-5 text-rose-500 shrink-0" />,
+    warning: <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />,
+    info: <Info className="h-5 w-5 text-sky-500 shrink-0" />,
+  };
+
+  const variantStyles = {
+    success: 'bg-emerald-50/90 dark:bg-emerald-950/30 border-emerald-500/20 text-emerald-900 dark:text-emerald-200',
+    error: 'bg-rose-50/90 dark:bg-rose-950/30 border-rose-500/20 text-rose-900 dark:text-rose-200',
+    warning: 'bg-amber-50/90 dark:bg-amber-950/30 border-amber-500/20 text-amber-900 dark:text-amber-200',
+    info: 'bg-sky-50/90 dark:bg-sky-950/30 border-sky-500/20 text-sky-900 dark:text-sky-200',
+  };
+
+  return (
+    <div
+      className={cn(
+        'flex w-full max-w-md items-start gap-3 rounded-xl border p-4 shadow-lg backdrop-blur-md transition-all duration-300 ease-out transform',
+        variantStyles[variant],
+        isMounted && !isExiting ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-4 scale-95'
+      )}
+      role="alert"
+    >
+      {icons[variant]}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold leading-tight">{title}</p>
+        {description && <p className="mt-1 text-xs opacity-90 leading-normal">{description}</p>}
+      </div>
+      <button
+        onClick={handleClose}
+        className="rounded-lg p-0.5 opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5 transition-colors shrink-0"
+        aria-label="Close notification"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Toast, type ToastVariant } from './Toast';
+import { Toast, type ToastVariant } from './toast-notification';
 
 interface ToastMessage {
   id: string;
