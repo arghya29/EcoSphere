@@ -58,8 +58,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     return fn;
   }, [addToast]);
 
+  const contextValue = React.useMemo(() => ({ toast: toastCallable }), [toastCallable]);
+
   return (
-    <ToastContext.Provider value={{ toast: toastCallable }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
       <div
         className="fixed bottom-4 right-4 z-[100] flex w-full max-w-sm flex-col gap-3 pointer-events-none"
