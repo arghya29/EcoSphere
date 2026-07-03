@@ -54,17 +54,17 @@ export function ManageList<T extends { id: string }>({
       if (!res.ok || !json.success) {
         const message = json.error ?? `Could not remove this ${noun}.`;
         setError(message);
-        toast({ title: `Could not remove ${noun}`, description: message, variant: 'destructive' });
+        toast.error(`Could not remove ${noun}`, message);
         return;
       }
-      toast({ title: `${noun.charAt(0).toUpperCase()}${noun.slice(1)} removed`, description: describe(pending) });
+      toast.success(`${noun.charAt(0).toUpperCase()}${noun.slice(1)} removed`, describe(pending));
       setPending(null);
       setError(null);
       onDeleted();
     } catch {
       const message = 'Something went wrong. Please try again.';
       setError(message);
-      toast({ title: `Could not remove ${noun}`, description: message, variant: 'destructive' });
+      toast.error(`Could not remove ${noun}`, message);
     } finally {
       setIsDeleting(false);
     }
