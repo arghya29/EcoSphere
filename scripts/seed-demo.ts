@@ -38,9 +38,12 @@ async function main() {
 
   // Idempotency: Clean reset of existing demo seed user and organization if they exist
   console.log('Checking for existing demo seed dataset to clean up…');
-  const existingOrg = await prisma.organization.findFirst({
-    where: { name: orgName },
-  });
+  const existingUserForCleanup = await prisma.user.findUnique({ where: { email: demoEmail } });
+  const existingOrg = existingUserForCleanup
+    ? await prisma.organization.findFirst({
+        where: { name: orgName, ownerId: existingUserForCleanup.id },
+      })
+    : null;
   if (existingOrg) {
     console.log(`Deleting existing organization "${existingOrg.name}"…`);
     await prisma.organization.delete({
