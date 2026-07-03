@@ -15,6 +15,14 @@ export interface ToastProps {
 export function Toast({ title, description, variant = 'info', onClose }: ToastProps) {
   const [isMounted, setIsMounted] = React.useState(false);
   const [isExiting, setIsExiting] = React.useState(false);
+  const exitTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleClose = React.useCallback(() => {
+    setIsExiting(true);
+    exitTimerRef.current = setTimeout(() => {
+      onClose();
+    }, 300); // match transition duration
+  }, [onClose]);
 
   // Auto-dismiss after 4 seconds
   React.useEffect(() => {
@@ -23,15 +31,13 @@ export function Toast({ title, description, variant = 'info', onClose }: ToastPr
       handleClose();
     }, 4000);
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleClose = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      onClose();
-    }, 300); // match transition duration
-  };
+    return () => {
+      clearTimeout(timer);
+      if (exitTimerRef.current) {
+        clearTimeout(exitTimerRef.current);
+      }
+    };
+  }, [handleClose]);
 
   const icons = {
     success: <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />,
@@ -54,7 +60,7 @@ export function Toast({ title, description, variant = 'info', onClose }: ToastPr
         variantStyles[variant],
         isMounted && !isExiting ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-4 scale-95'
       )}
-      role="alert"
+      role={variant === 'error' ? 'alert' : 'status'}
     >
       {icons[variant]}
       <div className="flex-1 min-w-0">
