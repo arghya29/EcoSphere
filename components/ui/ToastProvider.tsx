@@ -22,6 +22,8 @@ interface ToastContextValue {
 
 const ToastContext = React.createContext<ToastContextValue | null>(null);
 
+let toastCounter = 0;
+
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<ToastMessage[]>([]);
 
@@ -31,7 +33,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const addToast = React.useCallback(
     (title: string, description?: string, variant: ToastVariant = 'info') => {
-      const id = Math.random().toString(36).slice(2);
+      const id = `${Date.now()}-${toastCounter++}`;
       setToasts((prev) => [...prev, { id, title, description, variant }]);
     },
     []
@@ -40,12 +42,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   // Expose toast as a callable function (for backwards compatibility) and attach sub-methods
   const toastCallable = React.useMemo(() => {
     const fn = (options: { title: string; description?: string; variant?: 'success' | 'error' | 'warning' | 'info' | 'destructive' | 'default' }) => {
-      let mappedVariant: ToastVariant = 'info';
-      if (options.variant === 'destructive') mappedVariant = 'error';
-      else if (options.variant === 'success') mappedVariant = 'success';
-      else if (options.variant === 'warning') mappedVariant = 'warning';
-      else if (options.variant === 'error') mappedVariant = 'error';
-      else if (options.variant === 'info') mappedVariant = 'info';
+      const mappedVariant: ToastVariant =
+        options.variant === 'destructive'
+          ? 'error'
+          : options.variant === 'default'
+          ? 'info'
+          : (options.variant as ToastVariant) || 'info';
 
       addToast(options.title, options.description, mappedVariant);
     };
