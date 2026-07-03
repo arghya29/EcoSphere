@@ -17,12 +17,15 @@ export function Toast({ title, description, variant = 'info', onClose }: ToastPr
   const [isExiting, setIsExiting] = React.useState(false);
   const exitTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
+  const onCloseRef = React.useRef(onClose);
+  onCloseRef.current = onClose;
+
   const handleClose = React.useCallback(() => {
     setIsExiting(true);
     exitTimerRef.current = setTimeout(() => {
-      onClose();
+      onCloseRef.current();
     }, 300); // match transition duration
-  }, [onClose]);
+  }, []);
 
   // Auto-dismiss after 4 seconds
   React.useEffect(() => {
