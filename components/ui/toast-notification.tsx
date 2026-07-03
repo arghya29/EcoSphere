@@ -63,6 +63,7 @@ export function Toast({ title, description, variant = 'info', onClose }: ToastPr
       </div>
       <button
         onClick={handleClose}
+        type="button"
         className="rounded-lg p-0.5 opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5 transition-colors shrink-0"
         aria-label="Close notification"
       >
