@@ -10,7 +10,7 @@ import {
   DialogFooter,
 } from './dialog';
 import { Button } from './button';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Info } from 'lucide-react';
 
 export interface ConfirmDialogProps {
   isOpen: boolean;
@@ -37,6 +37,11 @@ export function ConfirmDialog({
   variant = 'danger',
   children,
 }: ConfirmDialogProps) {
+  const handleOpenChange = (open: boolean) => {
+    if (isLoading) return;
+    onOpenChange(open);
+  };
+
   const handleConfirm = (e: React.MouseEvent) => {
     e.preventDefault();
     onConfirm();
@@ -64,7 +69,7 @@ export function ConfirmDialog({
   const { border, icon: Icon, iconClass } = variantConfig[variant];
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className={`max-w-[400px] border ${border} bg-background dark:bg-card`}>
         <DialogHeader className="flex flex-row items-center gap-3">
           <div className={`rounded-full p-2 ${iconClass}`}>
@@ -72,15 +77,15 @@ export function ConfirmDialog({
           </div>
           <DialogTitle className="text-lg font-bold">{title}</DialogTitle>
         </DialogHeader>
-        <div className="mt-2 text-sm text-muted-foreground">
+        <DialogDescription className="mt-2 text-sm text-muted-foreground">
           {description}
-        </div>
+        </DialogDescription>
         {children}
         <DialogFooter className="mt-4 flex flex-row gap-2 sm:justify-end">
           <Button
             type="button"
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={() => handleOpenChange(false)}
             disabled={isLoading}
             className="flex-1 sm:flex-none"
           >
