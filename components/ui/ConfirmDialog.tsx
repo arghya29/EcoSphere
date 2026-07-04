@@ -44,15 +44,32 @@ export function ConfirmDialog({
 
   const confirmButtonVariant = variant === 'danger' ? 'destructive' : 'default';
 
+  const variantConfig = {
+    danger: {
+      border: 'border-red-500/20',
+      icon: AlertTriangle,
+      iconClass: 'bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400',
+    },
+    warning: {
+      border: 'border-yellow-500/20',
+      icon: AlertTriangle,
+      iconClass: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-950/50 dark:text-yellow-400',
+    },
+    info: {
+      border: 'border-blue-500/20',
+      icon: Info,
+      iconClass: 'bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400',
+    },
+  };
+  const { border, icon: Icon, iconClass } = variantConfig[variant];
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[400px] border border-red-500/20 bg-background dark:bg-card">
+      <DialogContent className={`max-w-[400px] border ${border} bg-background dark:bg-card`}>
         <DialogHeader className="flex flex-row items-center gap-3">
-          {variant === 'danger' && (
-            <div className="rounded-full bg-red-100 p-2 text-red-600 dark:bg-red-950/50 dark:text-red-400">
-              <AlertTriangle className="h-5 w-5" />
-            </div>
-          )}
+          <div className={`rounded-full p-2 ${iconClass}`}>
+            <Icon className="h-5 w-5" />
+          </div>
           <DialogTitle className="text-lg font-bold">{title}</DialogTitle>
         </DialogHeader>
         <div className="mt-2 text-sm text-muted-foreground">
