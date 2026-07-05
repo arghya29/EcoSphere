@@ -5,17 +5,63 @@ import { activitiesPayloadSchema } from '@/lib/validations';
 import { calculateActivityEmissions } from '@/lib/emissions';
 import { findUnauthorizedIds, normalizeOptionalId } from '@/lib/utils';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const ctx = await requireOrg();
   if (isErrorResponse(ctx)) return ctx;
 
-  const activities = await prisma.activity.findMany({
-    where: { organizationId: ctx.organizationId },
-    include: { factor: true, supplier: true, facility: true, route: true },
-    orderBy: { dateRecorded: 'desc' },
-  });
+  const url = new URL(req.url);
+  const limit = parseInt(url.searchParams.get('limit') ?? '10');
+  const offset = parseInt(url.searchParams.get('offset') ?? '0');
+  const type = url.searchParams.get('type');
+  const startDateStr = url.searchParams.get('startDate');
+  const endDateStr = url.searchParams.get('endDate');
 
-  return NextResponse.json({ success: true, data: activities });
+  const where: any = { organizationId: ctx.organizationId };
+  if (type && type !== 'ALL') {
+    where.type = type;
+  }
+  if (startDateStr || endDateStr) {
+    where.dateRecorded = {};
+    if (startDateStr) where.dateRecorded.gte = new Date(startDateStr);
+    if (endDateStr) where.dateRecorded.lte = new Date(endDateStr);
+  }
+
+  const [activities, total] = await Promise.all([
+    prisma.activity.findMany({
+      where,
+      include: { factor: true, supplier: true, facility: true, route: true },
+      orderBy: { dateRecorded: 'desc' },
+      take: limit,
+      skip: offset,
+    }),
+    prisma.activity.count({ where }),
+  ]);
+
+  return NextResponse.json({ success: true, data: { activities, total } });
+}
+
+export async function DELETE(req: NextRequest) {
+  const ctx = await requireOrg();
+  if (isErrorResponse(ctx)) return ctx;
+
+  try {
+    const body = await req.json();
+    const ids = body.ids;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json({ success: false, error: 'Invalid or missing activity IDs' }, { status: 400 });
+    }
+
+    await prisma.activity.deleteMany({
+      where: {
+        id: { in: ids },
+        organizationId: ctx.organizationId,
+      },
+    });
+
+    return NextResponse.json({ success: true, message: 'Activities deleted' });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Failed to delete activities' }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
