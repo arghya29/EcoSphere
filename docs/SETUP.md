@@ -48,6 +48,12 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+### 5. Setup Reduction Goals and Custom Emission Factors
+
+Once running, navigate to:
+- `/targets` to configure carbon limit reduction targets.
+- `/settings/factors` to define custom activity intensity coefficients.
+
 ### 5. Demo login
 
 Use these credentials to explore the app:
