@@ -46,7 +46,7 @@ export function EntityForm({
     url: apiEndpoint,
     method: 'POST',
     onMutate: async (variables) => {
-      return await onMutate?.(variables?.[payloadKey]?.[0]);
+      return await onMutate?.((variables as any)?.[payloadKey]?.[0]);
     },
     onSuccess: () => {
       toast.success(`${title} added`, form.name || form[fields[0]?.key]);
@@ -58,10 +58,10 @@ export function EntityForm({
         `Could not add ${title.toLowerCase()}`,
         errorMsg ?? 'Something went wrong. Please try again.'
       );
-      onError?.(errorMsg, variables?.[payloadKey]?.[0], context);
+      onError?.(errorMsg, (variables as any)?.[payloadKey]?.[0], context);
     },
     onSettled: (data, errorMsg, variables, context) => {
-      onSettled?.(data, errorMsg, variables?.[payloadKey]?.[0], context);
+      onSettled?.(data, errorMsg, (variables as any)?.[payloadKey]?.[0], context);
     },
   });
 

@@ -59,13 +59,10 @@ export default function BuilderPage() {
     const optimisticSupplier: SupplierRecord = {
       id: tempId,
       name: newSupplier.name || 'New Supplier',
-      category: newSupplier.category || '',
-      location: newSupplier.location || '',
+      category: newSupplier.category || null,
+      location: newSupplier.location || null,
       latitude: newSupplier.latitude ? Number(newSupplier.latitude) : null,
       longitude: newSupplier.longitude ? Number(newSupplier.longitude) : null,
-      organizationId: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
     setSuppliers((prev) => [...prev, optimisticSupplier]);
     return { previousSuppliers };
@@ -108,13 +105,10 @@ export default function BuilderPage() {
     const optimisticFacility: FacilityRecord = {
       id: tempId,
       name: newFacility.name || 'New Facility',
-      type: newFacility.type || '',
-      location: newFacility.location || '',
+      type: newFacility.type || null,
+      location: newFacility.location || null,
       latitude: newFacility.latitude ? Number(newFacility.latitude) : null,
       longitude: newFacility.longitude ? Number(newFacility.longitude) : null,
-      organizationId: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
     setFacilities((prev) => [...prev, optimisticFacility]);
     return { previousFacilities };
@@ -163,17 +157,14 @@ export default function BuilderPage() {
 
     const optimisticRoute: RouteRecord = {
       id: tempId,
-      organizationId: '',
       originSupplierId: newRoute.originSupplierId || null,
       originFacilityId: newRoute.originFacilityId || null,
       destinationId: newRoute.destinationId,
       mode: newRoute.mode,
       distanceKm: Number(newRoute.distanceKm),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
       originSupplier: originSupplier || null,
       originFacility: originFacility || null,
-      destination: destination || null,
+      destination: destination || undefined,
     };
     setRoutes((prev) => [...prev, optimisticRoute]);
     return { previousRoutes };
@@ -346,7 +337,7 @@ function AddRouteForm({
     url: '/api/routes',
     method: 'POST',
     onMutate: async (variables) => {
-      return await onMutate?.(variables?.routes?.[0]);
+      return await onMutate?.((variables as any)?.routes?.[0]);
     },
     onSuccess: () => {
       toast.success('Route added');
@@ -357,10 +348,10 @@ function AddRouteForm({
     },
     onError: (err, variables, context) => {
       toast.error('Could not add route', err);
-      onError?.(err, variables?.routes?.[0], context);
+      onError?.(err, (variables as any)?.routes?.[0], context);
     },
     onSettled: (data, errorMsg, variables, context) => {
-      onSettled?.(data, errorMsg, variables?.routes?.[0], context);
+      onSettled?.(data, errorMsg, (variables as any)?.routes?.[0], context);
     },
   });
 
