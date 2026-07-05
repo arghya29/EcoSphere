@@ -79,6 +79,7 @@ model Organization {
   routes     Route[]
   activities Activity[]
   reports    Report[]
+  customFactors CustomEmissionFactor[]
 }
 
 // Kept minimal for V1 (single-org-per-user is the common case), but
@@ -223,5 +224,21 @@ model Report {
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
+}
+
+model CustomEmissionFactor {
+  id             String        @id @default(cuid())
+  organizationId String
+  category       String
+  scope          EmissionScope
+  value          Float
+  unit           String
+  source         String?
+  createdAt      DateTime      @default(now())
+
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, category])
   @@index([organizationId])
 }

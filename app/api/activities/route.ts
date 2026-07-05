@@ -34,8 +34,13 @@ export async function POST(req: NextRequest) {
   // Resolve factor categories -> factor rows up front so we can compute
   // emissions = amount * factor.value before persisting (per spec).
   const categories = Array.from(new Set(parsed.data.activities.map((a) => a.factorCategory)));
-  const factors = await prisma.emissionFactor.findMany({ where: { category: { in: categories } } });
-  const factorByCategory = new Map(factors.map((f) => [f.category, f]));
+  const [factors, customFactors] = await Promise.all([
+    prisma.emissionFactor.findMany({ where: { category: { in: categories } } }),
+    prisma.customEmissionFactor.findMany({ where: { category: { in: categories }, organizationId: ctx.organizationId } }),
+  ]);
+  const factorByCategory = new Map<string, { id: string; value: number }>();
+  factors.forEach((f) => factorByCategory.set(f.category, f));
+  customFactors.forEach((f) => factorByCategory.set(f.category, f));
 
   const missing = categories.filter((c) => !factorByCategory.has(c));
   if (missing.length > 0) {
