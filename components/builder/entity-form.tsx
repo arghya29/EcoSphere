@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/toast';
+import { useMutation } from '@/hooks/use-mutation';
 
 interface EntityField {
   key: string;
@@ -22,17 +23,51 @@ interface EntityFormProps {
   fields: EntityField[];
   payloadKey: string;
   onCreated: () => void;
+  onMutate?: (variables: any) => Promise<unknown> | unknown;
+  onError?: (error: string, variables: any, context: unknown) => void;
+  onSettled?: (data: any, error: string | null, variables: any, context: unknown) => void;
 }
 
-export function EntityForm({ title, apiEndpoint, fields, payloadKey, onCreated }: EntityFormProps) {
+export function EntityForm({
+  title,
+  apiEndpoint,
+  fields,
+  payloadKey,
+  onCreated,
+  onMutate,
+  onError,
+  onSettled,
+}: EntityFormProps) {
   const { toast } = useToast();
   const initialForm = Object.fromEntries(fields.map((f) => [f.key, '']));
   const [form, setForm] = React.useState<Record<string, string>>(initialForm);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const { mutate: createEntity, isLoading: isSubmitting } = useMutation({
+    url: apiEndpoint,
+    method: 'POST',
+    onMutate: async (variables) => {
+      return await onMutate?.(variables?.[payloadKey]?.[0]);
+    },
+    onSuccess: () => {
+      toast({ title: `${title} added`, description: form.name || form[fields[0]?.key] });
+      setForm(initialForm);
+      onCreated();
+    },
+    onError: (errorMsg, variables, context) => {
+      toast({
+        title: `Could not add ${title.toLowerCase()}`,
+        description: errorMsg ?? 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
+      onError?.(errorMsg, variables?.[payloadKey]?.[0], context);
+    },
+    onSettled: (data, errorMsg, variables, context) => {
+      onSettled?.(data, errorMsg, variables?.[payloadKey]?.[0], context);
+    },
+  });
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
     const body = Object.fromEntries(
       Object.entries(form).map(([key, value]) => {
@@ -43,35 +78,7 @@ export function EntityForm({ title, apiEndpoint, fields, payloadKey, onCreated }
       })
     );
 
-    try {
-      const res = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [payloadKey]: [body] }),
-      });
-      const json = await res.json().catch(() => ({}));
-
-      if (!res.ok || !json.success) {
-        toast({
-          title: `Could not add ${title.toLowerCase()}`,
-          description: json.error ?? 'Something went wrong. Please try again.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      toast({ title: `${title} added`, description: form.name || form[fields[0]?.key] });
-      setForm(initialForm);
-      onCreated();
-    } catch {
-      toast({
-        title: `Could not add ${title.toLowerCase()}`,
-        description: 'Something went wrong. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    await createEntity({ [payloadKey]: [body] });
   };
 
   const setValue = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }));

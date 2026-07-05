@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Trash2, Database } from 'lucide-react';
 import { useApi } from '@/hooks/use-api';
+import { useMutation } from '@/hooks/use-mutation';
 import { SupplyChainGraph } from '@/components/graph/supply-chain-graph';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -31,9 +32,178 @@ const FACILITY_FIELDS = [
 ];
 
 export default function BuilderPage() {
-  const { data: suppliers, refetch: refetchSuppliers } = useApi<SupplierRecord[]>('/api/suppliers');
-  const { data: facilities, refetch: refetchFacilities } = useApi<FacilityRecord[]>('/api/facilities');
-  const { data: routes, refetch: refetchRoutes } = useApi<RouteRecord[]>('/api/routes');
+  const { data: apiSuppliers, refetch: refetchSuppliers } = useApi<SupplierRecord[]>('/api/suppliers');
+  const { data: apiFacilities, refetch: refetchFacilities } = useApi<FacilityRecord[]>('/api/facilities');
+  const { data: apiRoutes, refetch: refetchRoutes } = useApi<RouteRecord[]>('/api/routes');
+
+  const [suppliers, setSuppliers] = React.useState<SupplierRecord[]>([]);
+  const [facilities, setFacilities] = React.useState<FacilityRecord[]>([]);
+  const [routes, setRoutes] = React.useState<RouteRecord[]>([]);
+
+  React.useEffect(() => {
+    if (apiSuppliers) setSuppliers(apiSuppliers);
+  }, [apiSuppliers]);
+
+  React.useEffect(() => {
+    if (apiFacilities) setFacilities(apiFacilities);
+  }, [apiFacilities]);
+
+  React.useEffect(() => {
+    if (apiRoutes) setRoutes(apiRoutes);
+  }, [apiRoutes]);
+
+  // Supplier Optimistic Callbacks
+  const onMutateSupplierCreate = (newSupplier: any) => {
+    const previousSuppliers = suppliers;
+    const tempId = `temp-supplier-${Date.now()}`;
+    const optimisticSupplier: SupplierRecord = {
+      id: tempId,
+      name: newSupplier.name || 'New Supplier',
+      category: newSupplier.category || '',
+      location: newSupplier.location || '',
+      latitude: newSupplier.latitude ? Number(newSupplier.latitude) : null,
+      longitude: newSupplier.longitude ? Number(newSupplier.longitude) : null,
+      organizationId: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setSuppliers((prev) => [...prev, optimisticSupplier]);
+    return { previousSuppliers };
+  };
+
+  const onErrorSupplierCreate = (err: string, variables: any, context: any) => {
+    if (context?.previousSuppliers) {
+      setSuppliers(context.previousSuppliers);
+    }
+  };
+
+  const onSettledSupplierCreate = () => {
+    refetchSuppliers();
+  };
+
+  const onMutateSupplierDelete = (supplierToDelete: SupplierRecord) => {
+    const previousSuppliers = suppliers;
+    const previousRoutes = routes;
+
+    setSuppliers((prev) => prev.filter((s) => s.id !== supplierToDelete.id));
+    setRoutes((prev) => prev.filter((r) => r.originSupplierId !== supplierToDelete.id));
+
+    return { previousSuppliers, previousRoutes };
+  };
+
+  const onErrorSupplierDelete = (err: string, variables: any, context: any) => {
+    if (context?.previousSuppliers) setSuppliers(context.previousSuppliers);
+    if (context?.previousRoutes) setRoutes(context.previousRoutes);
+  };
+
+  const onSettledSupplierDelete = () => {
+    refetchSuppliers();
+    refetchRoutes();
+  };
+
+  // Facility Optimistic Callbacks
+  const onMutateFacilityCreate = (newFacility: any) => {
+    const previousFacilities = facilities;
+    const tempId = `temp-facility-${Date.now()}`;
+    const optimisticFacility: FacilityRecord = {
+      id: tempId,
+      name: newFacility.name || 'New Facility',
+      type: newFacility.type || '',
+      location: newFacility.location || '',
+      latitude: newFacility.latitude ? Number(newFacility.latitude) : null,
+      longitude: newFacility.longitude ? Number(newFacility.longitude) : null,
+      organizationId: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setFacilities((prev) => [...prev, optimisticFacility]);
+    return { previousFacilities };
+  };
+
+  const onErrorFacilityCreate = (err: string, variables: any, context: any) => {
+    if (context?.previousFacilities) {
+      setFacilities(context.previousFacilities);
+    }
+  };
+
+  const onSettledFacilityCreate = () => {
+    refetchFacilities();
+  };
+
+  const onMutateFacilityDelete = (facilityToDelete: FacilityRecord) => {
+    const previousFacilities = facilities;
+    const previousRoutes = routes;
+
+    setFacilities((prev) => prev.filter((f) => f.id !== facilityToDelete.id));
+    setRoutes((prev) =>
+      prev.filter((r) => r.destinationId !== facilityToDelete.id && r.originFacilityId !== facilityToDelete.id)
+    );
+
+    return { previousFacilities, previousRoutes };
+  };
+
+  const onErrorFacilityDelete = (err: string, variables: any, context: any) => {
+    if (context?.previousFacilities) setFacilities(context.previousFacilities);
+    if (context?.previousRoutes) setRoutes(context.previousRoutes);
+  };
+
+  const onSettledFacilityDelete = () => {
+    refetchFacilities();
+    refetchRoutes();
+  };
+
+  // Route Optimistic Callbacks
+  const onMutateRouteCreate = (newRoute: any) => {
+    const previousRoutes = routes;
+    const tempId = `temp-route-${Date.now()}`;
+
+    const originSupplier = suppliers.find((s) => s.id === newRoute.originSupplierId);
+    const originFacility = facilities.find((f) => f.id === newRoute.originFacilityId);
+    const destination = facilities.find((f) => f.id === newRoute.destinationId);
+
+    const optimisticRoute: RouteRecord = {
+      id: tempId,
+      organizationId: '',
+      originSupplierId: newRoute.originSupplierId || null,
+      originFacilityId: newRoute.originFacilityId || null,
+      destinationId: newRoute.destinationId,
+      mode: newRoute.mode,
+      distanceKm: Number(newRoute.distanceKm),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      originSupplier: originSupplier || null,
+      originFacility: originFacility || null,
+      destination: destination || null,
+    };
+    setRoutes((prev) => [...prev, optimisticRoute]);
+    return { previousRoutes };
+  };
+
+  const onErrorRouteCreate = (err: string, variables: any, context: any) => {
+    if (context?.previousRoutes) {
+      setRoutes(context.previousRoutes);
+    }
+  };
+
+  const onSettledRouteCreate = () => {
+    refetchRoutes();
+  };
+
+  const onMutateRouteDelete = (routeToDelete: RouteRecord) => {
+    const previousRoutes = routes;
+    setRoutes((prev) => prev.filter((r) => r.id !== routeToDelete.id));
+    return { previousRoutes };
+  };
+
+  const onErrorRouteDelete = (err: string, variables: any, context: any) => {
+    if (context?.previousRoutes) {
+      setRoutes(context.previousRoutes);
+    }
+  };
+
+  const onSettledRouteDelete = () => {
+    refetchRoutes();
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -44,7 +214,7 @@ export default function BuilderPage() {
 
       <Card>
         <CardContent className="pt-5">
-          <SupplyChainGraph suppliers={suppliers ?? []} facilities={facilities ?? []} routes={routes ?? []} />
+          <SupplyChainGraph suppliers={suppliers} facilities={facilities} routes={routes} />
         </CardContent>
       </Card>
 
@@ -63,18 +233,24 @@ export default function BuilderPage() {
               fields={SUPPLIER_FIELDS}
               payloadKey="suppliers"
               onCreated={refetchSuppliers}
+              onMutate={onMutateSupplierCreate}
+              onError={onErrorSupplierCreate}
+              onSettled={onSettledSupplierCreate}
             />
             <ManageList
               title="Existing suppliers"
               noun="supplier"
               emptyText="No suppliers yet. Add one to get started."
-              items={suppliers ?? []}
+              items={suppliers}
               describe={(s) => s.name}
               deleteUrl={(s) => `/api/suppliers/${s.id}`}
               onDeleted={() => {
                 refetchSuppliers();
                 refetchRoutes();
               }}
+              onMutate={onMutateSupplierDelete}
+              onError={onErrorSupplierDelete}
+              onSettled={onSettledSupplierDelete}
             />
           </div>
         </TabsContent>
@@ -87,33 +263,49 @@ export default function BuilderPage() {
               fields={FACILITY_FIELDS}
               payloadKey="facilities"
               onCreated={refetchFacilities}
+              onMutate={onMutateFacilityCreate}
+              onError={onErrorFacilityCreate}
+              onSettled={onSettledFacilityCreate}
             />
             <ManageList
               title="Existing facilities"
               noun="facility"
               emptyText="No facilities yet. Add one to get started."
-              items={facilities ?? []}
+              items={facilities}
               describe={(f) => f.name}
               deleteUrl={(f) => `/api/facilities/${f.id}`}
               onDeleted={() => {
                 refetchFacilities();
                 refetchRoutes();
               }}
+              onMutate={onMutateFacilityDelete}
+              onError={onErrorFacilityDelete}
+              onSettled={onSettledFacilityDelete}
             />
           </div>
         </TabsContent>
 
         <TabsContent value="route">
           <div className="grid gap-6 lg:grid-cols-2">
-            <AddRouteForm suppliers={suppliers ?? []} facilities={facilities ?? []} onCreated={refetchRoutes} />
+            <AddRouteForm
+              suppliers={suppliers}
+              facilities={facilities}
+              onCreated={refetchRoutes}
+              onMutate={onMutateRouteCreate}
+              onError={onErrorRouteCreate}
+              onSettled={onSettledRouteCreate}
+            />
             <ManageList
               title="Existing routes"
               noun="route"
               emptyText="No routes yet. Add one to get started."
-              items={routes ?? []}
+              items={routes}
               describe={describeRoute}
               deleteUrl={(r) => `/api/routes/${r.id}`}
               onDeleted={refetchRoutes}
+              onMutate={onMutateRouteDelete}
+              onError={onErrorRouteDelete}
+              onSettled={onSettledRouteDelete}
             />
           </div>
         </TabsContent>
@@ -132,10 +324,16 @@ function AddRouteForm({
   suppliers,
   facilities,
   onCreated,
+  onMutate,
+  onError,
+  onSettled,
 }: {
   suppliers: SupplierRecord[];
   facilities: FacilityRecord[];
   onCreated: () => void;
+  onMutate?: (variables: any) => Promise<unknown> | unknown;
+  onError?: (error: string, variables: any, context: unknown) => void;
+  onSettled?: (data: any, error: string | null, variables: any, context: unknown) => void;
 }) {
   const { toast } = useToast();
   const [originType, setOriginType] = React.useState<'supplier' | 'facility'>('supplier');
@@ -143,7 +341,28 @@ function AddRouteForm({
   const [destinationId, setDestinationId] = React.useState('');
   const [mode, setMode] = React.useState<'TRUCK' | 'RAIL' | 'AIR' | 'SEA' | 'OTHER'>('TRUCK');
   const [distanceKm, setDistanceKm] = React.useState('');
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const { mutate: createRoute, isLoading: isSubmitting } = useMutation({
+    url: '/api/routes',
+    method: 'POST',
+    onMutate: async (variables) => {
+      return await onMutate?.(variables?.routes?.[0]);
+    },
+    onSuccess: () => {
+      toast({ title: 'Route added' });
+      setOriginId('');
+      setDestinationId('');
+      setDistanceKm('');
+      onCreated();
+    },
+    onError: (err, variables, context) => {
+      toast({ title: 'Could not add route', description: err, variant: 'destructive' });
+      onError?.(err, variables?.routes?.[0], context);
+    },
+    onSettled: (data, errorMsg, variables, context) => {
+      onSettled?.(data, errorMsg, variables?.routes?.[0], context);
+    },
+  });
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,33 +370,17 @@ function AddRouteForm({
       toast({ title: 'Fill in all fields', variant: 'destructive' });
       return;
     }
-    setIsSubmitting(true);
-    const res = await fetch('/api/routes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        routes: [
-          {
-            originSupplierId: originType === 'supplier' ? originId : undefined,
-            originFacilityId: originType === 'facility' ? originId : undefined,
-            destinationId,
-            mode,
-            distanceKm: Number(distanceKm),
-          },
-        ],
-      }),
+    await createRoute({
+      routes: [
+        {
+          originSupplierId: originType === 'supplier' ? originId : undefined,
+          originFacilityId: originType === 'facility' ? originId : undefined,
+          destinationId,
+          mode,
+          distanceKm: Number(distanceKm),
+        },
+      ],
     });
-    const json = await res.json();
-    setIsSubmitting(false);
-    if (!res.ok || !json.success) {
-      toast({ title: 'Could not add route', description: json.error, variant: 'destructive' });
-      return;
-    }
-    toast({ title: 'Route added' });
-    setOriginId('');
-    setDestinationId('');
-    setDistanceKm('');
-    onCreated();
   };
 
   if (suppliers.length === 0 && facilities.length === 0) {
@@ -251,4 +454,3 @@ function AddRouteForm({
     </Card>
   );
 }
-
