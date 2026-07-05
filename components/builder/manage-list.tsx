@@ -5,15 +5,7 @@ import { Trash2, Database } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
-} from '@/components/ui/dialog';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/toast';
 
 export function ManageList<T extends { id: string }>({
@@ -106,32 +98,21 @@ export function ManageList<T extends { id: string }>({
         )}
       </CardContent>
 
-      <Dialog
-        open={pending !== null}
+      <ConfirmDialog
+        isOpen={pending !== null}
         onOpenChange={(open) => {
           if (!open) closeDialog();
         }}
+        title={`Remove ${noun}?`}
+        description={pending ? `"${describe(pending)}" will be removed. This can't be undone.` : ''}
+        confirmLabel="Remove"
+        cancelLabel="Cancel"
+        onConfirm={confirmRemove}
+        isLoading={isDeleting}
+        variant="danger"
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Remove {noun}?</DialogTitle>
-            <DialogDescription>
-              {pending ? `"${describe(pending)}" will be removed. This can't be undone.` : ''}
-            </DialogDescription>
-          </DialogHeader>
-          {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isDeleting}>
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button type="button" variant="destructive" onClick={confirmRemove} disabled={isDeleting}>
-              {isDeleting ? 'Removing\u2026' : 'Remove'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+      </ConfirmDialog>
     </Card>
   );
 }
