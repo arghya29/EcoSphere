@@ -5,17 +5,69 @@ import { activitiesPayloadSchema } from '@/lib/validations';
 import { calculateActivityEmissions } from '@/lib/emissions';
 import { findUnauthorizedIds, normalizeOptionalId } from '@/lib/utils';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const ctx = await requireOrg();
   if (isErrorResponse(ctx)) return ctx;
 
-  const activities = await prisma.activity.findMany({
-    where: { organizationId: ctx.organizationId },
-    include: { factor: true, supplier: true, facility: true, route: true },
-    orderBy: { dateRecorded: 'desc' },
-  });
+  const { searchParams } = req.nextUrl;
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+  const limit = Math.max(1, parseInt(searchParams.get('limit') || '10', 10));
+  const startDateStr = searchParams.get('startDate');
+  const endDateStr = searchParams.get('endDate');
+  const sortBy = searchParams.get('sortBy') || 'dateRecorded';
+  const sortOrder = searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc';
 
-  return NextResponse.json({ success: true, data: activities });
+  // Build the where clause
+  const where: any = {
+    organizationId: ctx.organizationId,
+  };
+
+  if (startDateStr || endDateStr) {
+    where.dateRecorded = {};
+    if (startDateStr) {
+      where.dateRecorded.gte = new Date(startDateStr);
+    }
+    if (endDateStr) {
+      // Set to end of the day to include activities on the end date
+      const endDate = new Date(endDateStr);
+      endDate.setHours(23, 59, 59, 999);
+      where.dateRecorded.lte = endDate;
+    }
+  }
+
+  // Validate sortBy to avoid Prisma errors on invalid fields
+  const allowedSortFields = ['dateRecorded', 'emissionsKg', 'amount', 'type'];
+  const orderByField = allowedSortFields.includes(sortBy) ? sortBy : 'dateRecorded';
+
+  try {
+    const [total, activities] = await Promise.all([
+      prisma.activity.count({ where }),
+      prisma.activity.findMany({
+        where,
+        include: { factor: true, supplier: true, facility: true, route: true },
+        orderBy: { [orderByField]: sortOrder },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        activities,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages,
+        },
+      },
+    });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Failed to fetch activities' }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
