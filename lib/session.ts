@@ -4,9 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
 /**
- * Resolves the signed-in user's session and their (first/primary)
- * organization. V1 is single-org-per-user, so we just take the
- * first membership; the schema already supports multiple for later.
+ * Resolves the signed-in user's session and their switched active organization
+ * or their first organization fallback.
  *
  * Returns a NextResponse to short-circuit with (401/404) when the
  * caller isn't authenticated or has no organization yet, so route
@@ -16,16 +15,33 @@ import { NextResponse } from 'next/server';
 export async function requireOrg() {
   const session = await getServerSession(authOptions);
   const userId = (session?.user as { id?: string } | undefined)?.id;
+  const activeOrgId = (session as any)?.activeOrgId;
 
   if (!userId) {
     return NextResponse.json({ success: false, error: 'Not authenticated' }, { status: 401 });
   }
 
-  const membership = await prisma.membership.findFirst({
-    where: { userId },
-    include: { organization: true },
-    orderBy: { createdAt: 'asc' },
-  });
+  let membership = null;
+  if (activeOrgId) {
+    membership = await prisma.membership.findUnique({
+      where: {
+        userId_organizationId: {
+          userId,
+          organizationId: activeOrgId,
+        },
+      },
+      include: { organization: true },
+    });
+  }
+
+  // Fallback to first membership in database order if activeOrgId is not set or not a valid membership
+  if (!membership) {
+    membership = await prisma.membership.findFirst({
+      where: { userId },
+      include: { organization: true },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
 
   if (!membership) {
     return NextResponse.json({ success: false, error: 'No organization found for user' }, { status: 404 });

@@ -46,15 +46,38 @@ export const authOptions: NextAuthOptions = {
       : []),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
+        // On initial login, find the first membership to set as default activeOrgId/activeOrgName
+        const firstMembership = await prisma.membership.findFirst({
+          where: { userId: user.id },
+          include: { organization: true },
+          orderBy: { createdAt: 'asc' },
+        });
+        if (firstMembership) {
+          token.activeOrgId = firstMembership.organizationId;
+          token.activeOrgName = firstMembership.organization.name;
+        }
+      }
+
+      if (trigger === 'update' && session?.activeOrgId) {
+        token.activeOrgId = session.activeOrgId;
+        // Fetch the new org's name from database to store in JWT
+        const org = await prisma.organization.findUnique({
+          where: { id: session.activeOrgId },
+        });
+        if (org) {
+          token.activeOrgName = org.name;
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as { id?: string }).id = token.id as string;
+        (session as any).activeOrgId = token.activeOrgId as string;
+        (session as any).activeOrgName = token.activeOrgName as string;
       }
       return session;
     },
