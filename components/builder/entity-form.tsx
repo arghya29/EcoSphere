@@ -49,16 +49,15 @@ export function EntityForm({
       return await onMutate?.(variables?.[payloadKey]?.[0]);
     },
     onSuccess: () => {
-      toast({ title: `${title} added`, description: form.name || form[fields[0]?.key] });
+      toast.success(`${title} added`, form.name || form[fields[0]?.key]);
       setForm(initialForm);
       onCreated();
     },
     onError: (errorMsg, variables, context) => {
-      toast({
-        title: `Could not add ${title.toLowerCase()}`,
-        description: errorMsg ?? 'Something went wrong. Please try again.',
-        variant: 'destructive',
-      });
+      toast.error(
+        `Could not add ${title.toLowerCase()}`,
+        errorMsg ?? 'Something went wrong. Please try again.'
+      );
       onError?.(errorMsg, variables?.[payloadKey]?.[0], context);
     },
     onSettled: (data, errorMsg, variables, context) => {

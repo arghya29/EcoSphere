@@ -52,7 +52,7 @@ export function ManageList<T extends { id: string }>({
     },
     onSuccess: () => {
       if (pending) {
-        toast({ title: `${noun.charAt(0).toUpperCase()}${noun.slice(1)} removed`, description: describe(pending) });
+        toast.success(`${noun.charAt(0).toUpperCase()}${noun.slice(1)} removed`, describe(pending));
         setPending(null);
         setError(null);
         onDeleted();
@@ -61,7 +61,7 @@ export function ManageList<T extends { id: string }>({
     onError: (errorMsg, variables, context) => {
       const message = errorMsg ?? `Could not remove this ${noun}.`;
       setError(message);
-      toast({ title: `Could not remove ${noun}`, description: message, variant: 'destructive' });
+      toast.error(`Could not remove ${noun}`, message);
       if (pending) {
         onError?.(errorMsg, pending, context);
       }

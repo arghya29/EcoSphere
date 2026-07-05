@@ -349,14 +349,14 @@ function AddRouteForm({
       return await onMutate?.(variables?.routes?.[0]);
     },
     onSuccess: () => {
-      toast({ title: 'Route added' });
+      toast.success('Route added');
       setOriginId('');
       setDestinationId('');
       setDistanceKm('');
       onCreated();
     },
     onError: (err, variables, context) => {
-      toast({ title: 'Could not add route', description: err, variant: 'destructive' });
+      toast.error('Could not add route', err);
       onError?.(err, variables?.routes?.[0], context);
     },
     onSettled: (data, errorMsg, variables, context) => {
@@ -367,7 +367,7 @@ function AddRouteForm({
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!originId || !destinationId || !distanceKm) {
-      toast({ title: 'Fill in all fields', variant: 'destructive' });
+      toast.error('Fill in all fields');
       return;
     }
     await createRoute({
