@@ -5,7 +5,7 @@ import { parseFile, validateColumns, validateRows, type ParsedFile, type UploadS
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ProgressSteps } from '@/components/ui/progress-bar';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/components/ui/ToastProvider';
 import { UploadCloud, FileSpreadsheet, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
