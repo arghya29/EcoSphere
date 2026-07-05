@@ -25,7 +25,7 @@ const FACTORS = [
 ];
 
 async function main() {
-  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEMO_SEED !== 'true') {
+  if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_DEMO_SEED) {
     throw new Error('Refusing to run seed-demo.ts against a production environment without ALLOW_DEMO_SEED=true');
   }
 
@@ -33,108 +33,103 @@ async function main() {
   const passwordHash = await bcrypt.hash(DEMO_USER_PASSWORD, 10);
 
   console.log('Starting seed transaction…');
-  await prisma.$transaction(async (tx) => {
-    console.log('Ensuring emission factors are seeded…');
-    for (const f of FACTORS) {
-      await tx.emissionFactor.upsert({
-        where: { category: f.category },
-        update: f,
-        create: f,
+  await prisma.$transaction(
+    async (tx) => {
+      console.log('Ensuring emission factors are seeded…');
+      for (const f of FACTORS) {
+        await tx.emissionFactor.upsert({
+          where: { category: f.category },
+          update: f,
+          create: f,
+        });
+      }
+
+      // Idempotency: Clean reset of existing demo seed user and organization if they exist
+      console.log('Checking for existing demo seed dataset to clean up…');
+      const orgDelete = await tx.organization.deleteMany({
+        where: { name: DEMO_ORG_NAME },
       });
-    }
+      if (orgDelete.count > 0) {
+        console.log(`Deleted ${orgDelete.count} existing organization(s).`);
+      }
 
-    // Idempotency: Clean reset of existing demo seed user and organization if they exist
-    console.log('Checking for existing demo seed dataset to clean up…');
-    const existingOrg = await tx.organization.findFirst({
-      where: { name: DEMO_ORG_NAME },
-    });
-    if (existingOrg) {
-      console.log(`Deleting existing organization (${existingOrg.id})…`);
-      await tx.organization.delete({
-        where: { id: existingOrg.id },
+      const userDelete = await tx.user.deleteMany({
+        where: { email: DEMO_USER_EMAIL },
       });
-    }
+      if (userDelete.count > 0) {
+        console.log(`Deleted ${userDelete.count} existing user(s).`);
+      }
 
-    const existingUser = await tx.user.findUnique({
-      where: { email: DEMO_USER_EMAIL },
-    });
-    if (existingUser) {
-      console.log(`Deleting existing user (${existingUser.id})…`);
-      await tx.user.delete({
-        where: { id: existingUser.id },
+      console.log('Seeding new demo dataset…');
+
+      const user = await tx.user.create({
+        data: {
+          name: 'Demo Seed Contributor',
+          email: DEMO_USER_EMAIL,
+          passwordHash,
+        },
       });
-    }
 
-    console.log('Seeding new demo dataset…');
-
-    const user = await tx.user.create({
-      data: {
-        name: 'Demo Seed Contributor',
-        email: DEMO_USER_EMAIL,
-        passwordHash,
-      },
-    });
-
-    const org = await tx.organization.create({
-      data: {
-        name: DEMO_ORG_NAME,
-        ownerId: user.id,
-        members: {
-          create: {
-            userId: user.id,
-            role: 'OWNER',
+      const org = await tx.organization.create({
+        data: {
+          name: DEMO_ORG_NAME,
+          ownerId: user.id,
+          members: {
+            create: {
+              userId: user.id,
+              role: 'OWNER',
+            },
           },
         },
-      },
-    });
+      });
 
-    console.log(`Created organization (${org.id}) owned by demo seed user (${user.id})`);
+      console.log(`Created organization (${org.id}) owned by demo seed user (${user.id})`);
 
-    // 3 Suppliers
-    const supplier1 = await tx.supplier.create({
-      data: {
-        organizationId: org.id,
-        name: 'Global Tech Parts',
-        location: 'Tokyo, JP',
-        category: 'Electronics',
-        latitude: 35.6762,
-        longitude: 139.6503,
-      },
-    });
+      // 3 Suppliers
+      const supplier1 = await tx.supplier.create({
+        data: {
+          organizationId: org.id,
+          name: 'Global Tech Parts',
+          location: 'Tokyo, JP',
+          category: 'Electronics',
+          latitude: 35.6762,
+          longitude: 139.6503,
+        },
+      });
 
-    const supplier2 = await tx.supplier.create({
-      data: {
-        organizationId: org.id,
-        name: 'Eco-Friendly Pack Co',
-        location: 'Berlin, DE',
-        category: 'Packaging',
-        latitude: 52.5200,
-        longitude: 13.4050,
-      },
-    });
+      const supplier2 = await tx.supplier.create({
+        data: {
+          organizationId: org.id,
+          name: 'Eco-Friendly Pack Co',
+          location: 'Berlin, DE',
+          category: 'Packaging',
+          latitude: 52.5200,
+          longitude: 13.4050,
+        },
+      });
 
-    const supplier3 = await tx.supplier.create({
-      data: {
-        organizationId: org.id,
-        name: 'Logistics Supply Corp',
-        location: 'Chicago, US',
-        category: 'Raw Materials',
-        latitude: 41.8781,
-        longitude: -87.6298,
-      },
-    });
+      const supplier3 = await tx.supplier.create({
+        data: {
+          organizationId: org.id,
+          name: 'Logistics Supply Corp',
+          location: 'Chicago, US',
+          category: 'Raw Materials',
+          latitude: 41.8781,
+          longitude: -87.6298,
+        },
+      });
 
-    console.log('Created 3 suppliers.');
+      console.log('Created 3 suppliers.');
 
-    // 3 Facilities
-    const facility1 = await tx.facility.create({
-      data: {
-        organizationId: org.id,
-        name: 'Primary Assembly Plant',
-        type: 'Manufacturing',
-        location: 'Austin, US',
-        latitude: 30.2672,
-        longitude: -97.7431,
+      // 3 Facilities
+      const facility1 = await tx.facility.create({
+        data: {
+          organizationId: org.id,
+          name: 'Primary Assembly Plant',
+          type: 'Manufacturing',
+          location: 'Austin, US',
+          latitude: 30.2672,
+          longitude: -97.7431,
       },
     });
 
@@ -195,18 +190,48 @@ async function main() {
 
     console.log('Created 3 routes.');
 
-    // Fetch emission factors to link them to activities
-    const diesel = await tx.emissionFactor.findUniqueOrThrow({ where: { category: 'diesel' } });
-    const petrol = await tx.emissionFactor.findUniqueOrThrow({ where: { category: 'petrol' } });
-    const naturalGas = await tx.emissionFactor.findUniqueOrThrow({ where: { category: 'natural_gas' } });
-    const lpg = await tx.emissionFactor.findUniqueOrThrow({ where: { category: 'lpg' } });
-    const electricityUS = await tx.emissionFactor.findUniqueOrThrow({ where: { category: 'electricity_US-grid' } });
-    const electricityUK = await tx.emissionFactor.findUniqueOrThrow({ where: { category: 'electricity_UK-grid' } });
-    const electricityEU = await tx.emissionFactor.findUniqueOrThrow({ where: { category: 'electricity_EU-grid' } });
-    const electricityRenewable = await tx.emissionFactor.findUniqueOrThrow({ where: { category: 'electricity_renewable' } });
-    const airFreight = await tx.emissionFactor.findUniqueOrThrow({ where: { category: 'air_freight' } });
-    const railFreight = await tx.emissionFactor.findUniqueOrThrow({ where: { category: 'rail_freight' } });
-    const truckFreight = await tx.emissionFactor.findUniqueOrThrow({ where: { category: 'truck_freight' } });
+    // Fetch emission factors in a single batched query to link them to activities (excluding unused electricityUK-grid)
+    const targetCategories = [
+      'diesel',
+      'petrol',
+      'natural_gas',
+      'lpg',
+      'electricity_US-grid',
+      'electricity_EU-grid',
+      'electricity_renewable',
+      'air_freight',
+      'rail_freight',
+      'truck_freight',
+    ];
+
+    const factorsList = await tx.emissionFactor.findMany({
+      where: {
+        category: {
+          in: targetCategories,
+        },
+      },
+    });
+
+    const factorsMap = new Map(factorsList.map((f) => [f.category, f]));
+
+    const getFactorOrThrow = (category: string) => {
+      const factor = factorsMap.get(category);
+      if (!factor) {
+        throw new Error(`Required emission factor "${category}" was not found in the database.`);
+      }
+      return factor;
+    };
+
+    const diesel = getFactorOrThrow('diesel');
+    const petrol = getFactorOrThrow('petrol');
+    const naturalGas = getFactorOrThrow('natural_gas');
+    const lpg = getFactorOrThrow('lpg');
+    const electricityUS = getFactorOrThrow('electricity_US-grid');
+    const electricityEU = getFactorOrThrow('electricity_EU-grid');
+    const electricityRenewable = getFactorOrThrow('electricity_renewable');
+    const airFreight = getFactorOrThrow('air_freight');
+    const railFreight = getFactorOrThrow('rail_freight');
+    const truckFreight = getFactorOrThrow('truck_freight');
 
     // 10 Activities spread across last 6 months (Jan 2026 to Jun 2026)
     await tx.activity.createMany({
@@ -318,7 +343,12 @@ async function main() {
     });
 
     console.log('Seeded 10 activities.');
-  });
+  },
+  {
+    maxWait: 15000, // default is 2000ms
+    timeout: 30000, // default is 5000ms
+  }
+);
 
   console.log('Demo seed dataset seeded successfully!');
   console.log(`Login Email: ${DEMO_USER_EMAIL}`);

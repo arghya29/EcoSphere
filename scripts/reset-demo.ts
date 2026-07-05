@@ -9,31 +9,18 @@ async function main() {
   }
 
   console.log('Resetting demo seed dataset…');
-  const org = await prisma.organization.findFirst({
+
+  console.log(`Deleting demo seed organization(s) with name "${DEMO_ORG_NAME}"…`);
+  const orgDeleteResult = await prisma.organization.deleteMany({
     where: { name: DEMO_ORG_NAME },
   });
+  console.log(`Deleted ${orgDeleteResult.count} organization(s).`);
 
-  if (org) {
-    console.log(`Deleting demo seed organization (${org.id})…`);
-    await prisma.organization.delete({
-      where: { id: org.id },
-    });
-  } else {
-    console.log('Seed demo organization not found.');
-  }
-
-  const user = await prisma.user.findUnique({
+  console.log(`Deleting demo seed user(s) with email "${DEMO_USER_EMAIL}"…`);
+  const userDeleteResult = await prisma.user.deleteMany({
     where: { email: DEMO_USER_EMAIL },
   });
-
-  if (user) {
-    console.log(`Deleting demo seed user (${user.id})…`);
-    await prisma.user.delete({
-      where: { id: user.id },
-    });
-  } else {
-    console.log('Demo seed user not found.');
-  }
+  console.log(`Deleted ${userDeleteResult.count} user(s).`);
 
   console.log('Reset complete!');
 }
