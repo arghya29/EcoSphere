@@ -7,11 +7,13 @@ import { SupplyChainGraph } from '@/components/graph/supply-chain-graph';
 import { MapViewClient } from '@/components/map/map-view-client';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SkeletonCard } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 import type { DashboardSummary, SupplierRecord, FacilityRecord, RouteRecord } from '@/types/api';
-import { Upload, AlertCircle } from 'lucide-react';
+import { Upload, AlertCircle, TrendingUp, PieChart as PieIcon } from 'lucide-react';
+import { ScopeBreakdown } from '@/components/charts/scope-breakdown';
+import { EmissionsChart } from '@/components/charts/emissions-chart';
 
 export default function DashboardPage() {
   const { data: summary, isLoading: loadingSummary, error: summaryError } = useApi<DashboardSummary>('/api/dashboard');
@@ -47,7 +49,37 @@ export default function DashboardPage() {
       ) : loadingSummary ? (
         <SkeletonStats />
       ) : summary ? (
-        <DashboardStats total={summary.total} scope1={summary.scope1} scope2={summary.scope2} scope3={summary.scope3} />
+        <>
+          <DashboardStats total={summary.total} scope1={summary.scope1} scope2={summary.scope2} scope3={summary.scope3} />
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Emissions Historical Trend
+                </CardTitle>
+                <CardDescription>Monthly aggregated footprint.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <EmissionsChart data={summary.monthlyTrend.map((m) => ({ month: m.month, emissions: m.emissionsKg }))} />
+              </CardContent>
+            </Card>
+
+            <Card className="md:col-span-1">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <PieIcon className="h-5 w-5 text-primary" />
+                  Scope Share
+                </CardTitle>
+                <CardDescription>Scope breakdown comparison.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScopeBreakdown scope1={summary.scope1} scope2={summary.scope2} scope3={summary.scope3} />
+              </CardContent>
+            </Card>
+          </div>
+        </>
       ) : null}
 
       {!hasData ? (
