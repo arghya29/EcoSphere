@@ -11,10 +11,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SkeletonCard } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
-import type { DashboardSummary, SupplierRecord, FacilityRecord, RouteRecord } from '@/types/api';
-import { Upload, AlertCircle, TrendingUp, PieChart as PieIcon } from 'lucide-react';
+import type { DashboardSummary, SupplierRecord, FacilityRecord, RouteRecord, ActivityRecord } from '@/types/api';
+import { Upload, AlertCircle, TrendingUp, PieChart as PieIcon, Download, Loader2 } from 'lucide-react';
 import { ScopeBreakdown } from '@/components/charts/scope-breakdown';
 import { EmissionsChart } from '@/components/charts/emissions-chart';
+import { exportActivitiesAsCsv } from '@/lib/utils/exportCsv';
+
 
 export default function DashboardPage() {
   const { data: summary, isLoading: loadingSummary, error: summaryError } = useApi<DashboardSummary>('/api/dashboard');

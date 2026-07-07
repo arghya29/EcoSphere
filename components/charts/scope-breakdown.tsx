@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
+import { toScopeBreakdownData } from '@/lib/utils/chart-helpers';
+
 interface ScopeBreakdownProps {
   scope1: number;
   scope2: number;
@@ -10,11 +12,7 @@ interface ScopeBreakdownProps {
 }
 
 export function ScopeBreakdown({ scope1, scope2, scope3 }: ScopeBreakdownProps) {
-  const data = [
-    { name: 'Scope 1 (Direct)', value: scope1, color: '#1e3a5f' },
-    { name: 'Scope 2 (Indirect Grid)', value: scope2, color: '#2f6f4f' },
-    { name: 'Scope 3 (Supply Chain)', value: scope3, color: '#b8860b' },
-  ].filter((d) => d.value > 0);
+  const data = toScopeBreakdownData({ scope1, scope2, scope3 });
 
   if (data.length === 0) {
     return (
@@ -37,8 +35,8 @@ export function ScopeBreakdown({ scope1, scope2, scope3 }: ScopeBreakdownProps) 
             paddingAngle={5}
             dataKey="value"
           >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
+            {data.map((entry) => (
+              <Cell key={entry.name} fill={entry.color} />
             ))}
           </Pie>
           <Tooltip
@@ -55,3 +53,4 @@ export function ScopeBreakdown({ scope1, scope2, scope3 }: ScopeBreakdownProps) 
     </div>
   );
 }
+
