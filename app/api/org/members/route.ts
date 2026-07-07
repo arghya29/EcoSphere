@@ -33,12 +33,34 @@ export async function POST(req: NextRequest) {
   const ctx = await requireOrg();
   if (isErrorResponse(ctx)) return ctx;
 
+  // Check requester's role (only OWNER can mutate members)
+  const requesterMembership = await prisma.membership.findUnique({
+    where: {
+      userId_organizationId: {
+        userId: ctx.userId,
+        organizationId: ctx.organizationId,
+      },
+    },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== 'OWNER') {
+    return NextResponse.json({ success: false, error: 'Forbidden: Requires OWNER role' }, { status: 403 });
+  }
+
   try {
     const body = await req.json();
     const parsed = inviteSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid payload' },
+        { status: 400 }
+      );
+    }
+
+    // Do not allow assigning OWNER role via invite or update to prevent multiple owners
+    if (parsed.data.role === 'OWNER') {
+      return NextResponse.json(
+        { success: false, error: 'Cannot assign or promote to OWNER role' },
         { status: 400 }
       );
     }
@@ -52,6 +74,33 @@ export async function POST(req: NextRequest) {
           name: parsed.data.email.split('@')[0],
         },
       });
+    }
+
+    // Prevent modifying own role
+    if (user.id === ctx.userId) {
+      return NextResponse.json({ success: false, error: 'Cannot change your own role' }, { status: 400 });
+    }
+
+    // If target user is an existing OWNER, prevent demoting them if they are the last owner
+    const existingMembership = await prisma.membership.findUnique({
+      where: {
+        userId_organizationId: {
+          userId: user.id,
+          organizationId: ctx.organizationId,
+        },
+      },
+    });
+
+    if (existingMembership && existingMembership.role === 'OWNER') {
+      const ownerCount = await prisma.membership.count({
+        where: {
+          organizationId: ctx.organizationId,
+          role: 'OWNER',
+        },
+      });
+      if (ownerCount <= 1) {
+        return NextResponse.json({ success: false, error: 'Cannot demote the last owner' }, { status: 400 });
+      }
     }
 
     // Upsert membership
@@ -85,18 +134,63 @@ export async function DELETE(req: NextRequest) {
   const ctx = await requireOrg();
   if (isErrorResponse(ctx)) return ctx;
 
+  // Check requester's role (only OWNER can mutate members)
+  const requesterMembership = await prisma.membership.findUnique({
+    where: {
+      userId_organizationId: {
+        userId: ctx.userId,
+        organizationId: ctx.organizationId,
+      },
+    },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== 'OWNER') {
+    return NextResponse.json({ success: false, error: 'Forbidden: Requires OWNER role' }, { status: 403 });
+  }
+
   try {
     const url = new URL(req.url);
-    const userId = url.searchParams.get('userId');
+    let userId = url.searchParams.get('userId');
+    if (!userId) {
+      try {
+        const body = await req.json();
+        userId = body.userId;
+      } catch {}
+    }
+
     if (!userId) {
       return NextResponse.json({ success: false, error: 'Missing user ID' }, { status: 400 });
     }
 
-    // Do not allow deleting own membership
-    const session = await prisma.session.findFirst({
-      where: { sessionToken: req.headers.get('cookie') ?? '' },
+    if (userId === ctx.userId) {
+      return NextResponse.json({ success: false, error: 'Cannot remove yourself from the organization' }, { status: 400 });
+    }
+
+    const targetMembership = await prisma.membership.findUnique({
+      where: {
+        userId_organizationId: {
+          userId,
+          organizationId: ctx.organizationId,
+        },
+      },
     });
-    // For safety, allow delete if membership matches organizationId
+
+    if (!targetMembership) {
+      return NextResponse.json({ success: false, error: 'Member not found' }, { status: 404 });
+    }
+
+    if (targetMembership.role === 'OWNER') {
+      const ownerCount = await prisma.membership.count({
+        where: {
+          organizationId: ctx.organizationId,
+          role: 'OWNER',
+        },
+      });
+      if (ownerCount <= 1) {
+        return NextResponse.json({ success: false, error: 'Cannot remove the last owner of the organization' }, { status: 400 });
+      }
+    }
+
     await prisma.membership.delete({
       where: {
         userId_organizationId: {
@@ -114,3 +208,4 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
+

@@ -9,26 +9,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/components/ui/ToastProvider';
 import { AlertCircle, UserPlus, Users } from 'lucide-react';
 import { SkeletonCard } from '@/components/ui/skeleton';
-
-interface Member {
-  id: string;
-  userId: string;
-  role: 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
-  user: {
-    name: string | null;
-    email: string;
-  };
-}
+import { Member } from '@/types/member';
 
 export default function TeamSettingsPage() {
   const { data: members, isLoading, error, refetch } = useApi<Member[]>('/api/org/members');
   const { toast } = useToast();
 
   const [email, setEmail] = React.useState('');
-  const [role, setRole] = React.useState<'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER'>('MEMBER');
+  const [role, setRole] = React.useState<Member['role']>('MEMBER');
 
   const { mutate: updateMember, isLoading: isSaving } = useMutation({
     url: '/api/org/members',
@@ -40,6 +31,18 @@ export default function TeamSettingsPage() {
     },
     onError: (err) => {
       toast.error('Failed to process member', err || 'Something went wrong.');
+    },
+  });
+
+  const { mutate: deleteMember, isLoading: isDeleting } = useMutation({
+    url: '/api/org/members',
+    method: 'DELETE',
+    onSuccess: () => {
+      toast.success('Member Removed', 'Team member removed from workspace.');
+      refetch();
+    },
+    onError: (err) => {
+      toast.error('Error', err || 'Failed to remove member.');
     },
   });
 
@@ -55,16 +58,7 @@ export default function TeamSettingsPage() {
 
   const handleDelete = (userId: string) => {
     if (confirm('Are you sure you want to remove this member from the organization?')) {
-      fetch(`/api/org/members?userId=${userId}`, { method: 'DELETE' })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            toast.success('Member Removed', 'Team member removed from workspace.');
-            refetch();
-          } else {
-            toast.error('Error', data.error);
-          }
-        });
+      deleteMember({ userId });
     }
   };
 
@@ -104,7 +98,7 @@ export default function TeamSettingsPage() {
                 <Label htmlFor="invite-role">Workspace Role</Label>
                 <Select
                   value={role}
-                  onValueChange={(val) => setRole(val as any)}
+                  onValueChange={(val) => setRole(val as Member['role'])}
                 >
                   <SelectTrigger id="invite-role">
                     <SelectValue placeholder="Select Role" />
@@ -117,7 +111,7 @@ export default function TeamSettingsPage() {
                 </Select>
               </div>
 
-              <Button type="submit" disabled={isSaving} className="w-full">
+              <Button type="submit" disabled={isSaving || isDeleting} className="w-full">
                 {isSaving ? 'Processing...' : 'Add Member'}
               </Button>
             </form>
@@ -150,6 +144,7 @@ export default function TeamSettingsPage() {
               members={members}
               onDelete={handleDelete}
               onUpdateRole={handleUpdateRole}
+              isPending={isSaving || isDeleting}
             />
           )}
         </div>

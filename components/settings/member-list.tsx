@@ -5,24 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, UserCheck } from 'lucide-react';
 
-interface Member {
-  id: string;
-  userId: string;
-  role: 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
-  user: {
-    name: string | null;
-    email: string;
-  };
-}
+import { Member } from '@/types/member';
 
 export function MemberList({
   members,
   onDelete,
   onUpdateRole,
+  isPending = false,
 }: {
   members: Member[];
   onDelete: (userId: string) => void;
   onUpdateRole: (email: string, role: Member['role']) => void;
+  isPending?: boolean;
 }) {
   const roleColors = {
     OWNER: 'bg-scope1 text-white border-transparent',
@@ -48,8 +42,9 @@ export function MemberList({
               <>
                 <select
                   value={m.role}
+                  disabled={isPending}
                   onChange={(e) => onUpdateRole(m.user.email, e.target.value as Member['role'])}
-                  className="rounded border bg-background px-2 py-1.5 text-xs font-medium"
+                  className="rounded border bg-background px-2 py-1.5 text-xs font-medium disabled:opacity-50"
                   aria-label={`Change role for ${m.user.email}`}
                 >
                   <option value="ADMIN">ADMIN</option>
@@ -59,6 +54,7 @@ export function MemberList({
                 <Button
                   variant="outline"
                   size="icon"
+                  disabled={isPending}
                   onClick={() => onDelete(m.userId)}
                   className="text-destructive hover:bg-destructive/10"
                   aria-label={`Remove team member ${m.user.email}`}
@@ -73,3 +69,4 @@ export function MemberList({
     </div>
   );
 }
+
