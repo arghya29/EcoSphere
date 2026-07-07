@@ -5,6 +5,7 @@ import { useApi } from '@/hooks/use-api';
 import { useToast } from '@/components/ui/ToastProvider';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { EmptyState } from '@/components/ui/empty-state';
 import { downloadJsonReport, downloadCsvReport, downloadPdfReport } from '@/lib/reports';
 import { FileText, FileSpreadsheet, FileJson, FileDown } from 'lucide-react';
@@ -21,13 +22,25 @@ export default function ReportsPage() {
   const { data: summary } = useApi<DashboardSummary>('/api/dashboard');
   const { data: insightsData } = useApi<{ insights: InsightRecord[] }>('/api/insights');
   const { data: history, refetch } = useApi<ReportRecord[]>('/api/reports');
+  const [title, setTitle] = React.useState('Carbon Footprint Report');
+  const [themeColor, setThemeColor] = React.useState('#1e3a5f');
+  const [includeSummary, setIncludeSummary] = React.useState(true);
+  const [includeDetails, setIncludeDetails] = React.useState(true);
   const [isGenerating, setIsGenerating] = React.useState<string | null>(null);
 
   const recordReport = async (format: 'PDF' | 'CSV' | 'JSON') => {
     await fetch('/api/reports', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ format }),
+      body: JSON.stringify({
+        format,
+        options: {
+          title,
+          themeColor,
+          includeSummary,
+          includeDetails,
+        },
+      }),
     });
     refetch();
   };
@@ -37,9 +50,10 @@ export default function ReportsPage() {
     setIsGenerating(format);
     try {
       const insights = insightsData?.insights ?? [];
-      if (format === 'PDF') downloadPdfReport(summary, insights, 'Your Organization');
+      const orgName = title || 'Your Organization';
+      if (format === 'PDF') downloadPdfReport(summary, insights, orgName);
       if (format === 'CSV') downloadCsvReport(summary);
-      if (format === 'JSON') downloadJsonReport(summary, insights, 'Your Organization');
+      if (format === 'JSON') downloadJsonReport(summary, insights, orgName);
       await recordReport(format);
       toast({ title: `${format} report downloaded` });
     } catch (err) {
@@ -56,31 +70,82 @@ export default function ReportsPage() {
         <p className="text-sm text-muted-foreground">Export your footprint as PDF, CSV, or JSON — generated entirely in your browser.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <ExportCard
-          icon={<FileText className="h-5 w-5" aria-hidden="true" />}
-          title="PDF report"
-          description="Formatted summary with charts data, top emitters, and key insights."
-          onClick={() => handleExport('PDF')}
-          isLoading={isGenerating === 'PDF'}
-          disabled={!summary}
-        />
-        <ExportCard
-          icon={<FileSpreadsheet className="h-5 w-5" aria-hidden="true" />}
-          title="CSV export"
-          description="Raw totals and per-entity emissions, ready for a spreadsheet."
-          onClick={() => handleExport('CSV')}
-          isLoading={isGenerating === 'CSV'}
-          disabled={!summary}
-        />
-        <ExportCard
-          icon={<FileJson className="h-5 w-5" aria-hidden="true" />}
-          title="JSON export"
-          description="Machine-readable export for downstream tools or your own scripts."
-          onClick={() => handleExport('JSON')}
-          isLoading={isGenerating === 'JSON'}
-          disabled={!summary}
-        />
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card className="md:col-span-1">
+          <CardHeader>
+            <CardTitle className="text-base">Customize Report</CardTitle>
+            <CardDescription>Visual options for generated documents.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <label htmlFor="custom-title" className="text-xs font-semibold text-muted-foreground">Report Header Title</label>
+              <Input
+                id="custom-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="theme-color" className="text-xs font-semibold text-muted-foreground">Theme Color</label>
+              <select
+                id="theme-color"
+                value={themeColor}
+                onChange={(e) => setThemeColor(e.target.value)}
+                className="w-full rounded border bg-background px-3 py-1.5 text-sm"
+              >
+                <option value="#1e3a5f">Deep Blue (#1e3a5f)</option>
+                <option value="#2f6f4f">Forest Green (#2f6f4f)</option>
+                <option value="#b3261e">Crimson Red (#b3261e)</option>
+                <option value="#6b7280">Neutral Gray (#6b7280)</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2 pt-2">
+              <input
+                id="inc-summary"
+                type="checkbox"
+                checked={includeSummary}
+                onChange={(e) => setIncludeSummary(e.target.checked)}
+              />
+              <label htmlFor="inc-summary" className="text-xs font-semibold text-muted-foreground">Include Summary Section</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                id="inc-details"
+                type="checkbox"
+                checked={includeDetails}
+                onChange={(e) => setIncludeDetails(e.target.checked)}
+              />
+              <label htmlFor="inc-details" className="text-xs font-semibold text-muted-foreground">Include Detailed Table Section</label>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="md:col-span-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 align-start">
+          <ExportCard
+            icon={<FileText className="h-5 w-5" aria-hidden="true" />}
+            title="PDF report"
+            description="Formatted summary with charts data, top emitters, and key insights."
+            onClick={() => handleExport('PDF')}
+            isLoading={isGenerating === 'PDF'}
+            disabled={!summary}
+          />
+          <ExportCard
+            icon={<FileSpreadsheet className="h-5 w-5" aria-hidden="true" />}
+            title="CSV export"
+            description="Raw totals and per-entity emissions, ready for a spreadsheet."
+            onClick={() => handleExport('CSV')}
+            isLoading={isGenerating === 'CSV'}
+            disabled={!summary}
+          />
+          <ExportCard
+            icon={<FileJson className="h-5 w-5" aria-hidden="true" />}
+            title="JSON export"
+            description="Machine-readable export for downstream tools or your own scripts."
+            onClick={() => handleExport('JSON')}
+            isLoading={isGenerating === 'JSON'}
+            disabled={!summary}
+          />
+        </div>
       </div>
 
       <Card>
