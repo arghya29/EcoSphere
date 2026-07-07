@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { useApi } from '@/hooks/use-api';
 import { DashboardStats } from '@/components/dashboard/dashboard-stats';
@@ -20,8 +21,22 @@ export default function DashboardPage() {
   const { data: suppliers } = useApi<SupplierRecord[]>('/api/suppliers');
   const { data: facilities } = useApi<FacilityRecord[]>('/api/facilities');
   const { data: routes } = useApi<RouteRecord[]>('/api/routes');
+  const { data: activities } = useApi<ActivityRecord[]>('/api/activities');
+
+  const [isExporting, setIsExporting] = React.useState(false);
 
   const hasData = (suppliers?.length ?? 0) > 0 || (facilities?.length ?? 0) > 0;
+
+  const handleExport = () => {
+    if (!activities?.length) return;
+    setIsExporting(true);
+    // Minimal delay gives the browser time to render the loading spinner
+    // before the synchronous CSV generation + download fires.
+    setTimeout(() => {
+      exportActivitiesAsCsv(activities);
+      setIsExporting(false);
+    }, 150);
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -30,13 +45,31 @@ export default function DashboardPage() {
           <h1 className="font-display text-xl sm:text-2xl font-semibold">Dashboard</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">Your organization&apos;s carbon footprint at a glance.</p>
         </div>
-        <Button asChild size="sm" className="shrink-0">
-          <Link href="/upload">
-            <Upload className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">Upload data</span>
-            <span className="sm:hidden">Upload</span>
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            id="export-csv-btn"
+            size="sm"
+            variant="outline"
+            onClick={handleExport}
+            disabled={isExporting || !activities?.length}
+            aria-label="Export emissions data as CSV"
+          >
+            {isExporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Download className="h-4 w-4" aria-hidden="true" />
+            )}
+            <span className="hidden sm:inline">{isExporting ? 'Exporting\u2026' : 'Export CSV'}</span>
+            <span className="sm:hidden">CSV</span>
+          </Button>
+          <Button asChild size="sm" className="shrink-0">
+            <Link href="/upload">
+              <Upload className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Upload data</span>
+              <span className="sm:hidden">Upload</span>
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {summaryError ? (

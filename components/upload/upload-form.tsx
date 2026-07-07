@@ -5,8 +5,9 @@ import { parseFile, validateColumns, validateRows, type ParsedFile, type UploadS
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ProgressSteps } from '@/components/ui/progress-bar';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/components/ui/ToastProvider';
 import { UploadCloud, FileSpreadsheet, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
+import { ValidationErrorList } from '@/components/ui/validation-error-list';
 import { cn } from '@/lib/utils';
 
 const SCHEMA_LABELS: Record<UploadSchemaKind, { title: string; description: string; example: string }> = {
@@ -174,18 +175,7 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
             )}
 
             {rowErrors.length > 0 && (
-              <div role="alert" className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-sm text-amber-600">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                <div>
-                  <p className="font-medium">Data validation issues</p>
-                  <ul className="mt-1 list-inside list-disc">
-                    {rowErrors.slice(0, 5).map((err, i) => (
-                      <li key={i}>{err.message}</li>
-                    ))}
-                    {rowErrors.length > 5 && <li>...and {rowErrors.length - 5} more issue(s)</li>}
-                  </ul>
-                </div>
-              </div>
+              <ValidationErrorList errors={rowErrors} />
             )}
 
             {missingColumns.length === 0 && rowErrors.length === 0 && (
