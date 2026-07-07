@@ -78,6 +78,18 @@ export function validateRows(kind: UploadSchemaKind, rows: Record<string, string
       if (!row.name || row.name.trim() === '') {
         errors.push({ column: 'name', message: `Row ${rowNum}: name is required` });
       }
+      if (row.latitude && row.latitude.trim() !== '') {
+        const lat = Number(row.latitude);
+        if (isNaN(lat) || lat < -90 || lat > 90) {
+          errors.push({ column: 'latitude', message: `Row ${rowNum}: latitude must be a valid number between -90 and 90` });
+        }
+      }
+      if (row.longitude && row.longitude.trim() !== '') {
+        const lng = Number(row.longitude);
+        if (isNaN(lng) || lng < -180 || lng > 180) {
+          errors.push({ column: 'longitude', message: `Row ${rowNum}: longitude must be a valid number between -180 and 180` });
+        }
+      }
     }
   }
 
