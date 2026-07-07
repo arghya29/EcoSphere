@@ -80,6 +80,7 @@ model Organization {
   activities Activity[]
   reports    Report[]
   customFactors CustomEmissionFactor[]
+  targets    Target[]
 }
 
 // Kept minimal for V1 (single-org-per-user is the common case), but
@@ -228,17 +229,31 @@ model Report {
 }
 
 model CustomEmissionFactor {
-  id             String        @id @default(cuid())
+  id             String          @id @default(cuid())
   organizationId String
   category       String
   scope          EmissionScope
   value          Float
   unit           String
   source         String?
-  createdAt      DateTime      @default(now())
+  createdAt      DateTime        @default(now())
 
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, category])
+  @@index([organizationId])
+}
+
+model Target {
+  id             String          @id @default(cuid())
+  organizationId String
+  scope          EmissionScope
+  targetValue    Float           // Target emissions in kgCO2e
+  currentValue   Float           @default(0) // Current emissions in kgCO2e
+  year           Int
+  createdAt      DateTime        @default(now())
+
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
   @@index([organizationId])
 }
