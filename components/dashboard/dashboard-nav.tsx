@@ -19,6 +19,7 @@ import {
   LogOut,
   User,
   ChevronsUpDown,
+  Target,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -35,6 +36,7 @@ const NAV_ITEMS = [
   { href: '/upload', label: 'Upload Data', icon: Upload },
   { href: '/builder', label: 'Supply-Chain Builder', icon: Network },
   { href: '/analysis', label: 'Emissions', icon: BarChart3 },
+  { href: '/targets', label: 'Targets', icon: Target },
   { href: '/insights', label: 'Insights', icon: Lightbulb },
   { href: '/reports', label: 'Reports', icon: FileDown },
 ];

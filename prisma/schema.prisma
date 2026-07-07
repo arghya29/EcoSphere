@@ -79,6 +79,7 @@ model Organization {
   routes     Route[]
   activities Activity[]
   reports    Report[]
+  targets    Target[]
 }
 
 // Kept minimal for V1 (single-org-per-user is the common case), but
@@ -222,6 +223,20 @@ model Report {
   createdAt      DateTime     @default(now())
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}
+
+model Target {
+  id             String        @id @default(cuid())
+  organizationId String
+  scope          EmissionScope
+  targetValue    Float         // Target emissions in kgCO2e
+  currentValue   Float         @default(0) // Current emissions in kgCO2e
+  year           Int
+  createdAt      DateTime      @default(now())
+
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
 }
