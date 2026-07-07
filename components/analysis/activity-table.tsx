@@ -3,8 +3,9 @@
 import * as React from 'react';
 import { formatKg } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/components/ui/ToastProvider';
 import { Trash2, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { hasNextPage } from '@/lib/utils/pagination';
 
 interface Activity {
   id: string;
@@ -31,6 +32,11 @@ export function ActivityTable() {
   const [endDate, setEndDate] = React.useState('');
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);
+
+  // Clear selections when filters or pagination changes to prevent accidental deletes of off-page records
+  React.useEffect(() => {
+    setSelectedIds([]);
+  }, [type, startDate, endDate, offset]);
 
   const fetchActivities = React.useCallback(async () => {
     setLoading(true);
@@ -89,10 +95,14 @@ export function ActivityTable() {
   };
 
   const toggleSelectAll = () => {
-    if (selectedIds.length === activities.length) {
-      setSelectedIds([]);
+    const allOnPageSelected = activities.length > 0 && activities.every((a) => selectedIds.includes(a.id));
+    if (allOnPageSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !activities.some((a) => a.id === id)));
     } else {
-      setSelectedIds(activities.map((a) => a.id));
+      setSelectedIds((prev) => {
+        const newSelections = activities.filter((a) => !prev.includes(a.id)).map((a) => a.id);
+        return [...prev, ...newSelections];
+      });
     }
   };
 
@@ -143,7 +153,7 @@ export function ActivityTable() {
               <th className="px-4 py-3 w-10">
                 <input
                   type="checkbox"
-                  checked={activities.length > 0 && selectedIds.length === activities.length}
+                  checked={activities.length > 0 && activities.every((a) => selectedIds.includes(a.id))}
                   onChange={toggleSelectAll}
                   aria-label="Select all activities"
                 />
@@ -213,7 +223,7 @@ export function ActivityTable() {
             variant="outline"
             size="sm"
             onClick={() => setOffset((o) => (o + limit < total ? o + limit : o))}
-            disabled={offset + limit >= total || loading}
+            disabled={!hasNextPage(offset, limit, total) || loading}
           >
             Next
             <ChevronRight className="h-4 w-4" />
@@ -223,3 +233,4 @@ export function ActivityTable() {
     </div>
   );
 }
+
