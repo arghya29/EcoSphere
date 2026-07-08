@@ -24,6 +24,17 @@ const MODE_COLOR: Record<string, string> = {
   OTHER: '#6b7280',
 };
 
+type WithCoords<T> = T & { latitude: number; longitude: number };
+
+// A coordinate value of 0 is valid (the equator / the prime meridian), so test
+// for a finite number rather than truthiness. A `latitude && longitude` check
+// treats 0 as "missing" and would silently drop those entities from the map.
+function hasCoords<T extends { latitude: number | null; longitude: number | null }>(
+  entity: T,
+): entity is WithCoords<T> {
+  return Number.isFinite(entity.latitude) && Number.isFinite(entity.longitude);
+}
+
 function FitBounds({ points }: { points: [number, number][] }) {
   const map = useMap();
   React.useEffect(() => {
@@ -34,6 +45,9 @@ function FitBounds({ points }: { points: [number, number][] }) {
   return null;
 }
 
+import { MapToolbar } from './map-toolbar';
+import { MapLegend } from './map-legend';
+
 export function MapView({
   suppliers,
   facilities,
@@ -43,15 +57,38 @@ export function MapView({
   facilities: FacilityRecord[];
   routes: RouteRecord[];
 }) {
+  const [showSuppliers, setShowSuppliers] = React.useState(true);
+  const [showFacilities, setShowFacilities] = React.useState(true);
+  const [selectedMode, setSelectedMode] = React.useState('ALL');
+  const [searchQuery, setSearchQuery] = React.useState('');
+
   const supplierById = new Map(suppliers.map((s) => [s.id, s]));
   const facilityById = new Map(facilities.map((f) => [f.id, f]));
 
+  const query = searchQuery.toLowerCase().trim();
+
+  const filteredSuppliers = suppliers.filter(
+    (s) => showSuppliers && hasCoords(s) && (query === '' || s.name.toLowerCase().includes(query))
+  );
+
+  const filteredFacilities = facilities.filter(
+    (f) => showFacilities && hasCoords(f) && (query === '' || f.name.toLowerCase().includes(query))
+  );
+
+  const filteredRoutes = routes.filter((r) => {
+    if (selectedMode !== 'ALL' && r.mode !== selectedMode) return false;
+    const origin = r.originSupplierId ? supplierById.get(r.originSupplierId) : facilityById.get(r.originFacilityId ?? '');
+    const destination = facilityById.get(r.destinationId);
+    if (!origin || !destination || !hasCoords(origin) || !hasCoords(destination)) return false;
+    return true;
+  });
+
   const allPoints: [number, number][] = [
-    ...suppliers.filter((s) => s.latitude && s.longitude).map((s) => [s.latitude!, s.longitude!] as [number, number]),
-    ...facilities.filter((f) => f.latitude && f.longitude).map((f) => [f.latitude!, f.longitude!] as [number, number]),
+    ...filteredSuppliers.map((s) => [s.latitude, s.longitude] as [number, number]),
+    ...filteredFacilities.map((f) => [f.latitude, f.longitude] as [number, number]),
   ];
 
-  if (allPoints.length === 0) {
+  if (suppliers.length === 0 && facilities.length === 0) {
     return (
       <div className="flex h-72 items-center justify-center rounded-md border border-dashed border-border text-sm text-muted-foreground">
         Add latitude/longitude to your suppliers and facilities to see them on the map.
@@ -59,20 +96,29 @@ export function MapView({
     );
   }
 
-  const center = allPoints[0];
+  const center = allPoints[0] || [0, 0];
 
   return (
-    <div className="h-[420px] w-full overflow-hidden rounded-md border border-border" tabIndex={0} aria-label="Map of supplier and facility locations">
-      <MapContainer center={center} zoom={3} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <FitBounds points={allPoints} />
+    <div className="flex flex-col">
+      <MapToolbar
+        showSuppliers={showSuppliers}
+        setShowSuppliers={setShowSuppliers}
+        showFacilities={showFacilities}
+        setShowFacilities={setShowFacilities}
+        selectedMode={selectedMode}
+        setSelectedMode={setSelectedMode}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
+      <div className="h-[420px] w-full overflow-hidden rounded-md border border-border" tabIndex={0} aria-label="Map of supplier and facility locations">
+        <MapContainer center={center} zoom={3} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          {allPoints.length > 0 && <FitBounds points={allPoints} />}
 
-        {suppliers
-          .filter((s) => s.latitude && s.longitude)
-          .map((s) => (
+          {filteredSuppliers.map((s) => (
             <Marker key={s.id} position={[s.latitude!, s.longitude!]} icon={supplierIcon}>
               <Popup>
                 <strong>{s.name}</strong>
@@ -81,43 +127,49 @@ export function MapView({
                 {s.category && (
                   <>
                     <br />
-                    {s.category}
+                    Category: {s.category}
                   </>
                 )}
               </Popup>
             </Marker>
           ))}
 
-        {facilities
-          .filter((f) => f.latitude && f.longitude)
-          .map((f) => (
+          {filteredFacilities.map((f) => (
             <Marker key={f.id} position={[f.latitude!, f.longitude!]} icon={supplierIcon}>
               <Popup>
                 <strong>{f.name}</strong>
                 <br />
-                {f.type}
+                Type: {f.type}
                 <br />
                 {f.location}
               </Popup>
             </Marker>
           ))}
 
-        {routes.map((r) => {
-          const origin = r.originSupplierId ? supplierById.get(r.originSupplierId) : facilityById.get(r.originFacilityId ?? '');
-          const destination = facilityById.get(r.destinationId);
-          if (!origin?.latitude || !origin?.longitude || !destination?.latitude || !destination?.longitude) return null;
-          return (
-            <Polyline
-              key={r.id}
-              positions={[
-                [origin.latitude, origin.longitude],
-                [destination.latitude, destination.longitude],
-              ]}
-              pathOptions={{ color: MODE_COLOR[r.mode], weight: 2, dashArray: r.mode === 'AIR' ? '6 6' : undefined }}
-            />
-          );
-        })}
-      </MapContainer>
+          {filteredRoutes.map((r) => {
+            const origin = r.originSupplierId ? supplierById.get(r.originSupplierId) : facilityById.get(r.originFacilityId ?? '');
+            const destination = facilityById.get(r.destinationId);
+            if (!origin || !destination || !hasCoords(origin) || !hasCoords(destination)) return null;
+            return (
+              <Polyline
+                key={r.id}
+                positions={[
+                  [origin.latitude, origin.longitude],
+                  [destination.latitude, destination.longitude],
+                ]}
+                pathOptions={{ color: MODE_COLOR[r.mode], weight: 3, dashArray: r.mode === 'AIR' ? '6 6' : undefined }}
+              >
+                <Popup>
+                  <strong>Route Mode: {r.mode}</strong>
+                  <br />
+                  Distance: {r.distanceKm} km
+                </Popup>
+              </Polyline>
+            );
+          })}
+        </MapContainer>
+      </div>
+      <MapLegend />
     </div>
   );
 }

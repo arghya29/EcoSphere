@@ -88,6 +88,15 @@ npm run db:seed    # seeds emission factors + demo org with sample data
 
 Demo login: `demo@ecosphere.dev` / `EcoSphereDemo123!`
 
+For contributor onboarding and developer testing, you can also seed a larger dedicated demo dataset and reset it:
+
+```bash
+npm run seed:demo   # seeds 1 org, 3 suppliers, 3 facilities, 3 routes, and 10 activities
+npm run reset:demo  # deletes the seeded developer dataset cleanly
+```
+
+Demo seed login: `demo-seed-user@ecosphere.dev` / `DemoSeedUser123!`
+
 ### 5. Run the dev server
 
 ```bash
