@@ -63,9 +63,6 @@ export default function BuilderPage() {
       location: newSupplier.location || '',
       latitude: newSupplier.latitude ? Number(newSupplier.latitude) : null,
       longitude: newSupplier.longitude ? Number(newSupplier.longitude) : null,
-      organizationId: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
     setSuppliers((prev) => [...prev, optimisticSupplier]);
     return { previousSuppliers };
@@ -112,9 +109,6 @@ export default function BuilderPage() {
       location: newFacility.location || '',
       latitude: newFacility.latitude ? Number(newFacility.latitude) : null,
       longitude: newFacility.longitude ? Number(newFacility.longitude) : null,
-      organizationId: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
     setFacilities((prev) => [...prev, optimisticFacility]);
     return { previousFacilities };
@@ -163,17 +157,14 @@ export default function BuilderPage() {
 
     const optimisticRoute: RouteRecord = {
       id: tempId,
-      organizationId: '',
       originSupplierId: newRoute.originSupplierId || null,
       originFacilityId: newRoute.originFacilityId || null,
       destinationId: newRoute.destinationId,
       mode: newRoute.mode,
       distanceKm: Number(newRoute.distanceKm),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
       originSupplier: originSupplier || null,
       originFacility: originFacility || null,
-      destination: destination || null,
+      destination: destination,
     };
     setRoutes((prev) => [...prev, optimisticRoute]);
     return { previousRoutes };
