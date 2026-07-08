@@ -169,7 +169,8 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                 <div>
                   <p className="font-medium">Missing required columns</p>
-                  <p>{missingColumns.join(', ')}. Add them and re-upload.</p>
+                  {/* FIX 1: Template literal prevents stray spaces before the period */}
+                  <p>{`${missingColumns.join(', ')}. Add them and re-upload.`}</p>
                 </div>
               </div>
             )}
@@ -185,35 +186,40 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
               </div>
             )}
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
-              {parsed.fileName} &mdash; {parsed.rowCount} rows detected. Preview of the first 5:
-            </div>
+            {/* FIX 2: Only render the preview table if the schema (columns) are valid */}
+            {missingColumns.length === 0 && (
+              <>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
+                  {parsed.fileName} &mdash; {parsed.rowCount} rows detected. Preview of the first 5:
+                </div>
 
-            <div className="overflow-x-auto rounded-md border border-border scrollbar-thin">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-muted">
-                  <tr>
-                    {parsed.headers.map((h) => (
-                      <th key={h} scope="col" className="whitespace-nowrap px-3 py-2 font-medium">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {parsed.rows.slice(0, 5).map((row, i) => (
-                    <tr key={i} className="border-t border-border">
-                      {parsed.headers.map((h) => (
-                        <td key={h} className="whitespace-nowrap px-3 py-2">
-                          {row[h]}
-                        </td>
+                <div className="overflow-x-auto rounded-md border border-border scrollbar-thin">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-muted">
+                      <tr>
+                        {parsed.headers.map((h) => (
+                          <th key={h} scope="col" className="whitespace-nowrap px-3 py-2 font-medium">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {parsed.rows.slice(0, 5).map((row, i) => (
+                        <tr key={i} className="border-t border-border">
+                          {parsed.headers.map((h) => (
+                            <td key={h} className="whitespace-nowrap px-3 py-2">
+                              {row[h]}
+                            </td>
+                          ))}
+                        </tr>
                       ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="ghost" onClick={() => { setParsed(null); setStep(0); }}>
