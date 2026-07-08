@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonCard } from '@/components/ui/skeleton';
 import { Lightbulb } from 'lucide-react';
 import type { InsightRecord } from '@/types/api';
+import { RiskPanel } from '@/components/insights/risk-panel';
 
 export default function InsightsPage() {
   const { data, isLoading } = useApi<{ insights: InsightRecord[] }>('/api/insights');
@@ -19,6 +20,8 @@ export default function InsightsPage() {
           Rule-based observations generated from your data — no AI, just thresholds and arithmetic.
         </p>
       </div>
+
+      <RiskPanel />
 
       {isLoading ? (
         <output className="grid gap-4 sm:grid-cols-2" aria-live="polite" aria-label="Loading insights">

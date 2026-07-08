@@ -71,7 +71,7 @@ export function EntityForm({
     const body = Object.fromEntries(
       Object.entries(form).map(([key, value]) => {
         if (key === 'latitude' || key === 'longitude') {
-          return [key, value || undefined];
+          return [key, value ? Number(value) : undefined];
         }
         return [key, value];
       })
