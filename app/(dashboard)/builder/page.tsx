@@ -223,7 +223,7 @@ export default function BuilderPage() {
               apiEndpoint="/api/suppliers"
               fields={SUPPLIER_FIELDS}
               payloadKey="suppliers"
-              onCreated={refetchSuppliers}
+              onCreated={() => {}}
               onMutate={onMutateSupplierCreate}
               onError={onErrorSupplierCreate}
               onSettled={onSettledSupplierCreate}
@@ -235,10 +235,7 @@ export default function BuilderPage() {
               items={suppliers}
               describe={(s) => s.name}
               deleteUrl={(s) => `/api/suppliers/${s.id}`}
-              onDeleted={() => {
-                refetchSuppliers();
-                refetchRoutes();
-              }}
+              onDeleted={() => {}}
               onMutate={onMutateSupplierDelete}
               onError={onErrorSupplierDelete}
               onSettled={onSettledSupplierDelete}
@@ -253,7 +250,7 @@ export default function BuilderPage() {
               apiEndpoint="/api/facilities"
               fields={FACILITY_FIELDS}
               payloadKey="facilities"
-              onCreated={refetchFacilities}
+              onCreated={() => {}}
               onMutate={onMutateFacilityCreate}
               onError={onErrorFacilityCreate}
               onSettled={onSettledFacilityCreate}
@@ -265,10 +262,7 @@ export default function BuilderPage() {
               items={facilities}
               describe={(f) => f.name}
               deleteUrl={(f) => `/api/facilities/${f.id}`}
-              onDeleted={() => {
-                refetchFacilities();
-                refetchRoutes();
-              }}
+              onDeleted={() => {}}
               onMutate={onMutateFacilityDelete}
               onError={onErrorFacilityDelete}
               onSettled={onSettledFacilityDelete}
@@ -281,7 +275,7 @@ export default function BuilderPage() {
             <AddRouteForm
               suppliers={suppliers}
               facilities={facilities}
-              onCreated={refetchRoutes}
+              onCreated={() => {}}
               onMutate={onMutateRouteCreate}
               onError={onErrorRouteCreate}
               onSettled={onSettledRouteCreate}
@@ -293,7 +287,7 @@ export default function BuilderPage() {
               items={routes}
               describe={describeRoute}
               deleteUrl={(r) => `/api/routes/${r.id}`}
-              onDeleted={refetchRoutes}
+              onDeleted={() => {}}
               onMutate={onMutateRouteDelete}
               onError={onErrorRouteDelete}
               onSettled={onSettledRouteDelete}
