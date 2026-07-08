@@ -11,12 +11,15 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const parsed = uploadSchema.safeParse(body);
-  if (!parsed.success) {
+ if (!parsed.success) {
+    // Map through all errors and join them into a single comprehensive message
+    const allErrors = parsed.error.issues.map((issue) => issue.message).join('; ');
+    
     return NextResponse.json(
-      { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid upload payload' },
+      { success: false, error: allErrors || 'Invalid upload payload' },
       { status: 400 }
     );
-  }
+  
 
   if (parsed.data.kind === 'suppliers') {
     const created = await prisma.$transaction(
