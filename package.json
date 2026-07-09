@@ -18,7 +18,8 @@
     "seed:demo": "tsx scripts/seed-demo.ts",
     "reset:demo": "tsx scripts/reset-demo.ts",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
