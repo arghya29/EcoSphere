@@ -45,7 +45,7 @@ export function EntityForm({
   const { mutate: createEntity, isLoading: isSubmitting } = useMutation({
     url: apiEndpoint,
     method: 'POST',
-    onMutate: async (variables) => {
+    onMutate: async (variables: any) => {
       return await onMutate?.(variables?.[payloadKey]?.[0]);
     },
     onSuccess: () => {
@@ -53,14 +53,14 @@ export function EntityForm({
       setForm(initialForm);
       onCreated();
     },
-    onError: (errorMsg, variables, context) => {
+    onError: (errorMsg, variables: any, context) => {
       toast.error(
         `Could not add ${title.toLowerCase()}`,
         errorMsg ?? 'Something went wrong. Please try again.'
       );
       onError?.(errorMsg, variables?.[payloadKey]?.[0], context);
     },
-    onSettled: (data, errorMsg, variables, context) => {
+    onSettled: (data, errorMsg, variables: any, context) => {
       onSettled?.(data, errorMsg, variables?.[payloadKey]?.[0], context);
     },
   });

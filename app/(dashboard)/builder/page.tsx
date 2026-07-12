@@ -330,7 +330,7 @@ function AddRouteForm({
   const { mutate: createRoute, isLoading: isSubmitting } = useMutation({
     url: '/api/routes',
     method: 'POST',
-    onMutate: async (variables) => {
+    onMutate: async (variables: any) => {
       return await onMutate?.(variables?.routes?.[0]);
     },
     onSuccess: () => {
@@ -340,11 +340,11 @@ function AddRouteForm({
       setDistanceKm('');
       onCreated();
     },
-    onError: (err, variables, context) => {
+    onError: (err, variables: any, context) => {
       toast.error('Could not add route', err);
       onError?.(err, variables?.routes?.[0], context);
     },
-    onSettled: (data, errorMsg, variables, context) => {
+    onSettled: (data, errorMsg, variables: any, context) => {
       onSettled?.(data, errorMsg, variables?.routes?.[0], context);
     },
   });
