@@ -73,6 +73,7 @@ async function main() {
       const org = await tx.organization.create({
         data: {
           name: DEMO_ORG_NAME,
+          region: 'UK-EU',
           ownerId: user.id,
           members: {
             create: {
