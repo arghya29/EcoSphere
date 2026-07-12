@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
   const type = url.searchParams.get('type');
   const startDateStr = url.searchParams.get('startDate');
   const endDateStr = url.searchParams.get('endDate');
+  const searchQuery = url.searchParams.get('search')?.trim();
 
   const where: any = { organizationId: ctx.organizationId };
   if (type && type !== 'ALL') {
@@ -24,6 +25,12 @@ export async function GET(req: NextRequest) {
     where.dateRecorded = {};
     if (startDateStr) where.dateRecorded.gte = new Date(startDateStr);
     if (endDateStr) where.dateRecorded.lte = new Date(endDateStr);
+  }
+  if (searchQuery) {
+    where.OR = [
+      { factor: { category: { contains: searchQuery, mode: 'insensitive' } } },
+      { type: { contains: searchQuery, mode: 'insensitive' } },
+    ];
   }
 
   const [activities, total] = await Promise.all([
