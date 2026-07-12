@@ -14,6 +14,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       onClick={toggle}
       className={className}
       aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+      title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
     >
       {theme === 'dark' ? (
         <Sun className="h-4 w-4" aria-hidden="true" />

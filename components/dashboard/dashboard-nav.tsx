@@ -66,7 +66,7 @@ export function DashboardNav({ userName }: { userName: string }) {
       </div>
 
       {mobileOpen && (
-        <nav id="mobile-nav" aria-label="Primary" className="fixed inset-x-0 bottom-0 top-[var(--mobile-nav-height)] z-30 overflow-y-auto border-b border-border bg-card md:hidden">
+        <nav id="mobile-nav" aria-label="Mobile Primary" className="fixed inset-x-0 bottom-0 top-[var(--mobile-nav-height)] z-30 overflow-y-auto border-b border-border bg-card md:hidden">
           <div className="flex flex-col min-h-full">
             <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
             <div className="mt-auto border-t border-border p-3">
@@ -90,7 +90,7 @@ export function DashboardNav({ userName }: { userName: string }) {
           <Ship className="h-5 w-5" aria-hidden="true" />
           EcoSphere
         </div>
-        <nav aria-label="Primary" className="flex-1 py-3">
+        <nav aria-label="Desktop Primary" className="flex-1 py-3">
           <NavLinks pathname={pathname} />
         </nav>
         <div className="border-t border-border p-3 flex items-center gap-1">
