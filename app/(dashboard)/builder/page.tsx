@@ -31,6 +31,9 @@ const FACILITY_FIELDS = [
   { key: 'longitude', label: 'Longitude', type: 'number' as const },
 ];
 
+const asNullableNumber = (value: unknown): number | null =>
+  value === undefined || value === null || value === '' ? null : Number(value);
+
 export default function BuilderPage() {
   const { data: apiSuppliers, refetch: refetchSuppliers } = useApi<SupplierRecord[]>('/api/suppliers');
   const { data: apiFacilities, refetch: refetchFacilities } = useApi<FacilityRecord[]>('/api/facilities');
@@ -54,23 +57,22 @@ export default function BuilderPage() {
 
   // Supplier Optimistic Callbacks
   const onMutateSupplierCreate = (newSupplier: any) => {
-    const previousSuppliers = suppliers;
     const tempId = `temp-supplier-${Date.now()}`;
     const optimisticSupplier: SupplierRecord = {
       id: tempId,
       name: newSupplier.name || 'New Supplier',
       category: newSupplier.category || '',
       location: newSupplier.location || '',
-      latitude: newSupplier.latitude ? Number(newSupplier.latitude) : null,
-      longitude: newSupplier.longitude ? Number(newSupplier.longitude) : null,
+      latitude: asNullableNumber(newSupplier.latitude),
+      longitude: asNullableNumber(newSupplier.longitude),
     };
     setSuppliers((prev) => [...prev, optimisticSupplier]);
-    return { previousSuppliers };
+    return { tempId };
   };
 
   const onErrorSupplierCreate = (err: string, variables: any, context: any) => {
-    if (context?.previousSuppliers) {
-      setSuppliers(context.previousSuppliers);
+    if (context?.tempId) {
+      setSuppliers((prev) => prev.filter((s) => s.id !== context.tempId));
     }
   };
 
@@ -79,18 +81,22 @@ export default function BuilderPage() {
   };
 
   const onMutateSupplierDelete = (supplierToDelete: SupplierRecord) => {
-    const previousSuppliers = suppliers;
-    const previousRoutes = routes;
+    const deletedSupplier = supplierToDelete;
+    const deletedRoutes = routes.filter((r) => r.originSupplierId === supplierToDelete.id);
 
     setSuppliers((prev) => prev.filter((s) => s.id !== supplierToDelete.id));
     setRoutes((prev) => prev.filter((r) => r.originSupplierId !== supplierToDelete.id));
 
-    return { previousSuppliers, previousRoutes };
+    return { deletedSupplier, deletedRoutes };
   };
 
   const onErrorSupplierDelete = (err: string, variables: any, context: any) => {
-    if (context?.previousSuppliers) setSuppliers(context.previousSuppliers);
-    if (context?.previousRoutes) setRoutes(context.previousRoutes);
+    if (context?.deletedSupplier) {
+      setSuppliers((prev) => [...prev, context.deletedSupplier]);
+    }
+    if (context?.deletedRoutes) {
+      setRoutes((prev) => [...prev, ...context.deletedRoutes]);
+    }
   };
 
   const onSettledSupplierDelete = () => {
@@ -100,23 +106,22 @@ export default function BuilderPage() {
 
   // Facility Optimistic Callbacks
   const onMutateFacilityCreate = (newFacility: any) => {
-    const previousFacilities = facilities;
     const tempId = `temp-facility-${Date.now()}`;
     const optimisticFacility: FacilityRecord = {
       id: tempId,
       name: newFacility.name || 'New Facility',
       type: newFacility.type || '',
       location: newFacility.location || '',
-      latitude: newFacility.latitude ? Number(newFacility.latitude) : null,
-      longitude: newFacility.longitude ? Number(newFacility.longitude) : null,
+      latitude: asNullableNumber(newFacility.latitude),
+      longitude: asNullableNumber(newFacility.longitude),
     };
     setFacilities((prev) => [...prev, optimisticFacility]);
-    return { previousFacilities };
+    return { tempId };
   };
 
   const onErrorFacilityCreate = (err: string, variables: any, context: any) => {
-    if (context?.previousFacilities) {
-      setFacilities(context.previousFacilities);
+    if (context?.tempId) {
+      setFacilities((prev) => prev.filter((f) => f.id !== context.tempId));
     }
   };
 
@@ -125,20 +130,26 @@ export default function BuilderPage() {
   };
 
   const onMutateFacilityDelete = (facilityToDelete: FacilityRecord) => {
-    const previousFacilities = facilities;
-    const previousRoutes = routes;
+    const deletedFacility = facilityToDelete;
+    const deletedRoutes = routes.filter(
+      (r) => r.destinationId === facilityToDelete.id || r.originFacilityId === facilityToDelete.id
+    );
 
     setFacilities((prev) => prev.filter((f) => f.id !== facilityToDelete.id));
     setRoutes((prev) =>
       prev.filter((r) => r.destinationId !== facilityToDelete.id && r.originFacilityId !== facilityToDelete.id)
     );
 
-    return { previousFacilities, previousRoutes };
+    return { deletedFacility, deletedRoutes };
   };
 
   const onErrorFacilityDelete = (err: string, variables: any, context: any) => {
-    if (context?.previousFacilities) setFacilities(context.previousFacilities);
-    if (context?.previousRoutes) setRoutes(context.previousRoutes);
+    if (context?.deletedFacility) {
+      setFacilities((prev) => [...prev, context.deletedFacility]);
+    }
+    if (context?.deletedRoutes) {
+      setRoutes((prev) => [...prev, ...context.deletedRoutes]);
+    }
   };
 
   const onSettledFacilityDelete = () => {
@@ -148,7 +159,6 @@ export default function BuilderPage() {
 
   // Route Optimistic Callbacks
   const onMutateRouteCreate = (newRoute: any) => {
-    const previousRoutes = routes;
     const tempId = `temp-route-${Date.now()}`;
 
     const originSupplier = suppliers.find((s) => s.id === newRoute.originSupplierId);
@@ -167,12 +177,12 @@ export default function BuilderPage() {
       destination: destination,
     };
     setRoutes((prev) => [...prev, optimisticRoute]);
-    return { previousRoutes };
+    return { tempId };
   };
 
   const onErrorRouteCreate = (err: string, variables: any, context: any) => {
-    if (context?.previousRoutes) {
-      setRoutes(context.previousRoutes);
+    if (context?.tempId) {
+      setRoutes((prev) => prev.filter((r) => r.id !== context.tempId));
     }
   };
 
@@ -181,14 +191,14 @@ export default function BuilderPage() {
   };
 
   const onMutateRouteDelete = (routeToDelete: RouteRecord) => {
-    const previousRoutes = routes;
+    const deletedRoute = routeToDelete;
     setRoutes((prev) => prev.filter((r) => r.id !== routeToDelete.id));
-    return { previousRoutes };
+    return { deletedRoute };
   };
 
   const onErrorRouteDelete = (err: string, variables: any, context: any) => {
-    if (context?.previousRoutes) {
-      setRoutes(context.previousRoutes);
+    if (context?.deletedRoute) {
+      setRoutes((prev) => [...prev, context.deletedRoute]);
     }
   };
 
@@ -273,8 +283,8 @@ export default function BuilderPage() {
         <TabsContent value="route">
           <div className="grid gap-6 lg:grid-cols-2">
             <AddRouteForm
-              suppliers={suppliers}
-              facilities={facilities}
+              suppliers={suppliers.filter((s) => !s.id.startsWith('temp-'))}
+              facilities={facilities.filter((f) => !f.id.startsWith('temp-'))}
               onCreated={() => {}}
               onMutate={onMutateRouteCreate}
               onError={onErrorRouteCreate}
