@@ -6,7 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { SearchInput } from '@/components/ui/search-input';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/components/ui/ToastProvider';
+
+const SEARCH_KEYS = ['name', 'category', 'location', 'type'] as const;
+
+function matchesSearch<T>(item: T, query: string): boolean {
+  if (!query) return true;
+  const lower = query.toLowerCase();
+  return SEARCH_KEYS.some((key) => {
+    const val = (item as Record<string, unknown>)[key];
+    return typeof val === 'string' && val.toLowerCase().includes(lower);
+  });
+}
 
 export function ManageList<T extends { id: string }>({
   title,
@@ -25,6 +38,12 @@ export function ManageList<T extends { id: string }>({
   deleteUrl: (item: T) => string;
   onDeleted: () => void;
 }) {
+  const [search, setSearch] = React.useState('');
+  const debouncedSearch = useDebounce(search, 200);
+  const filtered = React.useMemo(
+    () => items.filter((item) => matchesSearch(item, debouncedSearch)),
+    [items, debouncedSearch]
+  );
   const { toast } = useToast();
   const [pending, setPending] = React.useState<T | null>(null);
   const [isDeleting, setIsDeleting] = React.useState(false);
@@ -68,15 +87,25 @@ export function ManageList<T extends { id: string }>({
         <CardTitle className="text-foreground">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        {items.length === 0 ? (
+        {items.length > 4 && (
+          <div className="mb-3">
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder={`Search ${noun}s\u2026`}
+              label={`Search ${noun}s`}
+            />
+          </div>
+        )}
+        {filtered.length === 0 ? (
           <EmptyState
             icon={Database}
-            title={emptyText}
+            title={search ? `No ${noun}s match "${search}"` : emptyText}
             description=""
           />
         ) : (
           <ul className="flex flex-col divide-y divide-border">
-            {items.map((item) => (
+            {filtered.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-3 py-2.5">
                 <span className="min-w-0 truncate text-sm text-foreground">{describe(item)}</span>
                 <Button
