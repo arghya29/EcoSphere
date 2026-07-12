@@ -4,6 +4,7 @@ import * as React from 'react';
 import { formatKg } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/ToastProvider';
+import { useAnnouncer } from '@/components/shared/live-region';
 import { Trash2, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { hasNextPage } from '@/lib/utils/pagination';
 
@@ -22,6 +23,7 @@ interface Activity {
 
 export function ActivityTable() {
   const { toast } = useToast();
+  const announce = useAnnouncer();
   const [activities, setActivities] = React.useState<Activity[]>([]);
   const [total, setTotal] = React.useState(0);
   const [limit] = React.useState(10);
@@ -53,13 +55,15 @@ export function ActivityTable() {
       if (json.success) {
         setActivities(json.data.activities);
         setTotal(json.data.total);
+        announce(`Loaded ${json.data.activities.length} of ${json.data.total} activities`);
       }
     } catch {
       toast.error('Error', 'Failed to fetch activities.');
+      announce('Failed to fetch activities', 'assertive');
     } finally {
       setLoading(false);
     }
-  }, [limit, offset, type, startDate, endDate, toast]);
+  }, [limit, offset, type, startDate, endDate, toast, announce]);
 
   React.useEffect(() => {
     fetchActivities();
@@ -85,6 +89,7 @@ export function ActivityTable() {
       }
     } catch {
       toast.error('Error', 'Failed to delete activities.');
+      announce('Failed to delete activities', 'assertive');
     }
   };
 
