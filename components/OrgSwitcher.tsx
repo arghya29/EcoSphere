@@ -11,7 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/components/ui/ToastProvider';
 import { useApi } from '@/hooks/use-api';
 
 interface Organization {

@@ -11,9 +11,19 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const parsed = uploadSchema.safeParse(body);
-  if (!parsed.success) {
+if (!parsed.success) {
+    const MAX_ERRORS = 20;
+    const issues = parsed.error.issues;
+    const messages = issues.slice(0, MAX_ERRORS).map((issue) => issue.message);
+    
+    if (issues.length > MAX_ERRORS) {
+      messages.push(`...and ${issues.length - MAX_ERRORS} more validation error(s)`);
+    }
+    
+    const allErrors = messages.join('; ');
+
     return NextResponse.json(
-      { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid upload payload' },
+      { success: false, error: allErrors || 'Invalid upload payload' },
       { status: 400 }
     );
   }

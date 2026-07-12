@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
+import Link from 'next/link';
+
 export default function SettingsPage() {
   const { data: session } = useSession();
 
@@ -14,6 +16,32 @@ export default function SettingsPage() {
       <div>
         <h1 className="font-display text-2xl font-semibold">Settings</h1>
         <p className="text-sm text-muted-foreground">Manage your account and organization profile.</p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <CardTitle className="text-foreground text-lg">Team Members</CardTitle>
+            <CardDescription>Invite team members and configure roles.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild size="sm">
+              <Link href="/settings/members">Manage Team</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <CardTitle className="text-foreground text-lg">Custom Emission Factors</CardTitle>
+            <CardDescription>Configure specific carbon intensity coefficients.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild size="sm">
+              <Link href="/settings/factors">Manage Factors</Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
