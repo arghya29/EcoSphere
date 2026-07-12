@@ -10,8 +10,24 @@ export async function GET(req: NextRequest) {
   if (isErrorResponse(ctx)) return ctx;
 
   const { searchParams } = req.nextUrl;
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+  
+  // Support both page-based and offset-based pagination
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '10', 10)));
+  const pageStr = searchParams.get('page');
+  const offsetStr = searchParams.get('offset');
+  
+  let skip = 0;
+  let page = 1;
+  
+  if (pageStr) {
+    page = Math.max(1, parseInt(pageStr, 10));
+    skip = (page - 1) * limit;
+  } else if (offsetStr) {
+    skip = Math.max(0, parseInt(offsetStr, 10));
+    page = Math.floor(skip / limit) + 1;
+  }
+
+  const type = searchParams.get('type');
   const startDateStr = searchParams.get('startDate');
   const endDateStr = searchParams.get('endDate');
   const sortBy = searchParams.get('sortBy') || 'dateRecorded';
@@ -21,6 +37,10 @@ export async function GET(req: NextRequest) {
   const where: any = {
     organizationId: ctx.organizationId,
   };
+
+  if (type && type !== 'ALL') {
+    where.type = type;
+  }
 
   if (startDateStr || endDateStr) {
     where.dateRecorded = {};
@@ -46,7 +66,7 @@ export async function GET(req: NextRequest) {
         where,
         include: { factor: true, supplier: true, facility: true, route: true },
         orderBy: { [orderByField]: sortOrder },
-        skip: (page - 1) * limit,
+        skip,
         take: limit,
       }),
     ]);
@@ -57,6 +77,7 @@ export async function GET(req: NextRequest) {
       success: true,
       data: {
         activities,
+        total,
         pagination: {
           total,
           page,
@@ -67,35 +88,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json({ success: false, error: 'Failed to fetch activities' }, { status: 500 });
-  const url = new URL(req.url);
-  const limit = parseInt(url.searchParams.get('limit') ?? '10');
-  const offset = parseInt(url.searchParams.get('offset') ?? '0');
-  const type = url.searchParams.get('type');
-  const startDateStr = url.searchParams.get('startDate');
-  const endDateStr = url.searchParams.get('endDate');
-
-  const where: any = { organizationId: ctx.organizationId };
-  if (type && type !== 'ALL') {
-    where.type = type;
   }
-  if (startDateStr || endDateStr) {
-    where.dateRecorded = {};
-    if (startDateStr) where.dateRecorded.gte = new Date(startDateStr);
-    if (endDateStr) where.dateRecorded.lte = new Date(endDateStr);
-  }
-
-  const [activities, total] = await Promise.all([
-    prisma.activity.findMany({
-      where,
-      include: { factor: true, supplier: true, facility: true, route: true },
-      orderBy: { dateRecorded: 'desc' },
-      take: limit,
-      skip: offset,
-    }),
-    prisma.activity.count({ where }),
-  ]);
-
-  return NextResponse.json({ success: true, data: { activities, total } });
 }
 
 export async function DELETE(req: NextRequest) {

@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import React from 'react';
 import Link from 'next/link';
 import { useApi } from '@/hooks/use-api';
 import { DashboardStats } from '@/components/dashboard/dashboard-stats';
@@ -15,11 +14,9 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Pagination } from '@/components/ui/Pagination';
-import type { DashboardSummary, SupplierRecord, FacilityRecord, RouteRecord, ActivityRecord } from '@/types/api';
-import { Upload, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown, Calendar, Database, RefreshCw } from 'lucide-react';
 import { formatKg } from '@/lib/utils';
 import type { DashboardSummary, SupplierRecord, FacilityRecord, RouteRecord, ActivityRecord } from '@/types/api';
-import { Upload, AlertCircle, TrendingUp, PieChart as PieIcon, Download, Loader2 } from 'lucide-react';
+import { Upload, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown, Calendar, Database, RefreshCw, TrendingUp, PieChart as PieIcon, Download, Loader2 } from 'lucide-react';
 import { ScopeBreakdown } from '@/components/charts/scope-breakdown';
 import { EmissionsChart } from '@/components/charts/emissions-chart';
 import { exportActivitiesAsCsv } from '@/lib/utils/exportCsv';
@@ -30,7 +27,6 @@ export default function DashboardPage() {
   const { data: suppliers } = useApi<SupplierRecord[]>('/api/suppliers');
   const { data: facilities } = useApi<FacilityRecord[]>('/api/facilities');
   const { data: routes } = useApi<RouteRecord[]>('/api/routes');
-  const { data: activities } = useApi<ActivityRecord[]>('/api/activities');
 
   const [isExporting, setIsExporting] = React.useState(false);
 
