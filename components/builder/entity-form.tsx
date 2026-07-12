@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface EntityField {
   key: string;
@@ -32,12 +32,28 @@ export function EntityForm({ title, apiEndpoint, fields, payloadKey, onCreated }
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (form.latitude && form.latitude.trim() !== '') {
+      const lat = Number(form.latitude);
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        toast.error('Validation Error', 'Latitude must be a valid number between -90 and 90');
+        return;
+      }
+    }
+    if (form.longitude && form.longitude.trim() !== '') {
+      const lng = Number(form.longitude);
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        toast.error('Validation Error', 'Longitude must be a valid number between -180 and 180');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     const body = Object.fromEntries(
       Object.entries(form).map(([key, value]) => {
         if (key === 'latitude' || key === 'longitude') {
-          return [key, value || undefined];
+          return [key, value ? Number(value) : undefined];
         }
         return [key, value];
       })
@@ -52,23 +68,21 @@ export function EntityForm({ title, apiEndpoint, fields, payloadKey, onCreated }
       const json = await res.json().catch(() => ({}));
 
       if (!res.ok || !json.success) {
-        toast({
-          title: `Could not add ${title.toLowerCase()}`,
-          description: json.error ?? 'Something went wrong. Please try again.',
-          variant: 'destructive',
-        });
+        toast.error(
+          `Could not add ${title.toLowerCase()}`,
+          json.error ?? 'Something went wrong. Please try again.'
+        );
         return;
       }
 
-      toast({ title: `${title} added`, description: form.name || form[fields[0]?.key] });
+      toast.success(`${title} added`, form.name || form[fields[0]?.key]);
       setForm(initialForm);
       onCreated();
     } catch {
-      toast({
-        title: `Could not add ${title.toLowerCase()}`,
-        description: 'Something went wrong. Please try again.',
-        variant: 'destructive',
-      });
+      toast.error(
+        `Could not add ${title.toLowerCase()}`,
+        'Something went wrong. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }

@@ -5,8 +5,9 @@ import { parseFile, validateColumns, validateRows, type ParsedFile, type UploadS
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ProgressSteps } from '@/components/ui/progress-bar';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/components/ui/ToastProvider';
 import { UploadCloud, FileSpreadsheet, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
+import { ValidationErrorList } from '@/components/ui/validation-error-list';
 import { cn } from '@/lib/utils';
 
 const SCHEMA_LABELS: Record<UploadSchemaKind, { title: string; description: string; example: string }> = {
@@ -168,24 +169,14 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                 <div>
                   <p className="font-medium">Missing required columns</p>
-                  <p>{missingColumns.join(', ')}. Add them and re-upload.</p>
+                  {/* FIX 1: Template literal prevents stray spaces before the period */}
+                  <p>{`${missingColumns.join(', ')}. Add them and re-upload.`}</p>
                 </div>
               </div>
             )}
 
             {rowErrors.length > 0 && (
-              <div role="alert" className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-sm text-amber-600">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                <div>
-                  <p className="font-medium">Data validation issues</p>
-                  <ul className="mt-1 list-inside list-disc">
-                    {rowErrors.slice(0, 5).map((err, i) => (
-                      <li key={i}>{err.message}</li>
-                    ))}
-                    {rowErrors.length > 5 && <li>...and {rowErrors.length - 5} more issue(s)</li>}
-                  </ul>
-                </div>
-              </div>
+              <ValidationErrorList errors={rowErrors} />
             )}
 
             {missingColumns.length === 0 && rowErrors.length === 0 && (
@@ -195,35 +186,40 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
               </div>
             )}
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
-              {parsed.fileName} &mdash; {parsed.rowCount} rows detected. Preview of the first 5:
-            </div>
+            {/* FIX 2: Only render the preview table if the schema (columns) are valid */}
+            {missingColumns.length === 0 && (
+              <>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
+                  {parsed.fileName} &mdash; {parsed.rowCount} rows detected. Preview of the first 5:
+                </div>
 
-            <div className="overflow-x-auto rounded-md border border-border scrollbar-thin">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-muted">
-                  <tr>
-                    {parsed.headers.map((h) => (
-                      <th key={h} scope="col" className="whitespace-nowrap px-3 py-2 font-medium">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {parsed.rows.slice(0, 5).map((row, i) => (
-                    <tr key={i} className="border-t border-border">
-                      {parsed.headers.map((h) => (
-                        <td key={h} className="whitespace-nowrap px-3 py-2">
-                          {row[h]}
-                        </td>
+                <div className="overflow-x-auto rounded-md border border-border scrollbar-thin">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-muted">
+                      <tr>
+                        {parsed.headers.map((h) => (
+                          <th key={h} scope="col" className="whitespace-nowrap px-3 py-2 font-medium">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {parsed.rows.slice(0, 5).map((row, i) => (
+                        <tr key={i} className="border-t border-border">
+                          {parsed.headers.map((h) => (
+                            <td key={h} className="whitespace-nowrap px-3 py-2">
+                              {row[h]}
+                            </td>
+                          ))}
+                        </tr>
                       ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="ghost" onClick={() => { setParsed(null); setStep(0); }}>

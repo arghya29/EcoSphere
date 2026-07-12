@@ -67,6 +67,58 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json({ success: false, error: 'Failed to fetch activities' }, { status: 500 });
+  const url = new URL(req.url);
+  const limit = parseInt(url.searchParams.get('limit') ?? '10');
+  const offset = parseInt(url.searchParams.get('offset') ?? '0');
+  const type = url.searchParams.get('type');
+  const startDateStr = url.searchParams.get('startDate');
+  const endDateStr = url.searchParams.get('endDate');
+
+  const where: any = { organizationId: ctx.organizationId };
+  if (type && type !== 'ALL') {
+    where.type = type;
+  }
+  if (startDateStr || endDateStr) {
+    where.dateRecorded = {};
+    if (startDateStr) where.dateRecorded.gte = new Date(startDateStr);
+    if (endDateStr) where.dateRecorded.lte = new Date(endDateStr);
+  }
+
+  const [activities, total] = await Promise.all([
+    prisma.activity.findMany({
+      where,
+      include: { factor: true, supplier: true, facility: true, route: true },
+      orderBy: { dateRecorded: 'desc' },
+      take: limit,
+      skip: offset,
+    }),
+    prisma.activity.count({ where }),
+  ]);
+
+  return NextResponse.json({ success: true, data: { activities, total } });
+}
+
+export async function DELETE(req: NextRequest) {
+  const ctx = await requireOrg();
+  if (isErrorResponse(ctx)) return ctx;
+
+  try {
+    const body = await req.json();
+    const ids = body.ids;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json({ success: false, error: 'Invalid or missing activity IDs' }, { status: 400 });
+    }
+
+    await prisma.activity.deleteMany({
+      where: {
+        id: { in: ids },
+        organizationId: ctx.organizationId,
+      },
+    });
+
+    return NextResponse.json({ success: true, message: 'Activities deleted' });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Failed to delete activities' }, { status: 500 });
   }
 }
 
@@ -86,8 +138,13 @@ export async function POST(req: NextRequest) {
   // Resolve factor categories -> factor rows up front so we can compute
   // emissions = amount * factor.value before persisting (per spec).
   const categories = Array.from(new Set(parsed.data.activities.map((a) => a.factorCategory)));
-  const factors = await prisma.emissionFactor.findMany({ where: { category: { in: categories } } });
-  const factorByCategory = new Map(factors.map((f) => [f.category, f]));
+  const [factors, customFactors] = await Promise.all([
+    prisma.emissionFactor.findMany({ where: { category: { in: categories } } }),
+    prisma.customEmissionFactor.findMany({ where: { category: { in: categories }, organizationId: ctx.organizationId } }),
+  ]);
+  const factorByCategory = new Map<string, { id: string; value: number }>();
+  factors.forEach((f) => factorByCategory.set(f.category, f));
+  customFactors.forEach((f) => factorByCategory.set(f.category, f));
 
   const missing = categories.filter((c) => !factorByCategory.has(c));
   if (missing.length > 0) {

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useApi } from '@/hooks/use-api';
 import { DashboardStats } from '@/components/dashboard/dashboard-stats';
@@ -17,12 +18,21 @@ import { Pagination } from '@/components/ui/Pagination';
 import type { DashboardSummary, SupplierRecord, FacilityRecord, RouteRecord, ActivityRecord } from '@/types/api';
 import { Upload, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown, Calendar, Database, RefreshCw } from 'lucide-react';
 import { formatKg } from '@/lib/utils';
+import type { DashboardSummary, SupplierRecord, FacilityRecord, RouteRecord, ActivityRecord } from '@/types/api';
+import { Upload, AlertCircle, TrendingUp, PieChart as PieIcon, Download, Loader2 } from 'lucide-react';
+import { ScopeBreakdown } from '@/components/charts/scope-breakdown';
+import { EmissionsChart } from '@/components/charts/emissions-chart';
+import { exportActivitiesAsCsv } from '@/lib/utils/exportCsv';
+
 
 export default function DashboardPage() {
   const { data: summary, isLoading: loadingSummary, error: summaryError } = useApi<DashboardSummary>('/api/dashboard');
   const { data: suppliers } = useApi<SupplierRecord[]>('/api/suppliers');
   const { data: facilities } = useApi<FacilityRecord[]>('/api/facilities');
   const { data: routes } = useApi<RouteRecord[]>('/api/routes');
+  const { data: activities } = useApi<ActivityRecord[]>('/api/activities');
+
+  const [isExporting, setIsExporting] = React.useState(false);
 
   // Pagination, Filtering and Sorting States
   const [page, setPage] = React.useState(1);
@@ -102,6 +112,17 @@ export default function DashboardPage() {
     );
   };
 
+  const handleExport = () => {
+    if (!activities?.length) return;
+    setIsExporting(true);
+    // Minimal delay gives the browser time to render the loading spinner
+    // before the synchronous CSV generation + download fires.
+    setTimeout(() => {
+      exportActivitiesAsCsv(activities);
+      setIsExporting(false);
+    }, 150);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
@@ -109,13 +130,31 @@ export default function DashboardPage() {
           <h1 className="font-display text-xl sm:text-2xl font-semibold">Dashboard</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">Your organization&apos;s carbon footprint at a glance.</p>
         </div>
-        <Button asChild size="sm" className="shrink-0">
-          <Link href="/upload">
-            <Upload className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">Upload data</span>
-            <span className="sm:hidden">Upload</span>
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            id="export-csv-btn"
+            size="sm"
+            variant="outline"
+            onClick={handleExport}
+            disabled={isExporting || !activities?.length}
+            aria-label="Export emissions data as CSV"
+          >
+            {isExporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Download className="h-4 w-4" aria-hidden="true" />
+            )}
+            <span className="hidden sm:inline">{isExporting ? 'Exporting\u2026' : 'Export CSV'}</span>
+            <span className="sm:hidden">CSV</span>
+          </Button>
+          <Button asChild size="sm" className="shrink-0">
+            <Link href="/upload">
+              <Upload className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Upload data</span>
+              <span className="sm:hidden">Upload</span>
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {summaryError ? (
@@ -128,7 +167,37 @@ export default function DashboardPage() {
       ) : loadingSummary ? (
         <SkeletonStats />
       ) : summary ? (
-        <DashboardStats total={summary.total} scope1={summary.scope1} scope2={summary.scope2} scope3={summary.scope3} />
+        <>
+          <DashboardStats total={summary.total} scope1={summary.scope1} scope2={summary.scope2} scope3={summary.scope3} />
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Emissions Historical Trend
+                </CardTitle>
+                <CardDescription>Monthly aggregated footprint.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <EmissionsChart data={summary.monthlyTrend.map((m) => ({ month: m.month, emissions: m.emissionsKg }))} />
+              </CardContent>
+            </Card>
+
+            <Card className="md:col-span-1">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <PieIcon className="h-5 w-5 text-primary" />
+                  Scope Share
+                </CardTitle>
+                <CardDescription>Scope breakdown comparison.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScopeBreakdown scope1={summary.scope1} scope2={summary.scope2} scope3={summary.scope3} />
+              </CardContent>
+            </Card>
+          </div>
+        </>
       ) : null}
 
       {!hasData ? (

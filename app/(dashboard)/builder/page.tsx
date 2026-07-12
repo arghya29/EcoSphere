@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { EmptyState } from '@/components/ui/empty-state';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/components/ui/ToastProvider';
 import { EntityForm, Field, ManageList } from '@/components/builder';
 import type { SupplierRecord, FacilityRecord, RouteRecord } from '@/types/api';
 
@@ -148,7 +148,7 @@ function AddRouteForm({
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!originId || !destinationId || !distanceKm) {
-      toast({ title: 'Fill in all fields', variant: 'destructive' });
+      toast.error('Fill in all fields');
       return;
     }
     setIsSubmitting(true);
@@ -170,10 +170,10 @@ function AddRouteForm({
     const json = await res.json();
     setIsSubmitting(false);
     if (!res.ok || !json.success) {
-      toast({ title: 'Could not add route', description: json.error, variant: 'destructive' });
+      toast.error('Could not add route', json.error);
       return;
     }
-    toast({ title: 'Route added' });
+    toast.success('Route added');
     setOriginId('');
     setDestinationId('');
     setDistanceKm('');

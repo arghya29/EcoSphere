@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Lexend, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import { ToastProvider } from '@/components/ui/toast';
+import { ToastProvider } from '@/components/ui/ToastProvider';
 import { AuthSessionProvider } from '@/components/shared/session-provider';
 import { ErrorLogger } from '@/components/shared/error-logger';
 import { SkipToContent } from '@/components/shared/skip-to-content';

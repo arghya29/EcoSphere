@@ -26,6 +26,7 @@ app/
   (auth)/           # Login and signup pages
   (dashboard)/      # Protected dashboard pages
     dashboard/      # Summary stats, graph, map
+    targets/        # Reduction target management
     upload/         # CSV/Excel import
     builder/        # Manual supply-chain editor
     analysis/       # Emissions breakdown charts
@@ -33,18 +34,21 @@ app/
     reports/        # PDF/CSV/JSON export
     profile/        # User profile
     settings/       # Organization settings
+      members/      # Team settings / membership RBAC
+      factors/      # Custom emission factors CRUD
   api/              # REST API routes
 components/
-  ui/               # shadcn-style primitives (Button, Card, Input, etc.)
+  ui/               # shadcn-style primitives (Button, Card, Input, TargetCard, etc.)
   auth/             # Login/signup form components
   shared/           # ThemeProvider, ThemeToggle, SessionProvider
   dashboard/        # DashboardNav, DashboardStats, InsightCard
   graph/            # React Flow supply-chain diagram
   map/              # Leaflet map (client-only, dynamically imported)
-  charts/           # Recharts wrappers (Pie, Bar, Line)
+  charts/           # Recharts wrappers (Pie, Bar, Line, ScopeBreakdown, EmissionsChart)
   upload/           # Drag-and-drop CSV/Excel form
   builder/          # EntityForm, ManageList
   landing/          # Interactive landing-page demo
+  settings/         # MemberList
 lib/
   auth.ts           # NextAuth configuration
   prisma.ts         # Prisma client singleton
@@ -55,6 +59,7 @@ lib/
   validations.ts    # Zod schemas
   utils.ts          # cn(), formatKg(), findUnauthorizedIds()
   csv-parser.ts     # Client-side CSV/XLSX parsing
+  risk-engine.ts    # Decarbonization risk scoring engine
 prisma/
   schema.prisma     # Full data model
   seed.ts           # Emission factors + demo data
