@@ -176,3 +176,13 @@
   background: hsl(var(--muted));
   border-radius: var(--radius);
 }
+
+/* Mobile card list — ensure definition list is accessible and responsive */
+@media (max-width: 639px) {
+  .responsive-table-card dl > div {
+    min-width: 0;
+  }
+  .responsive-table-card dd {
+    word-break: break-word;
+  }
+}
