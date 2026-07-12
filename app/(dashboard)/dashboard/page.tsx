@@ -16,6 +16,7 @@ import { Upload, AlertCircle, TrendingUp, PieChart as PieIcon, Download, Loader2
 import { ScopeBreakdown } from '@/components/charts/scope-breakdown';
 import { EmissionsChart } from '@/components/charts/emissions-chart';
 import { exportActivitiesAsCsv } from '@/lib/utils/exportCsv';
+import { computeMonthlyChange, computeTrend } from '@/lib/utils/analytics';
 
 
 export default function DashboardPage() {
@@ -85,7 +86,24 @@ export default function DashboardPage() {
         <SkeletonStats />
       ) : summary ? (
         <>
-          <DashboardStats total={summary.total} scope1={summary.scope1} scope2={summary.scope2} scope3={summary.scope3} />
+          <DashboardStats
+            total={summary.total}
+            scope1={summary.scope1}
+            scope2={summary.scope2}
+            scope3={summary.scope3}
+            trends={{
+              total: computeMonthlyChange(summary.monthlyTrend),
+              scope1: summary.previousScope1 !== null
+                ? computeTrend(summary.previousScope1, summary.scope1)
+                : undefined,
+              scope2: summary.previousScope2 !== null
+                ? computeTrend(summary.previousScope2, summary.scope2)
+                : undefined,
+              scope3: summary.previousScope3 !== null
+                ? computeTrend(summary.previousScope3, summary.scope3)
+                : undefined,
+            }}
+          />
 
           <div className="grid gap-6 md:grid-cols-3">
             <Card className="md:col-span-2">
