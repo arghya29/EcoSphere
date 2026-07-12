@@ -12,13 +12,22 @@ interface ToastMessage {
 
 interface ToastContextValue {
   toast: {
-    (options: { title: string; description?: string; variant?: 'success' | 'error' | 'warning' | 'info' | 'destructive' | 'default' }): void;
-    success: (title: string, description?: string) => void;
-    error: (title: string, description?: string) => void;
-    warning: (title: string, description?: string) => void;
-    info: (title: string, description?: string) => void;
+    (options: { title: string; description?: string; variant?: 'success' | 'error' | 'warning' | 'info' | 'destructive' | 'default'; duration?: number }): void;
+    success: (title: string, description?: string, duration?: number) => void;
+    error: (title: string, description?: string, duration?: number) => void;
+    warning: (title: string, description?: string, duration?: number) => void;
+    info: (title: string, description?: string, duration?: number) => void;
   };
+  dismiss: (id: string) => void;
 }
+
+const MAX_TOASTS = 5;
+const DEFAULT_DURATIONS: Record<ToastVariant, number> = {
+  success: 3000,
+  error: 6000,
+  warning: 5000,
+  info: 4000,
+};
 
 const ToastContext = React.createContext<ToastContextValue | null>(null);
 
@@ -32,16 +41,18 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addToast = React.useCallback(
-    (title: string, description?: string, variant: ToastVariant = 'info') => {
+    (title: string, description?: string, variant: ToastVariant = 'info', duration?: number) => {
       const id = `${Date.now()}-${toastCounter++}`;
-      setToasts((prev) => [...prev, { id, title, description, variant }]);
+      setToasts((prev) => {
+        const next = [...prev, { id, title, description, variant, duration }];
+        return next.length > MAX_TOASTS ? next.slice(next.length - MAX_TOASTS) : next;
+      });
     },
     []
   );
 
-  // Expose toast as a callable function (for backwards compatibility) and attach sub-methods
   const toastCallable = React.useMemo(() => {
-    const fn = (options: { title: string; description?: string; variant?: 'success' | 'error' | 'warning' | 'info' | 'destructive' | 'default' }) => {
+    const fn = (options: { title: string; description?: string; variant?: 'success' | 'error' | 'warning' | 'info' | 'destructive' | 'default'; duration?: number }) => {
       const mappedVariant: ToastVariant =
         options.variant === 'destructive'
           ? 'error'
@@ -49,18 +60,18 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           ? 'info'
           : (options.variant as ToastVariant) || 'info';
 
-      addToast(options.title, options.description, mappedVariant);
+      addToast(options.title, options.description, mappedVariant, options.duration);
     };
 
-    fn.success = (title: string, description?: string) => addToast(title, description, 'success');
-    fn.error = (title: string, description?: string) => addToast(title, description, 'error');
-    fn.warning = (title: string, description?: string) => addToast(title, description, 'warning');
-    fn.info = (title: string, description?: string) => addToast(title, description, 'info');
+    fn.success = (title: string, description?: string, duration?: number) => addToast(title, description, 'success', duration);
+    fn.error = (title: string, description?: string, duration?: number) => addToast(title, description, 'error', duration);
+    fn.warning = (title: string, description?: string, duration?: number) => addToast(title, description, 'warning', duration);
+    fn.info = (title: string, description?: string, duration?: number) => addToast(title, description, 'info', duration);
 
     return fn;
   }, [addToast]);
 
-  const contextValue = React.useMemo(() => ({ toast: toastCallable }), [toastCallable]);
+  const contextValue = React.useMemo(() => ({ toast: toastCallable, dismiss }), [toastCallable, dismiss]);
 
   return (
     <ToastContext.Provider value={contextValue}>
@@ -77,6 +88,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               title={t.title}
               description={t.description}
               variant={t.variant}
+              duration={t.duration ?? DEFAULT_DURATIONS[t.variant ?? 'info']}
               onClose={() => dismiss(t.id)}
             />
           </div>
@@ -93,3 +105,6 @@ export function useToast() {
   }
   return ctx;
 }
+
+export { DEFAULT_DURATIONS, MAX_TOASTS };
+
