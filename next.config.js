@@ -4,6 +4,7 @@ let envWarningShown = false;
 
 const nextConfig = {
   reactStrictMode: true,
+  optimizeFonts: false,
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '*.tile.openstreetmap.org' },
