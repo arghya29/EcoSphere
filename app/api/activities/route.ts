@@ -21,10 +21,18 @@ export async function GET(req: NextRequest) {
   if (type && type !== 'ALL') {
     where.type = type;
   }
+
   if (startDateStr || endDateStr) {
     where.dateRecorded = {};
-    if (startDateStr) where.dateRecorded.gte = new Date(startDateStr);
-    if (endDateStr) where.dateRecorded.lte = new Date(endDateStr);
+    if (startDateStr) {
+      where.dateRecorded.gte = new Date(startDateStr);
+    }
+    if (endDateStr) {
+      // Set to end of the day to include activities on the end date
+      const endDate = new Date(endDateStr);
+      endDate.setHours(23, 59, 59, 999);
+      where.dateRecorded.lte = endDate;
+    }
   }
   if (searchQuery) {
     where.OR = [
@@ -33,18 +41,40 @@ export async function GET(req: NextRequest) {
     ];
   }
 
-  const [activities, total] = await Promise.all([
-    prisma.activity.findMany({
-      where,
-      include: { factor: true, supplier: true, facility: true, route: true },
-      orderBy: { dateRecorded: 'desc' },
-      take: limit,
-      skip: offset,
-    }),
-    prisma.activity.count({ where }),
-  ]);
+  // Validate sortBy to avoid Prisma errors on invalid fields
+  const allowedSortFields = ['dateRecorded', 'emissionsKg', 'amount', 'type'];
+  const orderByField = allowedSortFields.includes(sortBy) ? sortBy : 'dateRecorded';
 
-  return NextResponse.json({ success: true, data: { activities, total } });
+  try {
+    const [total, activities] = await Promise.all([
+      prisma.activity.count({ where }),
+      prisma.activity.findMany({
+        where,
+        include: { factor: true, supplier: true, facility: true, route: true },
+        orderBy: { [orderByField]: sortOrder },
+        skip,
+        take: limit,
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        activities,
+        total,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages,
+        },
+      },
+    });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Failed to fetch activities' }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: NextRequest) {
