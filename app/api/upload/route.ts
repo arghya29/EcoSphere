@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   }
 
   const respond = async (resBody: any, status = 200) => {
-    if (idempotencyKey) {
+    if (idempotencyKey && status >= 200 && status < 300) {
       await saveIdempotencyRecord(idempotencyKey, status, resBody);
     }
     return NextResponse.json(resBody, { status });
