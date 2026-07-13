@@ -10,6 +10,28 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/__tests__/e2e/'],
+  collectCoverageFrom: [
+    'app/**/*.{js,jsx,ts,tsx}',
+    'lib/**/*.{js,jsx,ts,tsx}',
+    'components/**/*.{js,jsx,ts,tsx}',
+    '!**/node_modules/**',
+    '!**/.next/**',
+    '!**/prisma/**',
+    '!**/scripts/**',
+    '!**/*.d.ts',
+    '!jest.config.js',
+    '!next.config.js',
+    '!postcss.config.js',
+    '!tailwind.config.ts',
+  ],
+  coverageThreshold: {
+    global: {
+      statements: 70,
+      branches: 60,
+      functions: 70,
+      lines: 70,
+    },
+  },
 };
 
 module.exports = createJestConfig(customJestConfig);
