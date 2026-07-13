@@ -4,6 +4,7 @@ import { requireOrg, isErrorResponse } from '@/lib/session';
 import { calculateActivityEmissions, deriveActivityType } from '@/lib/emissions';
 import { findUnauthorizedIds, normalizeOptionalId } from '@/lib/utils';
 import { uploadSchema } from './schema';
+import { logAudit } from '@/lib/audit';
 
 export async function POST(req: NextRequest) {
   const ctx = await requireOrg();
@@ -34,6 +35,13 @@ if (!parsed.success) {
         prisma.supplier.create({ data: { ...r, organizationId: ctx.organizationId } })
       )
     );
+    await logAudit({
+      actor: ctx.userId,
+      action: 'UPLOAD',
+      entity: 'Supplier',
+      orgId: ctx.organizationId,
+      metadata: { rowCount: created.length },
+    });
     return NextResponse.json({ success: true, data: created }, { status: 201 });
   }
 
@@ -43,6 +51,13 @@ if (!parsed.success) {
         prisma.facility.create({ data: { ...r, organizationId: ctx.organizationId } })
       )
     );
+    await logAudit({
+      actor: ctx.userId,
+      action: 'UPLOAD',
+      entity: 'Facility',
+      orgId: ctx.organizationId,
+      metadata: { rowCount: created.length },
+    });
     return NextResponse.json({ success: true, data: created }, { status: 201 });
   }
 
@@ -142,6 +157,14 @@ if (!parsed.success) {
       });
     })
   );
+
+  await logAudit({
+    actor: ctx.userId,
+    action: 'UPLOAD',
+    entity: 'Activity',
+    orgId: ctx.organizationId,
+    metadata: { rowCount: created.length },
+  });
 
   return NextResponse.json({ success: true, data: created }, { status: 201 });
 }

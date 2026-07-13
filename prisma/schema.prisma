@@ -258,3 +258,25 @@ model Target {
 
   @@index([organizationId])
 }
+
+enum AuditAction {
+  CREATE
+  DELETE
+  UPLOAD
+  LOGIN
+  SIGNUP
+}
+
+model AuditLog {
+  id             String      @id @default(cuid())
+  actor          String      // userId
+  action         AuditAction
+  entity         String      // Entity name (e.g., "Supplier", "Facility", "Route", "Upload", "User")
+  entityId       String?     // Optional entity ID
+  orgId          String      // Organization ID
+  timestamp      DateTime    @default(now())
+  metadata       Json?       // Optional JSON metadata
+
+  @@index([orgId])
+  @@index([timestamp])
+}

@@ -4,6 +4,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
+import { logAudit } from '@/lib/audit';
 
 export const authOptions: NextAuthOptions = {
   // Credentials provider requires JWT sessions (no DB session row for
@@ -57,6 +58,25 @@ export const authOptions: NextAuthOptions = {
         (session.user as { id?: string }).id = token.id as string;
       }
       return session;
+    },
+  },
+  events: {
+    async signIn({ user }) {
+      if (user?.id) {
+        const membership = await prisma.membership.findFirst({
+          where: { userId: user.id },
+          orderBy: { createdAt: 'asc' },
+        });
+        if (membership) {
+          await logAudit({
+            actor: user.id,
+            action: 'LOGIN',
+            entity: 'User',
+            entityId: user.id,
+            orgId: membership.organizationId,
+          });
+        }
+      }
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

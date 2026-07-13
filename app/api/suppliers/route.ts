@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireOrg, isErrorResponse } from '@/lib/session';
 import { suppliersPayloadSchema } from '@/lib/validations';
+import { logAudit } from '@/lib/audit';
 
 export async function GET() {
   const ctx = await requireOrg();
@@ -35,6 +36,17 @@ export async function POST(req: NextRequest) {
       })
     )
   );
+
+  for (const supplier of created) {
+    await logAudit({
+      actor: ctx.userId,
+      action: 'CREATE',
+      entity: 'Supplier',
+      entityId: supplier.id,
+      orgId: ctx.organizationId,
+      metadata: { name: supplier.name, category: supplier.category, location: supplier.location },
+    });
+  }
 
   return NextResponse.json({ success: true, data: created }, { status: 201 });
 }

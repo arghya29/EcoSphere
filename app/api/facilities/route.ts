@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireOrg, isErrorResponse } from '@/lib/session';
 import { facilitiesPayloadSchema } from '@/lib/validations';
+import { logAudit } from '@/lib/audit';
 
 export async function GET() {
   const ctx = await requireOrg();
@@ -35,6 +36,17 @@ export async function POST(req: NextRequest) {
       })
     )
   );
+
+  for (const facility of created) {
+    await logAudit({
+      actor: ctx.userId,
+      action: 'CREATE',
+      entity: 'Facility',
+      entityId: facility.id,
+      orgId: ctx.organizationId,
+      metadata: { name: facility.name, type: facility.type, location: facility.location },
+    });
+  }
 
   return NextResponse.json({ success: true, data: created }, { status: 201 });
 }
