@@ -11,9 +11,9 @@ const customJestConfig = {
   },
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/__tests__/e2e/'],
   collectCoverageFrom: [
-    'app/**/*.{js,jsx,ts,tsx}',
-    'lib/**/*.{js,jsx,ts,tsx}',
-    'components/**/*.{js,jsx,ts,tsx}',
+    'src/app/**/*.{js,jsx,ts,tsx}',
+    'src/lib/**/*.{js,jsx,ts,tsx}',
+    'src/components/**/*.{js,jsx,ts,tsx}',
     '!**/node_modules/**',
     '!**/.next/**',
     '!**/prisma/**',
