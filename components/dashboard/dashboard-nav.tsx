@@ -55,9 +55,11 @@ export function DashboardNav({ userName }: { userName: string }) {
           <span className="text-sm">EcoSphere</span>
         </Link>
         <div className="flex items-center gap-2">
-          <div className="w-40">
-            <OrgSwitcher />
-          </div>
+          {!mobileOpen && (
+            <div className="w-40">
+              <OrgSwitcher />
+            </div>
+          )}
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}

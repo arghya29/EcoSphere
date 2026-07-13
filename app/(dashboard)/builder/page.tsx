@@ -57,23 +57,10 @@ export default function BuilderPage() {
 
   // Supplier Optimistic Callbacks
   const onMutateSupplierCreate = (newSupplier: any) => {
-    const previousSuppliers = suppliers;
     const tempId = `temp-supplier-${Date.now()}`;
     const optimisticSupplier: SupplierRecord = {
       id: tempId,
       name: newSupplier.name || 'New Supplier',
-      category: newSupplier.category || null,
-      location: newSupplier.location || null,
-      latitude: newSupplier.latitude ? Number(newSupplier.latitude) : null,
-      longitude: newSupplier.longitude ? Number(newSupplier.longitude) : null,
-    };
-    setSuppliers((prev) => [...prev, optimisticSupplier]);
-    return { previousSuppliers };
-  };
-
-  const onErrorSupplierCreate = (err: string, variables: any, context: any) => {
-    if (context?.previousSuppliers) {
-      setSuppliers(context.previousSuppliers);
       category: newSupplier.category || '',
       location: newSupplier.location || '',
       latitude: asNullableNumber(newSupplier.latitude),
@@ -94,20 +81,12 @@ export default function BuilderPage() {
   };
 
   const onMutateSupplierDelete = (supplierToDelete: SupplierRecord) => {
-    const previousSuppliers = suppliers;
-    const previousRoutes = routes;
     const deletedSupplier = supplierToDelete;
     const deletedRoutes = routes.filter((r) => r.originSupplierId === supplierToDelete.id);
 
     setSuppliers((prev) => prev.filter((s) => s.id !== supplierToDelete.id));
     setRoutes((prev) => prev.filter((r) => r.originSupplierId !== supplierToDelete.id));
 
-    return { previousSuppliers, previousRoutes };
-  };
-
-  const onErrorSupplierDelete = (err: string, variables: any, context: any) => {
-    if (context?.previousSuppliers) setSuppliers(context.previousSuppliers);
-    if (context?.previousRoutes) setRoutes(context.previousRoutes);
     return { deletedSupplier, deletedRoutes };
   };
 
@@ -127,23 +106,10 @@ export default function BuilderPage() {
 
   // Facility Optimistic Callbacks
   const onMutateFacilityCreate = (newFacility: any) => {
-    const previousFacilities = facilities;
     const tempId = `temp-facility-${Date.now()}`;
     const optimisticFacility: FacilityRecord = {
       id: tempId,
       name: newFacility.name || 'New Facility',
-      type: newFacility.type || null,
-      location: newFacility.location || null,
-      latitude: newFacility.latitude ? Number(newFacility.latitude) : null,
-      longitude: newFacility.longitude ? Number(newFacility.longitude) : null,
-    };
-    setFacilities((prev) => [...prev, optimisticFacility]);
-    return { previousFacilities };
-  };
-
-  const onErrorFacilityCreate = (err: string, variables: any, context: any) => {
-    if (context?.previousFacilities) {
-      setFacilities(context.previousFacilities);
       type: newFacility.type || '',
       location: newFacility.location || '',
       latitude: asNullableNumber(newFacility.latitude),
@@ -164,8 +130,6 @@ export default function BuilderPage() {
   };
 
   const onMutateFacilityDelete = (facilityToDelete: FacilityRecord) => {
-    const previousFacilities = facilities;
-    const previousRoutes = routes;
     const deletedFacility = facilityToDelete;
     const deletedRoutes = routes.filter(
       (r) => r.destinationId === facilityToDelete.id || r.originFacilityId === facilityToDelete.id
@@ -176,12 +140,6 @@ export default function BuilderPage() {
       prev.filter((r) => r.destinationId !== facilityToDelete.id && r.originFacilityId !== facilityToDelete.id)
     );
 
-    return { previousFacilities, previousRoutes };
-  };
-
-  const onErrorFacilityDelete = (err: string, variables: any, context: any) => {
-    if (context?.previousFacilities) setFacilities(context.previousFacilities);
-    if (context?.previousRoutes) setRoutes(context.previousRoutes);
     return { deletedFacility, deletedRoutes };
   };
 
@@ -201,7 +159,6 @@ export default function BuilderPage() {
 
   // Route Optimistic Callbacks
   const onMutateRouteCreate = (newRoute: any) => {
-    const previousRoutes = routes;
     const tempId = `temp-route-${Date.now()}`;
 
     const originSupplier = suppliers.find((s) => s.id === newRoute.originSupplierId);
@@ -217,15 +174,6 @@ export default function BuilderPage() {
       distanceKm: Number(newRoute.distanceKm),
       originSupplier: originSupplier || null,
       originFacility: originFacility || null,
-      destination: destination || undefined,
-    };
-    setRoutes((prev) => [...prev, optimisticRoute]);
-    return { previousRoutes };
-  };
-
-  const onErrorRouteCreate = (err: string, variables: any, context: any) => {
-    if (context?.previousRoutes) {
-      setRoutes(context.previousRoutes);
       destination: destination,
     };
     setRoutes((prev) => [...prev, optimisticRoute]);
@@ -243,14 +191,6 @@ export default function BuilderPage() {
   };
 
   const onMutateRouteDelete = (routeToDelete: RouteRecord) => {
-    const previousRoutes = routes;
-    setRoutes((prev) => prev.filter((r) => r.id !== routeToDelete.id));
-    return { previousRoutes };
-  };
-
-  const onErrorRouteDelete = (err: string, variables: any, context: any) => {
-    if (context?.previousRoutes) {
-      setRoutes(context.previousRoutes);
     const deletedRoute = routeToDelete;
     setRoutes((prev) => prev.filter((r) => r.id !== routeToDelete.id));
     return { deletedRoute };
@@ -294,7 +234,6 @@ export default function BuilderPage() {
               fields={SUPPLIER_FIELDS}
               payloadKey="suppliers"
               onCreated={refetchSuppliers}
-              onCreated={() => {}}
               onMutate={onMutateSupplierCreate}
               onError={onErrorSupplierCreate}
               onSettled={onSettledSupplierCreate}
@@ -310,7 +249,6 @@ export default function BuilderPage() {
                 refetchSuppliers();
                 refetchRoutes();
               }}
-              onDeleted={() => {}}
               onMutate={onMutateSupplierDelete}
               onError={onErrorSupplierDelete}
               onSettled={onSettledSupplierDelete}
@@ -326,7 +264,6 @@ export default function BuilderPage() {
               fields={FACILITY_FIELDS}
               payloadKey="facilities"
               onCreated={refetchFacilities}
-              onCreated={() => {}}
               onMutate={onMutateFacilityCreate}
               onError={onErrorFacilityCreate}
               onSettled={onSettledFacilityCreate}
@@ -342,7 +279,6 @@ export default function BuilderPage() {
                 refetchFacilities();
                 refetchRoutes();
               }}
-              onDeleted={() => {}}
               onMutate={onMutateFacilityDelete}
               onError={onErrorFacilityDelete}
               onSettled={onSettledFacilityDelete}
@@ -353,12 +289,9 @@ export default function BuilderPage() {
         <TabsContent value="route">
           <div className="grid gap-6 lg:grid-cols-2">
             <AddRouteForm
-              suppliers={suppliers}
-              facilities={facilities}
-              onCreated={refetchRoutes}
               suppliers={suppliers.filter((s) => !s.id.startsWith('temp-'))}
               facilities={facilities.filter((f) => !f.id.startsWith('temp-'))}
-              onCreated={() => {}}
+              onCreated={refetchRoutes}
               onMutate={onMutateRouteCreate}
               onError={onErrorRouteCreate}
               onSettled={onSettledRouteCreate}
@@ -371,7 +304,6 @@ export default function BuilderPage() {
               describe={describeRoute}
               deleteUrl={(r) => `/api/routes/${r.id}`}
               onDeleted={refetchRoutes}
-              onDeleted={() => {}}
               onMutate={onMutateRouteDelete}
               onError={onErrorRouteDelete}
               onSettled={onSettledRouteDelete}
@@ -414,8 +346,6 @@ function AddRouteForm({
   const { mutate: createRoute, isLoading: isSubmitting } = useMutation({
     url: '/api/routes',
     method: 'POST',
-    onMutate: async (variables) => {
-      return await onMutate?.((variables as any)?.routes?.[0]);
     onMutate: async (variables: any) => {
       return await onMutate?.(variables?.routes?.[0]);
     },
@@ -426,12 +356,6 @@ function AddRouteForm({
       setDistanceKm('');
       onCreated();
     },
-    onError: (err, variables, context) => {
-      toast.error('Could not add route', err);
-      onError?.(err, (variables as any)?.routes?.[0], context);
-    },
-    onSettled: (data, errorMsg, variables, context) => {
-      onSettled?.(data, errorMsg, (variables as any)?.routes?.[0], context);
     onError: (err, variables: any, context) => {
       toast.error('Could not add route', err);
       onError?.(err, variables?.routes?.[0], context);

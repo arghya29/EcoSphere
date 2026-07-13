@@ -14,8 +14,8 @@ import { NextResponse } from 'next/server';
  */
 export async function requireOrg() {
   const session = await getServerSession(authOptions);
-  const userId = (session?.user as { id?: string } | undefined)?.id;
-  const activeOrgId = (session as any)?.activeOrgId;
+  const userId = session?.user?.id;
+  const activeOrgId = session?.activeOrgId;
 
   if (!userId) {
     return NextResponse.json({ success: false, error: 'Not authenticated' }, { status: 401 });

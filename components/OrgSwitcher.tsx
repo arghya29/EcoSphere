@@ -25,8 +25,8 @@ export function OrgSwitcher() {
   const { data: response, isLoading: isLoadingOrgs } = useApi<Organization[]>('/api/organizations');
   const organizations = response ?? [];
 
-  const activeOrgId = (session as any)?.activeOrgId;
-  const activeOrgName = (session as any)?.activeOrgName ?? 'Select Organization';
+  const activeOrgId = session?.activeOrgId;
+  const activeOrgName = session?.activeOrgName ?? 'Select Organization';
 
   const [isSwitching, setIsSwitching] = React.useState(false);
 

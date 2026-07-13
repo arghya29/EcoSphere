@@ -62,22 +62,27 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (trigger === 'update' && session?.activeOrgId) {
-        token.activeOrgId = session.activeOrgId;
-        // Fetch the new org's name from database to store in JWT
-        const org = await prisma.organization.findUnique({
-          where: { id: session.activeOrgId },
+        // Verify the user is actually a member of this organization
+        const membership = await prisma.membership.findFirst({
+          where: {
+            userId: token.id,
+            organizationId: session.activeOrgId,
+          },
+          include: { organization: true },
         });
-        if (org) {
-          token.activeOrgName = org.name;
+
+        if (membership) {
+          token.activeOrgId = session.activeOrgId;
+          token.activeOrgName = membership.organization.name;
         }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as { id?: string }).id = token.id as string;
-        (session as any).activeOrgId = token.activeOrgId as string;
-        (session as any).activeOrgName = token.activeOrgName as string;
+        session.user.id = token.id;
+        session.activeOrgId = token.activeOrgId;
+        session.activeOrgName = token.activeOrgName;
       }
       return session;
     },
