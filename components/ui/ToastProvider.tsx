@@ -8,6 +8,7 @@ interface ToastMessage {
   title: string;
   description?: string;
   variant?: ToastVariant;
+  duration?: number;
 }
 
 interface ToastContextValue {
