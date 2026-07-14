@@ -6,6 +6,7 @@ import { AuthSessionProvider } from '@/components/shared/session-provider';
 import { ErrorLogger } from '@/components/shared/error-logger';
 import { SkipToContent } from '@/components/shared/skip-to-content';
 import { ThemeProvider } from '@/components/shared/theme-provider';
+import { LiveRegionProvider } from '@/components/shared/live-region';
 import { THEME_INIT_SCRIPT } from '@/components/shared/theme-script';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
@@ -30,16 +31,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans">
         <SkipToContent />
-        <AuthSessionProvider>
-          <ThemeProvider>
-            <ToastProvider>
-              <main id="main-content" tabIndex={-1}>
-                {children}
-              </main>
-              <ErrorLogger />
-            </ToastProvider>
-          </ThemeProvider>
-        </AuthSessionProvider>
+        <LiveRegionProvider>
+          <AuthSessionProvider>
+            <ThemeProvider>
+              <ToastProvider>
+                <main id="main-content" tabIndex={-1}>
+                  {children}
+                </main>
+                <ErrorLogger />
+              </ToastProvider>
+            </ThemeProvider>
+          </AuthSessionProvider>
+        </LiveRegionProvider>
       </body>
     </html>
   );

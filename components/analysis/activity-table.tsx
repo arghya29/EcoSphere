@@ -129,6 +129,8 @@ export function ActivityTable() {
     }, 100);
   };
 
+
+
   const selectedSet = new Set(selectedIds);
   const allSelected = activities.length > 0 && activities.every((a) => selectedSet.has(a.id));
 
