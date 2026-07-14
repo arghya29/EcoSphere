@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
         400,
         'VALIDATION_ERROR',
         Object.fromEntries(
-          parsed.error.issues.map((issue) => [issue.path.join('.'), issue.message])
+          parsed.error.issues.map((issue) => [issue.path.join('.'), [issue.message]])
         )
       );
     }
