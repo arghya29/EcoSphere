@@ -18,7 +18,7 @@ export default function SettingsPage() {
         <p className="text-sm text-muted-foreground">Manage your account and organization profile.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="text-foreground text-lg">Team Members</CardTitle>
@@ -39,6 +39,18 @@ export default function SettingsPage() {
           <CardContent>
             <Button asChild size="sm">
               <Link href="/settings/factors">Manage Factors</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <CardTitle className="text-foreground text-lg">Audit Logs</CardTitle>
+            <CardDescription>View timeline of critical security actions.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild size="sm">
+              <Link href="/settings/audit">View Logs</Link>
             </Button>
           </CardContent>
         </Card>
