@@ -9,35 +9,19 @@ export async function GET(req: NextRequest) {
   const ctx = await requireOrg();
   if (isErrorResponse(ctx)) return ctx;
 
-  const { searchParams } = req.nextUrl;
-  
-  // Support both page-based and offset-based pagination
-  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '10', 10)));
-  const pageStr = searchParams.get('page');
-  const offsetStr = searchParams.get('offset');
-  
-  let skip = 0;
-  let page = 1;
-  
-  if (pageStr) {
-    page = Math.max(1, parseInt(pageStr, 10));
-    skip = (page - 1) * limit;
-  } else if (offsetStr) {
-    skip = Math.max(0, parseInt(offsetStr, 10));
-    page = Math.floor(skip / limit) + 1;
-  }
+  const url = new URL(req.url);
+  const limit = Math.max(1, Math.min(100, Number.parseInt(url.searchParams.get('limit') ?? '10', 10) || 10));
+  const offset = Math.max(0, Number.parseInt(url.searchParams.get('offset') ?? '0', 10) || 0);
+  const type = url.searchParams.get('type');
+  const startDateStr = url.searchParams.get('startDate');
+  const endDateStr = url.searchParams.get('endDate');
+  const searchQuery = url.searchParams.get('search')?.trim();
+  const sortBy = url.searchParams.get('sortBy') ?? 'dateRecorded';
+  const sortOrder = (url.searchParams.get('sortOrder') ?? 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
+  const skip = offset;
+  const page = Math.floor(offset / limit) + 1;
 
-  const type = searchParams.get('type');
-  const startDateStr = searchParams.get('startDate');
-  const endDateStr = searchParams.get('endDate');
-  const sortBy = searchParams.get('sortBy') || 'dateRecorded';
-  const sortOrder = searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc';
-
-  // Build the where clause
-  const where: any = {
-    organizationId: ctx.organizationId,
-  };
-
+  const where: any = { organizationId: ctx.organizationId };
   if (type && type !== 'ALL') {
     where.type = type;
   }
@@ -53,6 +37,12 @@ export async function GET(req: NextRequest) {
       endDate.setHours(23, 59, 59, 999);
       where.dateRecorded.lte = endDate;
     }
+  }
+  if (searchQuery) {
+    where.OR = [
+      { factor: { category: { contains: searchQuery, mode: 'insensitive' } } },
+      { type: { contains: searchQuery, mode: 'insensitive' } },
+    ];
   }
 
   // Validate sortBy to avoid Prisma errors on invalid fields

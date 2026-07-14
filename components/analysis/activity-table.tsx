@@ -5,8 +5,10 @@ import { formatKg } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ResponsiveTable } from '@/components/ui/responsive-table';
+import { ActivityFilters } from '@/components/analysis/activity-filters';
 import { useToast } from '@/components/ui/ToastProvider';
-import { Trash2, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { useDebounce } from '@/hooks/use-debounce';
+import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { hasNextPage } from '@/lib/utils/pagination';
 
 interface Activity {
@@ -22,6 +24,30 @@ interface Activity {
   };
 }
 
+function exportActivitiesAsCsv(activities: Activity[]): void {
+  const headers = ['Type', 'Category', 'Amount', 'Unit', 'Emissions (kg CO2e)', 'Date'];
+  const rows = activities.map((a) => [
+    a.type,
+    a.factor?.category ?? '',
+    String(a.amount),
+    a.unit,
+    a.emissionsKg.toFixed(4),
+    new Date(a.dateRecorded).toISOString().slice(0, 10),
+  ]);
+  const csv = [headers, ...rows]
+    .map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `activity-export-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export function ActivityTable() {
   const { toast } = useToast();
   const [activities, setActivities] = React.useState<Activity[]>([]);
@@ -32,13 +58,17 @@ export function ActivityTable() {
   const [type, setType] = React.useState('ALL');
   const [startDate, setStartDate] = React.useState('');
   const [endDate, setEndDate] = React.useState('');
+  const [search, setSearch] = React.useState('');
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [isExporting, setIsExporting] = React.useState(false);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = React.useState(false);
+
+  const debouncedSearch = useDebounce(search, 300);
 
   React.useEffect(() => {
     setSelectedIds([]);
-  }, [type, startDate, endDate, offset]);
+  }, [type, startDate, endDate, debouncedSearch, offset]);
 
   const fetchActivities = React.useCallback(async () => {
     setLoading(true);
@@ -50,6 +80,7 @@ export function ActivityTable() {
         startDate,
         endDate,
       });
+      if (debouncedSearch) params.set('search', debouncedSearch);
       const res = await fetch(`/api/activities?${params.toString()}`);
       const json = await res.json();
       if (json.success) {
@@ -61,13 +92,15 @@ export function ActivityTable() {
     } finally {
       setLoading(false);
     }
-  }, [limit, offset, type, startDate, endDate, toast]);
+  }, [limit, offset, type, startDate, endDate, debouncedSearch, toast]);
 
   React.useEffect(() => {
     fetchActivities();
   }, [fetchActivities]);
 
   const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+
     try {
       const res = await fetch('/api/activities', {
         method: 'DELETE',
@@ -86,6 +119,14 @@ export function ActivityTable() {
     } catch {
       toast.error('Error', 'Failed to delete activities.');
     }
+  };
+
+  const handleExport = () => {
+    setIsExporting(true);
+    setTimeout(() => {
+      exportActivitiesAsCsv(activities);
+      setIsExporting(false);
+    }, 100);
   };
 
   const selectedSet = new Set(selectedIds);
@@ -125,50 +166,43 @@ export function ActivityTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3 p-4 rounded-lg border bg-card">
-        <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-          <Filter className="h-4 w-4" />
-          <span>Filters:</span>
-        </div>
-        <select
-          value={type}
-          onChange={(e) => { setType(e.target.value); setOffset(0); }}
-          className="rounded-md border bg-background px-3 py-1.5 text-sm"
-        >
-          <option value="ALL">All Types</option>
-          <option value="FUEL">Fuel</option>
-          <option value="ELECTRICITY">Electricity</option>
-          <option value="FREIGHT">Freight</option>
-          <option value="OTHER">Other</option>
-        </select>
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => { setStartDate(e.target.value); setOffset(0); }}
-          className="rounded-md border bg-background px-3 py-1.5 text-sm"
-          aria-label="Start date"
-        />
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => { setEndDate(e.target.value); setOffset(0); }}
-          className="rounded-md border bg-background px-3 py-1.5 text-sm"
-          aria-label="End date"
-        />
-        {selectedIds.length > 0 && (
-          <Button variant="destructive" size="sm" onClick={() => setShowBulkDeleteDialog(true)} className="ml-auto flex items-center gap-1.5">
+      <ActivityFilters
+        type={type}
+        onTypeChange={(v) => { setType(v); setOffset(0); }}
+        startDate={startDate}
+        onStartDateChange={(v) => { setStartDate(v); setOffset(0); }}
+        endDate={endDate}
+        onEndDateChange={(v) => { setEndDate(v); setOffset(0); }}
+        search={search}
+        onSearchChange={setSearch}
+        onExport={handleExport}
+        hasData={activities.length > 0}
+        isExporting={isExporting}
+      />
+
+      {selectedIds.length > 0 && (
+        <div className="flex items-center justify-between rounded-lg border bg-muted/50 px-4 py-2 text-sm">
+          <span className="text-muted-foreground">
+            {selectedIds.length} activity(ies) selected
+          </span>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setShowBulkDeleteDialog(true)}
+            className="flex items-center gap-1.5"
+          >
             <Trash2 className="h-4 w-4" />
-            Delete Selected ({selectedIds.length})
+            Delete Selected
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       <ResponsiveTable
         columns={columns}
         data={activities}
         keyExtractor={(a) => a.id}
         loading={loading}
-        emptyMessage="No activities found."
+        emptyMessage={debouncedSearch ? `No activities match "${debouncedSearch}".` : 'No activities found.'}
         mobileCardTitle={(a) => `${a.type} — ${formatKg(a.emissionsKg)}`}
         selection={{
           selected: selectedSet,
@@ -180,8 +214,8 @@ export function ActivityTable() {
               setSelectedIds((prev) => prev.filter((id) => !activities.some((a) => a.id === id)));
             } else {
               setSelectedIds((prev) => {
-                const newSelections = activities.filter((a) => !prev.includes(a.id)).map((a) => a.id);
-                return [...prev, ...newSelections];
+                const ids = activities.filter((a) => !prev.includes(a.id)).map((a) => a.id);
+                return [...prev, ...ids];
               });
             }
           },
