@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/ToastProvider';
 import { AlertCircle, Plus } from 'lucide-react';
 import { SkeletonCard } from '@/components/ui/skeleton';
@@ -48,17 +49,8 @@ export default function FactorsSettingsPage() {
     },
   });
 
-  const { mutate: deleteFactor } = useMutation({
-    url: '/api/factors',
-    method: 'DELETE',
-    onSuccess: () => {
-      toast.success('Factor Deleted', 'The custom emission factor has been removed.');
-      refetch();
-    },
-    onError: (err) => {
-      toast.error('Failed to delete factor', err || 'Something went wrong.');
-    },
-  });
+  const [pendingDeleteId, setPendingDeleteId] = React.useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,19 +67,23 @@ export default function FactorsSettingsPage() {
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this custom factor?')) {
-      deleteFactor(null as any); // use query params or send search string
-      fetch(`/api/factors?id=${id}`, { method: 'DELETE' })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            toast.success('Factor Deleted', 'Factor was removed.');
-            refetch();
-          } else {
-            toast.error('Failed to delete factor', data.error);
-          }
-        });
+  const confirmDeleteFactor = async () => {
+    if (!pendingDeleteId) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/factors?id=${pendingDeleteId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Factor Deleted', 'Factor was removed.');
+        refetch();
+      } else {
+        toast.error('Failed to delete factor', data.error);
+      }
+    } catch {
+      toast.error('Failed to delete factor', 'Something went wrong.');
+    } finally {
+      setIsDeleting(false);
+      setPendingDeleteId(null);
     }
   };
 
@@ -200,12 +196,25 @@ export default function FactorsSettingsPage() {
           ) : (
             <div className="space-y-3">
               {factors.map((f) => (
-                <FactorRow key={f.id} factor={f} onDelete={handleDelete} />
+                <FactorRow key={f.id} factor={f} onDelete={(id) => setPendingDeleteId(id)} />
               ))}
             </div>
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={pendingDeleteId !== null}
+        onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}
+        title="Delete custom factor?"
+        description="This custom emission factor will be permanently removed. Standard database factors will still apply."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteFactor}
+        onCancel={() => setPendingDeleteId(null)}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

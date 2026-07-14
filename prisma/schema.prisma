@@ -69,6 +69,7 @@ model VerificationToken {
 model Organization {
   id        String   @id @default(cuid())
   name      String
+  region    String?
   ownerId   String
   createdAt DateTime @default(now())
 

@@ -1,7 +1,10 @@
 'use client';
 
+import * as React from 'react';
+import { Download } from 'lucide-react';
 import { useApi } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ChartPie } from '@/components/charts/chart-pie';
 import { ChartBar } from '@/components/charts/chart-bar';
 import { ChartLine } from '@/components/charts/chart-line';
@@ -10,14 +13,62 @@ import { formatKg } from '@/lib/utils';
 import type { DashboardSummary } from '@/types/api';
 import { ActivityTable } from '@/components/analysis/activity-table';
 
+function exportChartData(summary: DashboardSummary) {
+  const rows: string[][] = [
+    ['Category', 'Emissions (kg CO2e)', 'Share'],
+    ['Scope 1', String(summary.scope1), summary.total > 0 ? `${Math.round((summary.scope1 / summary.total) * 100)}%` : '—'],
+    ['Scope 2', String(summary.scope2), summary.total > 0 ? `${Math.round((summary.scope2 / summary.total) * 100)}%` : '—'],
+    ['Scope 3', String(summary.scope3), summary.total > 0 ? `${Math.round((summary.scope3 / summary.total) * 100)}%` : '—'],
+    ['Total', String(summary.total), '100%'],
+    [],
+    ['Top Supplier', 'Emissions (kg CO2e)'],
+    ...summary.topSuppliers.map((s) => [s.name, String(s.emissionsKg)]),
+    [],
+    ['Top Facility', 'Emissions (kg CO2e)'],
+    ...summary.topFacilities.map((f) => [f.name, String(f.emissionsKg)]),
+    [],
+    ['Month', 'Emissions (kg CO2e)'],
+    ...summary.monthlyTrend.map((m) => [m.month, String(m.emissionsKg)]),
+  ];
+
+  const csv = rows.map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `analysis-export-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export default function AnalysisPage() {
   const { data: summary, isLoading } = useApi<DashboardSummary>('/api/dashboard');
+  const [isExporting, setIsExporting] = React.useState(false);
+
+  const handleExport = () => {
+    if (!summary) return;
+    setIsExporting(true);
+    setTimeout(() => {
+      exportChartData(summary);
+      setIsExporting(false);
+    }, 100);
+  };
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="font-display text-2xl font-semibold">Emissions analysis</h1>
-        <p className="text-sm text-muted-foreground">Breakdown by scope, top emitters, and trend over time.</p>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h1 className="font-display text-2xl font-semibold">Emissions analysis</h1>
+          <p className="text-sm text-muted-foreground">Breakdown by scope, top emitters, and trend over time.</p>
+        </div>
+        {summary && (
+          <Button variant="outline" size="sm" onClick={handleExport} disabled={isExporting}>
+            <Download className="h-4 w-4 mr-1" aria-hidden="true" />
+            {isExporting ? 'Exporting...' : 'Export data'}
+          </Button>
+        )}
       </div>
 
       {isLoading ? (

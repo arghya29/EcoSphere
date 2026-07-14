@@ -163,7 +163,7 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
         )}
 
         {parsed && step >= 1 && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3" aria-live="polite" aria-atomic="true">
             {missingColumns.length > 0 && (
               <div role="alert" className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />

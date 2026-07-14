@@ -37,10 +37,21 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, 'aria-label': ariaLabel, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
+    
+    // Accessibility check: warn if size='icon' but no aria-label is provided
+    if (process.env.NODE_ENV !== 'production' && size === 'icon' && !ariaLabel) {
+      console.warn('Button with size="icon" must have an aria-label for accessibility.');
+    }
+
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <Comp 
+        className={cn(buttonVariants({ variant, size, className }))} 
+        ref={ref} 
+        aria-label={ariaLabel} 
+        {...props} 
+      />
     );
   }
 );

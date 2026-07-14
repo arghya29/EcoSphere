@@ -34,6 +34,16 @@ export function SkeletonChart({ className }: { className?: string }) {
   return <Skeleton className={cn('h-64 w-full rounded-lg', className)} />;
 }
 
+export function SkeletonMobileCard({ className }: { className?: string }) {
+  return (
+    <div className={cn('rounded-lg border bg-card p-4 space-y-3', className)}>
+      <Skeleton className="h-4 w-1/2" />
+      <Skeleton className="h-3 w-full" />
+      <Skeleton className="h-3 w-3/4" />
+    </div>
+  );
+}
+
 export function SkeletonTable({ rows = 4, cols = 3 }: { rows?: number; cols?: number }) {
   return (
     <div className="flex flex-col gap-3">

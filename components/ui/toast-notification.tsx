@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { X, CheckCircle2, AlertTriangle, XCircle, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ToastProgress } from './toast-progress';
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 
@@ -9,12 +10,14 @@ export interface ToastProps {
   title: string;
   description?: string;
   variant?: ToastVariant;
+  duration?: number;
   onClose: () => void;
 }
 
-export function Toast({ title, description, variant = 'info', onClose }: ToastProps) {
+export function Toast({ title, description, variant = 'info', duration = 4000, onClose }: ToastProps) {
   const [isMounted, setIsMounted] = React.useState(false);
   const [isExiting, setIsExiting] = React.useState(false);
+  const [paused, setPaused] = React.useState(false);
   const exitTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const onCloseRef = React.useRef(onClose);
@@ -24,23 +27,17 @@ export function Toast({ title, description, variant = 'info', onClose }: ToastPr
     setIsExiting(true);
     exitTimerRef.current = setTimeout(() => {
       onCloseRef.current();
-    }, 300); // match transition duration
+    }, 300);
   }, []);
 
-  // Auto-dismiss after 4 seconds
   React.useEffect(() => {
     setIsMounted(true);
-    const timer = setTimeout(() => {
-      handleClose();
-    }, 4000);
-
     return () => {
-      clearTimeout(timer);
       if (exitTimerRef.current) {
         clearTimeout(exitTimerRef.current);
       }
     };
-  }, [handleClose]);
+  }, []);
 
   const icons = {
     success: <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />,
@@ -59,11 +56,13 @@ export function Toast({ title, description, variant = 'info', onClose }: ToastPr
   return (
     <div
       className={cn(
-        'flex w-full max-w-md items-start gap-3 rounded-xl border p-4 shadow-lg backdrop-blur-md transition-all duration-300 ease-out transform',
+        'relative flex w-full max-w-md items-start gap-3 rounded-xl border p-4 shadow-lg backdrop-blur-md transition-all duration-300 ease-out transform overflow-hidden',
         variantStyles[variant],
         isMounted && !isExiting ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-4 scale-95'
       )}
       role={variant === 'error' ? 'alert' : 'status'}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
     >
       {icons[variant]}
       <div className="flex-1 min-w-0">
@@ -78,6 +77,12 @@ export function Toast({ title, description, variant = 'info', onClose }: ToastPr
       >
         <X className="h-4 w-4" />
       </button>
+      <ToastProgress
+        durationMs={duration}
+        paused={paused}
+        onComplete={handleClose}
+        variant={variant}
+      />
     </div>
   );
 }

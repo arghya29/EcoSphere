@@ -14,7 +14,7 @@ export default function LandingPage() {
           </Link>
           <nav className="flex items-center gap-3" aria-label="Primary">
             <a
-              href="https://github.com"
+              href="https://github.com/arghya29/EcoSphere"
               target="_blank"
               rel="noreferrer"
               className="hidden items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground sm:flex"
@@ -108,9 +108,9 @@ export default function LandingPage() {
 
       <footer className="border-t border-border py-8">
         <div className="container flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} EcoSphere. Open-source under the MIT license.</p>
+          <p>© {new Date().getFullYear()} EcoSphere. Open-source under the Apache 2.0 license.</p>
           <div className="flex gap-4">
-            <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-foreground">
+            <a href="https://github.com/arghya29/EcoSphere" target="_blank" rel="noreferrer" className="hover:text-foreground">
               GitHub
             </a>
             <Link href="/login" className="hover:text-foreground">

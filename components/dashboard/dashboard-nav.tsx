@@ -30,6 +30,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
+import { OrgSwitcher } from '@/components/OrgSwitcher';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -53,24 +54,34 @@ export function DashboardNav({ userName }: { userName: string }) {
           <Ship className="h-5 w-5" aria-hidden="true" />
           <span className="text-sm">EcoSphere</span>
         </Link>
-        <button
-          type="button"
-          onClick={() => setMobileOpen((v) => !v)}
-          aria-expanded={mobileOpen}
-          aria-controls="mobile-nav"
-          aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          className="rounded-md p-2 hover:bg-muted focus-ring"
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          {!mobileOpen && (
+            <div className="w-40">
+              <OrgSwitcher />
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-nav"
+            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            className="rounded-md p-2 hover:bg-muted focus-ring"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {mobileOpen && (
-        <nav id="mobile-nav" aria-label="Primary" className="fixed inset-x-0 bottom-0 top-[var(--mobile-nav-height)] z-30 overflow-y-auto border-b border-border bg-card md:hidden">
+        <nav id="mobile-nav" aria-label="Mobile Primary" className="fixed inset-x-0 bottom-0 top-[var(--mobile-nav-height)] z-30 overflow-y-auto border-b border-border bg-card md:hidden">
           <div className="flex flex-col min-h-full">
             <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
-            <div className="mt-auto border-t border-border p-3">
-              <div className="flex items-center gap-1">
+            <div className="mt-auto border-t border-border p-3 flex flex-col gap-2">
+              <div className="w-full">
+                <OrgSwitcher />
+              </div>
+              <div className="flex items-center gap-1 w-full">
                 <ThemeToggle />
                 <div className="flex-1">
                   <AccountMenu
@@ -90,13 +101,18 @@ export function DashboardNav({ userName }: { userName: string }) {
           <Ship className="h-5 w-5" aria-hidden="true" />
           EcoSphere
         </div>
-        <nav aria-label="Primary" className="flex-1 py-3">
+        <nav aria-label="Desktop Primary" className="flex-1 py-3">
           <NavLinks pathname={pathname} />
         </nav>
-        <div className="border-t border-border p-3 flex items-center gap-1">
-          <ThemeToggle />
-          <div className="flex-1">
-            <AccountMenu userName={userName} />
+        <div className="border-t border-border p-3 flex flex-col gap-2">
+          <div className="w-full">
+            <OrgSwitcher />
+          </div>
+          <div className="flex items-center gap-1 w-full">
+            <ThemeToggle />
+            <div className="flex-1">
+              <AccountMenu userName={userName} />
+            </div>
           </div>
         </div>
       </aside>

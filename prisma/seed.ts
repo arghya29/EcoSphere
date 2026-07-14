@@ -60,6 +60,7 @@ async function main() {
   const org = await prisma.organization.create({
     data: {
       name: 'Demo Organization',
+      region: 'UK-EU',
       ownerId: user.id,
       members: { create: { userId: user.id, role: 'OWNER' } },
     },
