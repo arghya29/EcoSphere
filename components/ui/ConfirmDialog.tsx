@@ -20,6 +20,7 @@ export interface ConfirmDialogProps {
   confirmLabel?: string;
   cancelLabel?: string;
   onConfirm: () => void;
+  onCancel?: () => void;
   isLoading?: boolean;
   variant?: 'danger' | 'warning' | 'info';
   children?: React.ReactNode;
@@ -33,6 +34,7 @@ export function ConfirmDialog({
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   onConfirm,
+  onCancel,
   isLoading = false,
   variant = 'danger',
   children,
@@ -85,7 +87,10 @@ export function ConfirmDialog({
           <Button
             type="button"
             variant="outline"
-            onClick={() => handleOpenChange(false)}
+            onClick={() => {
+              onCancel?.();
+              handleOpenChange(false);
+            }}
             disabled={isLoading}
             className="flex-1 sm:flex-none"
           >
