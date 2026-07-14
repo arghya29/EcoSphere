@@ -20,7 +20,7 @@ export function ToastProgress({ durationMs, paused, onComplete, variant }: Toast
   React.useEffect(() => {
     if (paused) {
       if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current);
+        clearTimeout(rafRef.current);
         rafRef.current = null;
       }
       return;
@@ -32,29 +32,32 @@ export function ToastProgress({ durationMs, paused, onComplete, variant }: Toast
     }
 
     const tick = () => {
-      const now = Date.now();
-      const delta = now - startRef.current;
-      const newElapsed = Math.min(elapsed + delta, durationMs);
-      setElapsed(newElapsed);
-      startRef.current = now;
+      setElapsed((prevElapsed) => {
+        const now = Date.now();
+        const delta = now - startRef.current;
+        const nextElapsed = Math.min(prevElapsed + delta, durationMs);
+        startRef.current = now;
 
-      if (newElapsed < durationMs) {
-        rafRef.current = requestAnimationFrame(tick);
-      } else {
-        completeRef.current();
-      }
+        if (nextElapsed < durationMs) {
+          rafRef.current = window.setTimeout(tick, 16);
+        } else {
+          completeRef.current();
+        }
+
+        return nextElapsed;
+      });
     };
 
     startRef.current = Date.now();
-    rafRef.current = requestAnimationFrame(tick);
+    rafRef.current = window.setTimeout(tick, 16);
 
     return () => {
       if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current);
+        clearTimeout(rafRef.current);
         rafRef.current = null;
       }
     };
-  }, [paused, durationMs, elapsed]);
+  }, [paused, durationMs]);
 
   const pct = Math.min((elapsed / durationMs) * 100, 100);
 
