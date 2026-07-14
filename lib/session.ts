@@ -18,7 +18,10 @@ export async function requireOrg() {
   const activeOrgId = session?.activeOrgId;
 
   if (!userId) {
-    return NextResponse.json({ success: false, error: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: 'Not authenticated', code: 'UNAUTHORIZED' },
+      { status: 401 }
+    );
   }
 
   let membership = null;
@@ -44,7 +47,10 @@ export async function requireOrg() {
   }
 
   if (!membership) {
-    return NextResponse.json({ success: false, error: 'No organization found for user' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, error: 'No organization found for user', code: 'NOT_FOUND' },
+      { status: 404 }
+    );
   }
 
   return { userId, organizationId: membership.organizationId, organization: membership.organization };
