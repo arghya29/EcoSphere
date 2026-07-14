@@ -4,15 +4,30 @@ import { requireOrg, isErrorResponse } from '@/lib/session';
 import { calculateActivityEmissions, deriveActivityType } from '@/lib/emissions';
 import { findUnauthorizedIds, normalizeOptionalId } from '@/lib/utils';
 import { uploadSchema } from './schema';
-import { logAudit } from '@/lib/audit';
+import { getIdempotencyRecord, saveIdempotencyRecord } from '@/lib/idempotency';
 
 export async function POST(req: NextRequest) {
   const ctx = await requireOrg();
   if (isErrorResponse(ctx)) return ctx;
 
+  const idempotencyKey = req.headers.get('idempotency-key');
+  if (idempotencyKey) {
+    const cached = await getIdempotencyRecord(idempotencyKey);
+    if (cached) {
+      return NextResponse.json(cached.responseBody, { status: cached.statusCode });
+    }
+  }
+
+  const respond = async (resBody: any, status = 200) => {
+    if (idempotencyKey && status >= 200 && status < 300) {
+      await saveIdempotencyRecord(idempotencyKey, status, resBody);
+    }
+    return NextResponse.json(resBody, { status });
+  };
+
   const body = await req.json();
   const parsed = uploadSchema.safeParse(body);
-if (!parsed.success) {
+  if (!parsed.success) {
     const MAX_ERRORS = 20;
     const issues = parsed.error.issues;
     const messages = issues.slice(0, MAX_ERRORS).map((issue) => issue.message);
@@ -23,9 +38,9 @@ if (!parsed.success) {
     
     const allErrors = messages.join('; ');
 
-    return NextResponse.json(
+    return respond(
       { success: false, error: allErrors || 'Invalid upload payload' },
-      { status: 400 }
+      400
     );
   }
 
@@ -35,14 +50,7 @@ if (!parsed.success) {
         prisma.supplier.create({ data: { ...r, organizationId: ctx.organizationId } })
       )
     );
-    await logAudit({
-      actor: ctx.userId,
-      action: 'UPLOAD',
-      entity: 'Supplier',
-      orgId: ctx.organizationId,
-      metadata: { rowCount: created.length },
-    });
-    return NextResponse.json({ success: true, data: created }, { status: 201 });
+    return respond({ success: true, data: created }, 201);
   }
 
   if (parsed.data.kind === 'facilities') {
@@ -51,14 +59,7 @@ if (!parsed.success) {
         prisma.facility.create({ data: { ...r, organizationId: ctx.organizationId } })
       )
     );
-    await logAudit({
-      actor: ctx.userId,
-      action: 'UPLOAD',
-      entity: 'Facility',
-      orgId: ctx.organizationId,
-      metadata: { rowCount: created.length },
-    });
-    return NextResponse.json({ success: true, data: created }, { status: 201 });
+    return respond({ success: true, data: created }, 201);
   }
 
   // activities
@@ -67,9 +68,9 @@ if (!parsed.success) {
   const factorByCategory = new Map(factors.map((f) => [f.category, f]));
   const missing = categories.filter((c) => !factorByCategory.has(c));
   if (missing.length > 0) {
-    return NextResponse.json(
+    return respond(
       { success: false, error: `Unknown emission factor categories: ${missing.join(', ')}` },
-      { status: 400 }
+      400
     );
   }
 
@@ -128,12 +129,12 @@ if (!parsed.success) {
     ...findUnauthorizedIds(supplierIds, ownedSuppliers.map((s: { id: string }) => s.id)).map((id) => `supplier ${id}`),
   ];
   if (unauthorized.length > 0) {
-    return NextResponse.json(
+    return respond(
       {
         success: false,
         error: `These referenced entities do not belong to your organization: ${unauthorized.join(', ')}`,
       },
-      { status: 400 }
+      400
     );
   }
 
@@ -158,13 +159,5 @@ if (!parsed.success) {
     })
   );
 
-  await logAudit({
-    actor: ctx.userId,
-    action: 'UPLOAD',
-    entity: 'Activity',
-    orgId: ctx.organizationId,
-    metadata: { rowCount: created.length },
-  });
-
-  return NextResponse.json({ success: true, data: created }, { status: 201 });
+  return respond({ success: true, data: created }, 201);
 }

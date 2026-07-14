@@ -57,9 +57,7 @@ export default function TeamSettingsPage() {
   };
 
   const handleDelete = (userId: string) => {
-    if (confirm('Are you sure you want to remove this member from the organization?')) {
-      deleteMember({ userId });
-    }
+    deleteMember({ userId });
   };
 
   return (

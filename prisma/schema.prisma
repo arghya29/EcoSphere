@@ -280,3 +280,14 @@ model AuditLog {
   @@index([orgId])
   @@index([timestamp])
 }
+
+model IdempotencyRecord {
+  id           String   @id @default(cuid())
+  key          String   @unique
+  responseBody Json
+  statusCode   Int
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  @@index([expiresAt])
+}

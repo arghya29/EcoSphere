@@ -1,6 +1,7 @@
 # EcoSphere
 
 [![CI](https://github.com/arghya29/EcoSphere/actions/workflows/ci.yml/badge.svg)](https://github.com/arghya29/EcoSphere/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/arghya29/EcoSphere/graph/badge.svg?token=placeholder)](https://codecov.io/gh/arghya29/EcoSphere)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://eco-sphere-pi.vercel.app)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)](./CONTRIBUTING.md)
