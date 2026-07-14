@@ -24,6 +24,7 @@ export interface ConfirmDialogProps {
   isLoading?: boolean;
   variant?: 'danger' | 'warning' | 'info';
   children?: React.ReactNode;
+  showCloseButton?: boolean;
 }
 
 export function ConfirmDialog({
@@ -38,15 +39,23 @@ export function ConfirmDialog({
   isLoading = false,
   variant = 'danger',
   children,
+  showCloseButton = true,
 }: ConfirmDialogProps) {
   const handleOpenChange = (open: boolean) => {
     if (isLoading) return;
+    if (!open) onCancel?.();
     onOpenChange(open);
   };
 
   const handleConfirm = (e: React.MouseEvent) => {
     e.preventDefault();
     onConfirm();
+  };
+
+  const handleCancel = () => {
+    if (isLoading) return;
+    onCancel?.();
+    onOpenChange(false);
   };
 
   const confirmButtonVariant = variant === 'danger' ? 'destructive' : 'default';
@@ -72,7 +81,7 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className={`max-w-[400px] border ${border} bg-background dark:bg-card`}>
+      <DialogContent className={`max-w-[400px] border ${border} bg-background dark:bg-card`} hideClose={!showCloseButton}>
         <DialogHeader className="flex flex-row items-center gap-3">
           <div className={`rounded-full p-2 ${iconClass}`}>
             <Icon className="h-5 w-5" />
@@ -87,10 +96,7 @@ export function ConfirmDialog({
           <Button
             type="button"
             variant="outline"
-            onClick={() => {
-              onCancel?.();
-              handleOpenChange(false);
-            }}
+            onClick={handleCancel}
             disabled={isLoading}
             className="flex-1 sm:flex-none"
           >
@@ -103,6 +109,7 @@ export function ConfirmDialog({
             disabled={isLoading}
             className="flex-1 sm:flex-none"
           >
+            {isLoading && <span className="mr-1.5 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />}
             {isLoading ? 'Processing...' : confirmLabel}
           </Button>
         </DialogFooter>

@@ -6,7 +6,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { SearchInput } from '@/components/ui/search-input';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/components/ui/ToastProvider';
+import { useMutation } from '@/hooks/use-mutation';
+
+const SEARCH_KEYS = ['name', 'category', 'location', 'type'] as const;
+
+function matchesSearch<T>(item: T, query: string): boolean {
+  if (!query) return true;
+  const lower = query.toLowerCase();
+  return SEARCH_KEYS.some((key) => {
+    const val = (item as Record<string, unknown>)[key];
+    return typeof val === 'string' && val.toLowerCase().includes(lower);
+  });
+}
 
 export function ManageList<T extends { id: string }>({
   title,
@@ -16,6 +30,9 @@ export function ManageList<T extends { id: string }>({
   describe,
   deleteUrl,
   onDeleted,
+  onMutate,
+  onError,
+  onSettled,
 }: {
   title: string;
   noun: string;
@@ -24,10 +41,18 @@ export function ManageList<T extends { id: string }>({
   describe: (item: T) => string;
   deleteUrl: (item: T) => string;
   onDeleted: () => void;
+  onMutate?: (item: T) => Promise<unknown> | unknown;
+  onError?: (error: string, item: T, context: unknown) => void;
+  onSettled?: (data: any, error: string | null, item: T, context: unknown) => void;
 }) {
+  const [search, setSearch] = React.useState('');
+  const debouncedSearch = useDebounce(search, 200);
+  const filtered = React.useMemo(
+    () => items.filter((item) => matchesSearch(item, debouncedSearch)),
+    [items, debouncedSearch]
+  );
   const { toast } = useToast();
   const [pending, setPending] = React.useState<T | null>(null);
-  const [isDeleting, setIsDeleting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   const closeDialog = () => {
@@ -36,30 +61,41 @@ export function ManageList<T extends { id: string }>({
     setError(null);
   };
 
-  const confirmRemove = async () => {
-    if (!pending) return;
-    setIsDeleting(true);
-    setError(null);
-    try {
-      const res = await fetch(deleteUrl(pending), { method: 'DELETE' });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || !json.success) {
-        const message = json.error ?? `Could not remove this ${noun}.`;
-        setError(message);
-        toast.error(`Could not remove ${noun}`, message);
-        return;
+  const { mutate: removeEntity, isLoading: isDeleting } = useMutation({
+    url: '', // We use overrideUrl parameter during execution
+    method: 'DELETE',
+    onMutate: async () => {
+      if (pending) {
+        return await onMutate?.(pending);
       }
-      toast.success(`${noun.charAt(0).toUpperCase()}${noun.slice(1)} removed`, describe(pending));
-      setPending(null);
-      setError(null);
-      onDeleted();
-    } catch {
-      const message = 'Something went wrong. Please try again.';
+    },
+    onSuccess: () => {
+      if (pending) {
+        toast.success(`${noun.charAt(0).toUpperCase()}${noun.slice(1)} removed`, describe(pending));
+        setPending(null);
+        setError(null);
+        onDeleted();
+      }
+    },
+    onError: (errorMsg, variables, context) => {
+      const message = errorMsg ?? `Could not remove this ${noun}.`;
       setError(message);
       toast.error(`Could not remove ${noun}`, message);
-    } finally {
-      setIsDeleting(false);
-    }
+      if (pending) {
+        onError?.(errorMsg, pending, context);
+      }
+    },
+    onSettled: (data, errorMsg, variables, context) => {
+      if (pending) {
+        onSettled?.(data, errorMsg, pending, context);
+      }
+    },
+  });
+
+  const confirmRemove = async () => {
+    if (!pending) return;
+    setError(null);
+    await removeEntity(undefined, deleteUrl(pending));
   };
 
   return (
@@ -68,15 +104,25 @@ export function ManageList<T extends { id: string }>({
         <CardTitle className="text-foreground">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        {items.length === 0 ? (
+        {items.length > 4 && (
+          <div className="mb-3">
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder={`Search ${noun}s\u2026`}
+              label={`Search ${noun}s`}
+            />
+          </div>
+        )}
+        {filtered.length === 0 ? (
           <EmptyState
             icon={Database}
-            title={emptyText}
+            title={search ? `No ${noun}s match "${search}"` : emptyText}
             description=""
           />
         ) : (
           <ul className="flex flex-col divide-y divide-border">
-            {items.map((item) => (
+            {filtered.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-3 py-2.5">
                 <span className="min-w-0 truncate text-sm text-foreground">{describe(item)}</span>
                 <Button
