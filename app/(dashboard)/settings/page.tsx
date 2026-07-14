@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
+import { OrgProfileForm } from '@/components/ui/org-profile-form';
 import Link from 'next/link';
 
 export default function SettingsPage() {
@@ -65,25 +65,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-foreground">Organization profile</CardTitle>
-          <CardDescription>Name and region shown on reports.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="org-name">Organization name</Label>
-            <Input id="org-name" placeholder="Your Organization" />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="org-region">Region</Label>
-            <Input id="org-region" placeholder="e.g. UK, EU, US" />
-          </div>
-          <Button size="sm" className="w-fit sm:col-span-2" disabled>
-            Save changes
-          </Button>
-        </CardContent>
-      </Card>
+      <OrgProfileForm />
     </div>
   );
 }

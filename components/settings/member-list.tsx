@@ -3,7 +3,8 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, UserCheck } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { Trash2 } from 'lucide-react';
 
 import { Member } from '@/types/member';
 
@@ -18,6 +19,8 @@ export function MemberList({
   onUpdateRole: (email: string, role: Member['role']) => void;
   isPending?: boolean;
 }) {
+  const [pendingDelete, setPendingDelete] = React.useState<string | null>(null);
+
   const roleColors = {
     OWNER: 'bg-scope1 text-white border-transparent',
     ADMIN: 'bg-scope2 text-white border-transparent',
@@ -55,7 +58,7 @@ export function MemberList({
                   variant="outline"
                   size="icon"
                   disabled={isPending}
-                  onClick={() => onDelete(m.userId)}
+                  onClick={() => setPendingDelete(m.userId)}
                   className="text-destructive hover:bg-destructive/10"
                   aria-label={`Remove team member ${m.user.email}`}
                 >
@@ -66,6 +69,21 @@ export function MemberList({
           </div>
         </div>
       ))}
+
+      <ConfirmDialog
+        isOpen={pendingDelete !== null}
+        onOpenChange={(open) => { if (!open) setPendingDelete(null); }}
+        title="Remove team member?"
+        description="This member will lose access to the organization. Their associated data will remain."
+        confirmLabel="Remove"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={() => {
+          if (pendingDelete) onDelete(pendingDelete);
+          setPendingDelete(null);
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

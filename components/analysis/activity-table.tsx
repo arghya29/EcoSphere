@@ -100,6 +100,7 @@ export function ActivityTable() {
 
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
+
     try {
       const res = await fetch('/api/activities', {
         method: 'DELETE',

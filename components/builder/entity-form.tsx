@@ -67,6 +67,20 @@ export function EntityForm({
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (form.latitude && form.latitude.trim() !== '') {
+      const lat = Number(form.latitude);
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        toast.error('Validation Error', 'Latitude must be a valid number between -90 and 90');
+        return;
+      }
+    }
+    if (form.longitude && form.longitude.trim() !== '') {
+      const lng = Number(form.longitude);
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        toast.error('Validation Error', 'Longitude must be a valid number between -180 and 180');
+        return;
+      }
+    }
 
     const body = Object.fromEntries(
       Object.entries(form).map(([key, value]) => {

@@ -10,12 +10,16 @@ export async function GET(req: NextRequest) {
   if (isErrorResponse(ctx)) return ctx;
 
   const url = new URL(req.url);
-  const limit = parseInt(url.searchParams.get('limit') ?? '10');
-  const offset = parseInt(url.searchParams.get('offset') ?? '0');
+  const limit = Math.max(1, Math.min(100, Number.parseInt(url.searchParams.get('limit') ?? '10', 10) || 10));
+  const offset = Math.max(0, Number.parseInt(url.searchParams.get('offset') ?? '0', 10) || 0);
   const type = url.searchParams.get('type');
   const startDateStr = url.searchParams.get('startDate');
   const endDateStr = url.searchParams.get('endDate');
   const searchQuery = url.searchParams.get('search')?.trim();
+  const sortBy = url.searchParams.get('sortBy') ?? 'dateRecorded';
+  const sortOrder = (url.searchParams.get('sortOrder') ?? 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
+  const skip = offset;
+  const page = Math.floor(offset / limit) + 1;
 
   const where: any = { organizationId: ctx.organizationId };
   if (type && type !== 'ALL') {
