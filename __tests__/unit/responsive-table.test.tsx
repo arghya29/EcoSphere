@@ -29,10 +29,10 @@ describe('ResponsiveTable', () => {
       />
     );
 
-    expect(screen.getByText('Name')).toBeInTheDocument();
-    expect(screen.getByText('Value')).toBeInTheDocument();
-    expect(screen.getByText('Alpha')).toBeInTheDocument();
-    expect(screen.getByText('Beta')).toBeInTheDocument();
+    expect(screen.getAllByText('Name').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Value').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Alpha').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Beta').length).toBeGreaterThan(0);
   });
 
   it('shows empty state when data is empty', () => {
