@@ -1,0 +1,22 @@
+{
+  "DashboardNav": {
+    "dashboard": "Panel",
+    "uploadData": "Subir Datos",
+    "builder": "Constructor de Cadena",
+    "emissions": "Emisiones",
+    "targets": "Objetivos",
+    "insights": "Perspectivas",
+    "reports": "Reportes",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión",
+    "accountMenu": "Menú de cuenta",
+    "closeNav": "Cerrar menú de navegación",
+    "openNav": "Abrir menú de navegación"
+  },
+  "LocaleSwitcher": {
+    "label": "Cambiar idioma",
+    "en": "Inglés",
+    "es": "Español"
+  }
+}

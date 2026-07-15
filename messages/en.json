@@ -1,0 +1,22 @@
+{
+  "DashboardNav": {
+    "dashboard": "Dashboard",
+    "uploadData": "Upload Data",
+    "builder": "Supply-Chain Builder",
+    "emissions": "Emissions",
+    "targets": "Targets",
+    "insights": "Insights",
+    "reports": "Reports",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Log out",
+    "accountMenu": "Account menu",
+    "closeNav": "Close navigation menu",
+    "openNav": "Open navigation menu"
+  },
+  "LocaleSwitcher": {
+    "label": "Change language",
+    "en": "English",
+    "es": "Español"
+  }
+}
