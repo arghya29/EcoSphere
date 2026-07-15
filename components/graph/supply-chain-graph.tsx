@@ -11,11 +11,20 @@ import {
   Handle,
   Position,
   MarkerType,
+  Panel,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Factory, Truck, Warehouse } from 'lucide-react';
+import { Factory, Truck, Warehouse, Download } from 'lucide-react';
 import { formatKg } from '@/lib/utils';
 import type { SupplierRecord, FacilityRecord, RouteRecord } from '@/types/api';
+import { toPng, toSvg } from 'html-to-image';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 function SupplierNode({ data }: { data: { label: string } }) {
   return (
@@ -106,12 +115,42 @@ export function SupplyChainGraph({
         animated: r.mode === 'AIR',
         markerEnd: { type: MarkerType.ArrowClosed },
         style: { stroke: r.mode === 'AIR' ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))' },
-        labelStyle: { fontSize: 10 },
+        labelStyle: { fill: 'hsl(var(--foreground))', fontSize: 10, fontWeight: 500 },
+        labelBgStyle: { fill: 'hsl(var(--background))' },
       });
     });
 
     return { nodes, edges };
   }, [suppliers, facilities, routes, emissionsByRoute]);
+
+  const handleDownload = React.useCallback((format: 'png' | 'svg') => {
+    const wrapper = document.querySelector('.react-flow') as HTMLElement;
+    if (!wrapper) return;
+
+    const filter = (node: HTMLElement) => {
+      const excludeClasses = ['react-flow__panel', 'react-flow__controls', 'react-flow__minimap'];
+      if (node.classList && typeof node.classList.contains === 'function') {
+        return !excludeClasses.some((className) => node.classList.contains(className));
+      }
+      return true;
+    };
+
+    const isDark = document.documentElement.classList.contains('dark');
+    const options = {
+      filter,
+      backgroundColor: isDark ? '#09090b' : '#ffffff',
+    };
+
+    const exporter = format === 'png' ? toPng : toSvg;
+    exporter(wrapper, options)
+      .then((dataUrl) => {
+        const a = document.createElement('a');
+        a.setAttribute('download', `supply-chain-graph.${format}`);
+        a.setAttribute('href', dataUrl);
+        a.click();
+      })
+      .catch((err) => console.error('Error exporting image:', err));
+  }, []);
 
   if (nodes.length === 0) {
     return (
@@ -136,6 +175,24 @@ export function SupplyChainGraph({
           zoomable
           ariaLabel="Graph minimap"
         />
+        <Panel position="top-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2 bg-background/80 backdrop-blur-sm">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleDownload('png')}>
+                Download PNG
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDownload('svg')}>
+                Download SVG
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </Panel>
       </ReactFlow>
     </div>
   );
