@@ -62,6 +62,11 @@ export function ResponsiveTable<T>({
     setPage(1);
   }, [data]);
 
+  React.useEffect(() => {
+    desktopRef.current?.scrollTo({ top: 0, left: 0 });
+    mobileRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [page, limit, data]);
+
   const desktopVirtualizer = useVirtualizer({
     count: virtualize ? displayData.length : 0,
     getScrollElement: () => desktopRef.current,

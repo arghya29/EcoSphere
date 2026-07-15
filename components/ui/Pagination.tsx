@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
-export type PageSize = number;
+export type PageSize = 10 | 25 | 50;
 
 interface PaginationProps {
   page: number;
