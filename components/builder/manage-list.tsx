@@ -10,6 +10,7 @@ import { SearchInput } from '@/components/ui/search-input';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/components/ui/ToastProvider';
 import { useMutation } from '@/hooks/use-mutation';
+import { Pagination } from '@/components/ui/Pagination';
 
 const SEARCH_KEYS = ['name', 'category', 'location', 'type'] as const;
 
@@ -54,6 +55,17 @@ export function ManageList<T extends { id: string }>({
   const { toast } = useToast();
   const [pending, setPending] = React.useState<T | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [page, setPage] = React.useState(1);
+  const [limit, setLimit] = React.useState(50);
+
+  const paginatedItems = React.useMemo(() => {
+    const start = (page - 1) * limit;
+    return filtered.slice(start, start + limit);
+  }, [filtered, page, limit]);
+
+  React.useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
   const closeDialog = () => {
     if (isDeleting) return;
@@ -121,9 +133,10 @@ export function ManageList<T extends { id: string }>({
             description=""
           />
         ) : (
-          <ul className="flex flex-col divide-y divide-border">
-            {filtered.map((item) => (
-              <li key={item.id} className="flex items-center justify-between gap-3 py-2.5">
+          <>
+            <ul className="flex flex-col divide-y divide-border">
+              {paginatedItems.map((item) => (
+                <li key={item.id} className="flex items-center justify-between gap-3 py-2.5">
                 <span className="min-w-0 truncate text-sm text-foreground">{describe(item)}</span>
                 <Button
                   type="button"
@@ -140,7 +153,18 @@ export function ManageList<T extends { id: string }>({
                 </Button>
               </li>
             ))}
-          </ul>
+            </ul>
+            {filtered.length > limit && (
+              <Pagination
+                page={page}
+                totalPages={Math.ceil(filtered.length / limit)}
+                limit={limit}
+                total={filtered.length}
+                onPageChange={setPage}
+                onLimitChange={(l) => { setLimit(l); setPage(1); }}
+              />
+            )}
+          </>
         )}
       </CardContent>
 

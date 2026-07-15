@@ -1,0 +1,16 @@
+{
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "upload": "Upload Data",
+    "builder": "Supply-Chain Builder",
+    "analysis": "Emissions",
+    "targets": "Targets",
+    "insights": "Insights",
+    "reports": "Reports"
+  },
+  "Common": {
+    "language": "Language",
+    "english": "English",
+    "spanish": "Spanish"
+  }
+}

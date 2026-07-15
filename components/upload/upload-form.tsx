@@ -5,6 +5,7 @@ import { parseFile, validateColumns, validateRows, type ParsedFile, type UploadS
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ProgressSteps } from '@/components/ui/progress-bar';
+import { Pagination } from '@/components/ui/Pagination';
 import { useToast } from '@/components/ui/ToastProvider';
 import { UploadCloud, FileSpreadsheet, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import { ValidationErrorList } from '@/components/ui/validation-error-list';
@@ -38,6 +39,8 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
   const [isDragging, setIsDragging] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [step, setStep] = React.useState(0);
+  const [previewPage, setPreviewPage] = React.useState(1);
+  const [previewLimit, setPreviewLimit] = React.useState(50);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const label = SCHEMA_LABELS[kind];
 
@@ -103,6 +106,7 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
       toast({ title: 'Upload complete', description: `${json.data.length} ${label.title.toLowerCase()} imported.` });
       setParsed(null);
       setStep(0);
+      setPreviewPage(1);
       onUploaded?.();
     } catch (err) {
       toast({
@@ -191,7 +195,7 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
               <>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
-                  {parsed.fileName} &mdash; {parsed.rowCount} rows detected. Preview of the first 5:
+                  {parsed.fileName} &mdash; {parsed.rowCount} rows detected. Data preview:
                 </div>
 
                 <div className="overflow-x-auto rounded-md border border-border scrollbar-thin">
@@ -206,7 +210,7 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
                       </tr>
                     </thead>
                     <tbody>
-                      {parsed.rows.slice(0, 5).map((row, i) => (
+                      {parsed.rows.slice((previewPage - 1) * previewLimit, previewPage * previewLimit).map((row, i) => (
                         <tr key={i} className="border-t border-border">
                           {parsed.headers.map((h) => (
                             <td key={h} className="whitespace-nowrap px-3 py-2">
@@ -218,6 +222,15 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
                     </tbody>
                   </table>
                 </div>
+                
+                <Pagination
+                  page={previewPage}
+                  totalPages={Math.ceil(parsed.rows.length / previewLimit)}
+                  limit={previewLimit}
+                  total={parsed.rows.length}
+                  onPageChange={setPreviewPage}
+                  onLimitChange={(l) => { setPreviewLimit(l); setPreviewPage(1); }}
+                />
               </>
             )}
 

@@ -1,0 +1,16 @@
+{
+  "Navigation": {
+    "dashboard": "Panel de control",
+    "upload": "Subir Datos",
+    "builder": "Constructor de Cadena",
+    "analysis": "Emisiones",
+    "targets": "Objetivos",
+    "insights": "Perspectivas",
+    "reports": "Informes"
+  },
+  "Common": {
+    "language": "Idioma",
+    "english": "Inglés",
+    "spanish": "Español"
+  }
+}

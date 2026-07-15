@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
+import { Pagination } from '@/components/ui/Pagination';
 
 interface Column<T> {
   key: string;
@@ -25,6 +26,8 @@ interface ResponsiveTableProps<T> {
     allSelected: boolean;
   };
   actions?: (item: T) => React.ReactNode;
+  clientPagination?: boolean;
+  defaultPageSize?: number;
 }
 
 export function ResponsiveTable<T>({
@@ -36,7 +39,22 @@ export function ResponsiveTable<T>({
   mobileCardTitle,
   selection,
   actions,
+  clientPagination = false,
+  defaultPageSize = 50,
 }: ResponsiveTableProps<T>) {
+  const [page, setPage] = React.useState(1);
+  const [limit, setLimit] = React.useState(defaultPageSize);
+
+  const displayData = React.useMemo(() => {
+    if (!clientPagination) return data;
+    const start = (page - 1) * limit;
+    return data.slice(start, start + limit);
+  }, [data, clientPagination, page, limit]);
+
+  React.useEffect(() => {
+    setPage(1);
+  }, [data]);
+
   if (loading) {
     return (
       <div className="space-y-3" aria-live="polite" aria-label="Loading table data">
@@ -84,7 +102,7 @@ export function ResponsiveTable<T>({
             </tr>
           </thead>
           <tbody className="divide-y">
-            {data.map((item) => (
+            {displayData.map((item) => (
               <tr key={keyExtractor(item)} className="hover:bg-muted/50">
                 {selection && (
                   <td className="px-4 py-3">
@@ -110,7 +128,7 @@ export function ResponsiveTable<T>({
 
       {/* Mobile card view */}
       <div className="sm:hidden space-y-3">
-        {data.map((item) => (
+        {displayData.map((item) => (
           <div key={keyExtractor(item)} className="rounded-lg border bg-card p-4">
             {selection && (
               <div className="mb-2 flex items-center gap-2">
@@ -142,6 +160,17 @@ export function ResponsiveTable<T>({
           </div>
         ))}
       </div>
+
+      {clientPagination && data.length > 0 && (
+        <Pagination
+          page={page}
+          totalPages={Math.ceil(data.length / limit)}
+          limit={limit}
+          total={data.length}
+          onPageChange={setPage}
+          onLimitChange={(newLimit) => { setLimit(newLimit); setPage(1); }}
+        />
+      )}
     </>
   );
 }
