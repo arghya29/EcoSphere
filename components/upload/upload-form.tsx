@@ -222,7 +222,7 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
                       {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                         const row = parsed.rows[virtualRow.index];
                         return (
-                          <tr key={virtualRow.index} data-index={virtualRow.index} ref={rowVirtualizer.measureElement} className="border-t border-border hover:bg-muted/30">
+                          <tr key={virtualRow.index} data-index={virtualRow.index} ref={(node) => { if (node) rowVirtualizer.measureElement(node); }} className="border-t border-border hover:bg-muted/30">
                             {parsed.headers.map((h) => (
                               <td key={h} className="whitespace-nowrap px-3 py-2">
                                 {row[h]}

@@ -136,7 +136,7 @@ export function ResponsiveTable<T>({
                 {desktopVirtualizer.getVirtualItems().map((virtualRow) => {
                   const item = displayData[virtualRow.index];
                   return (
-                    <tr key={keyExtractor(item)} data-index={virtualRow.index} ref={desktopVirtualizer.measureElement} className="hover:bg-muted/50">
+                    <tr key={keyExtractor(item)} data-index={virtualRow.index} ref={(node) => { if (node) desktopVirtualizer.measureElement(node); }} className="hover:bg-muted/50">
                       {selection && (
                         <td className="px-4 py-3">
                           <input
@@ -191,7 +191,7 @@ export function ResponsiveTable<T>({
       {/* Mobile card view */}
       <div 
         ref={virtualize ? mobileRef : undefined}
-        className={cn("sm:hidden space-y-3", virtualize ? `overflow-auto scrollbar-thin relative ${maxHeight}` : "")}
+        className={cn("sm:hidden", virtualize ? `overflow-auto scrollbar-thin relative ${maxHeight} flex flex-col gap-3` : "space-y-3")}
       >
         {virtualize ? (
           <>
@@ -201,7 +201,7 @@ export function ResponsiveTable<T>({
             {mobileVirtualizer.getVirtualItems().map((virtualRow) => {
               const item = displayData[virtualRow.index];
               return (
-                <div key={keyExtractor(item)} data-index={virtualRow.index} ref={mobileVirtualizer.measureElement} className="rounded-lg border bg-card p-4 mb-3">
+                <div key={keyExtractor(item)} data-index={virtualRow.index} ref={(node) => { if (node) mobileVirtualizer.measureElement(node); }} className="rounded-lg border bg-card p-4">
                   {selection && (
                     <div className="mb-2 flex items-center gap-2">
                       <input
