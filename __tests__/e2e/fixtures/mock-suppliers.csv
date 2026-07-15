@@ -1,0 +1,4 @@
+name,location,category,latitude,longitude
+"Test Supplier 1","New York, NY",manufacturing,40.7128,-74.0060
+"Test Supplier 2, LLC",London,,51.5074,-0.1278
+"Edge Case %$",Tokyo,retail,,
