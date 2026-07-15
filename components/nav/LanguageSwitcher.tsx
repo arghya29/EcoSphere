@@ -15,7 +15,7 @@ export function LanguageSwitcher() {
   function onSelectChange(nextLocale: string) {
     startTransition(() => {
       // Create new pathname by replacing the current locale
-      const newPathname = pathname.replace(`/${locale}`, `/${nextLocale}`);
+      const newPathname = pathname.replace(new RegExp(`^/${locale}`), `/${nextLocale}`);
       router.replace(newPathname);
       router.refresh();
     });

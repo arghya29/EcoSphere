@@ -21,13 +21,48 @@ import { ScopeBreakdown } from '@/components/charts/scope-breakdown';
 import { EmissionsChart } from '@/components/charts/emissions-chart';
 import { exportActivitiesAsCsv } from '@/lib/utils/exportCsv';
 import { computeMonthlyChange, computeTrend } from '@/lib/utils/analytics';
+import { useLocale } from 'next-intl';
 
+function SortHeader({
+  field,
+  label,
+  sortBy,
+  sortOrder,
+  onSort,
+}: {
+  field: string;
+  label: string;
+  sortBy: string;
+  sortOrder: 'asc' | 'desc';
+  onSort: (field: string) => void;
+}) {
+  const isSorted = sortBy === field;
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(field)}
+      className="flex items-center gap-1 hover:text-foreground transition-colors font-medium"
+    >
+      {label}
+      {isSorted ? (
+        sortOrder === 'asc' ? (
+          <ArrowUp className="h-3 w-3 text-primary" />
+        ) : (
+          <ArrowDown className="h-3 w-3 text-primary" />
+        )
+      ) : (
+        <ArrowUpDown className="h-3 w-3 text-muted-foreground opacity-50" />
+      )}
+    </button>
+  );
+}
 
 export default function DashboardPage() {
   const { data: summary, isLoading: loadingSummary, error: summaryError } = useApi<DashboardSummary>('/api/dashboard');
   const { data: suppliers } = useApi<SupplierRecord[]>('/api/suppliers');
   const { data: facilities } = useApi<FacilityRecord[]>('/api/facilities');
   const { data: routes } = useApi<RouteRecord[]>('/api/routes');
+  const locale = useLocale();
 
   const [isExporting, setIsExporting] = React.useState(false);
 
@@ -85,28 +120,6 @@ export default function DashboardPage() {
       return `Route: ${origin} → ${dest}`;
     }
     return 'General';
-  };
-
-  const SortHeader = ({ field, label }: { field: string; label: string }) => {
-    const isSorted = sortBy === field;
-    return (
-      <button
-        type="button"
-        onClick={() => handleSort(field)}
-        className="flex items-center gap-1 hover:text-foreground transition-colors font-medium"
-      >
-        {label}
-        {isSorted ? (
-          sortOrder === 'asc' ? (
-            <ArrowUp className="h-3 w-3 text-primary" />
-          ) : (
-            <ArrowDown className="h-3 w-3 text-primary" />
-          )
-        ) : (
-          <ArrowUpDown className="h-3 w-3 text-muted-foreground opacity-50" />
-        )}
-      </button>
-    );
   };
 
   const handleExport = () => {
@@ -301,19 +314,19 @@ export default function DashboardPage() {
                     <table className="w-full text-left text-sm border-collapse">
                       <thead>
                         <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wider">
-                          <th scope="col" className="pb-3 pl-2"><SortHeader field="dateRecorded" label="Date" /></th>
-                          <th scope="col" className="pb-3"><SortHeader field="type" label="Activity Type" /></th>
+                          <th scope="col" className="pb-3 pl-2"><SortHeader field="dateRecorded" label="Date" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} /></th>
+                          <th scope="col" className="pb-3"><SortHeader field="type" label="Activity Type" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} /></th>
                           <th scope="col" className="pb-3">Scope</th>
                           <th scope="col" className="pb-3">Node / Source</th>
-                          <th scope="col" className="pb-3 text-right"><SortHeader field="amount" label="Amount" /></th>
-                          <th scope="col" className="pb-3 pr-2 text-right"><SortHeader field="emissionsKg" label="Emissions" /></th>
+                          <th scope="col" className="pb-3 text-right"><SortHeader field="amount" label="Amount" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} /></th>
+                          <th scope="col" className="pb-3 pr-2 text-right"><SortHeader field="emissionsKg" label="Emissions" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} /></th>
                         </tr>
                       </thead>
                       <tbody>
                         {activities.map((a) => (
                           <tr key={a.id} className="border-b border-border hover:bg-muted/20 last:border-0 transition-colors">
                             <td className="py-3 pl-2 font-mono-data text-xs whitespace-nowrap">
-                              {new Date(a.dateRecorded).toLocaleDateString(undefined, {
+                              {new Date(a.dateRecorded).toLocaleDateString(locale, {
                                 year: 'numeric',
                                 month: 'short',
                                 day: 'numeric',

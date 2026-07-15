@@ -44,6 +44,11 @@ interface ApiResponsePaginated {
 export default function AuditSettingsPage() {
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(10);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { data, isLoading, error } = useApi<ApiResponsePaginated>(
     `/api/org/audit?page=${page}&limit=${limit}`
@@ -124,15 +129,15 @@ export default function AuditSettingsPage() {
             <div className="relative border-l border-border ml-3 pl-6 space-y-6">
               {logs.map((log) => {
                 const date = new Date(log.timestamp);
-                const formattedDate = date.toLocaleDateString(undefined, {
+                const formattedDate = mounted ? date.toLocaleDateString(undefined, {
                   month: 'short',
                   day: 'numeric',
                   year: 'numeric',
-                });
-                const formattedTime = date.toLocaleTimeString(undefined, {
+                }) : '';
+                const formattedTime = mounted ? date.toLocaleTimeString(undefined, {
                   hour: '2-digit',
                   minute: '2-digit',
-                });
+                }) : '';
 
                 return (
                   <div key={log.id} className="relative group">

@@ -384,12 +384,12 @@ function AddRouteForm({
     });
   };
 
-  if (suppliers.length === 0 && facilities.length === 0) {
+  if (facilities.length === 0) {
     return (
       <EmptyState
         icon={Database}
-        title="No suppliers or facilities yet"
-        description="Add at least one supplier or facility in the tabs above before creating routes."
+        title="No facilities yet"
+        description="Add at least one facility in the tabs above before creating routes."
       />
     );
   }

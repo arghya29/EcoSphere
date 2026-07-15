@@ -28,31 +28,37 @@ export default function SignupPage() {
     setServerError(null);
     setIsSubmitting(true);
 
-    const res = await fetch('/api/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    const json = await res.json();
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
 
-    if (!res.ok || !json.success) {
-      setServerError(json.error ?? 'Something went wrong.');
+      if (!res.ok || !json.success) {
+        setServerError(json.error ?? 'Something went wrong.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const result = await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
       setIsSubmitting(false);
-      return;
-    }
 
-    const result = await signIn('credentials', {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
-    setIsSubmitting(false);
-
-    if (result?.error) {
-      setServerError('Account created, but automatic login failed. Try logging in.');
-      return;
+      if (result?.error) {
+        setServerError('Account created, but automatic login failed. Try logging in.');
+        return;
+      }
+      router.refresh();
+      router.push('/dashboard');
+    } catch (err) {
+      setServerError('A network error occurred. Please try again.');
+      setIsSubmitting(false);
     }
-    router.push('/dashboard');
   };
 
   return (

@@ -52,6 +52,7 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
       setMissingColumns(missing);
       const errors = missing.length === 0 ? validateRows(kind, result.rows) : [];
       setRowErrors(errors);
+      setPreviewPage(1);
       setStep(missing.length === 0 && errors.length === 0 ? 1 : 0);
     } catch (err) {
       toast({ title: 'Could not read file', description: 'Check that it is a valid CSV or Excel file.', variant: 'destructive' });

@@ -3,15 +3,38 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { useLocale } from 'next-intl';
 
 export default function DocsPage() {
+  const locale = useLocale();
   const [loaded, setLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    // Avoid loading if already loaded
+    let interval: NodeJS.Timeout;
+
+    const initSwagger = () => {
+      interval = setInterval(() => {
+        if ((window as any).SwaggerUIBundle) {
+          clearInterval(interval);
+          (window as any).SwaggerUIBundle({
+            url: '/api/docs',
+            dom_id: '#swagger-ui',
+            presets: [
+              (window as any).SwaggerUIBundle.presets.apis,
+              (window as any).SwaggerUIStandalonePreset,
+            ],
+            layout: 'BaseLayout',
+            deepLinking: true,
+          });
+          setLoaded(true);
+        }
+      }, 50);
+    };
+
+    // Avoid loading scripts if already loaded
     if (document.getElementById('swagger-ui-css')) {
-      setLoaded(true);
-      return;
+      initSwagger();
+      return () => clearInterval(interval);
     }
 
     // Load CSS
@@ -33,24 +56,9 @@ export default function DocsPage() {
     presetScript.charset = 'UTF-8';
     document.head.appendChild(presetScript);
 
-    bundleScript.onload = () => {
-      const interval = setInterval(() => {
-        if ((window as any).SwaggerUIBundle) {
-          clearInterval(interval);
-          (window as any).SwaggerUIBundle({
-            url: '/api/docs',
-            dom_id: '#swagger-ui',
-            presets: [
-              (window as any).SwaggerUIBundle.presets.apis,
-              (window as any).SwaggerUIStandalonePreset,
-            ],
-            layout: 'BaseLayout',
-            deepLinking: true,
-          });
-          setLoaded(true);
-        }
-      }, 50);
-    };
+    bundleScript.onload = initSwagger;
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -59,7 +67,7 @@ export default function DocsPage() {
       <div className="bg-white border-b border-border py-4 px-6 flex items-center justify-between sticky top-0 z-50 shadow-sm">
         <div className="flex items-center gap-4">
           <Link
-            href="/"
+            href={`/${locale}/dashboard`}
             className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />

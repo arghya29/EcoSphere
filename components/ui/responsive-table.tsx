@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination, type PageSize } from '@/components/ui/Pagination';
 
 interface Column<T> {
   key: string;
@@ -27,7 +27,7 @@ interface ResponsiveTableProps<T> {
   };
   actions?: (item: T) => React.ReactNode;
   clientPagination?: boolean;
-  defaultPageSize?: number;
+  defaultPageSize?: PageSize;
 }
 
 export function ResponsiveTable<T>({
@@ -43,7 +43,7 @@ export function ResponsiveTable<T>({
   defaultPageSize = 50,
 }: ResponsiveTableProps<T>) {
   const [page, setPage] = React.useState(1);
-  const [limit, setLimit] = React.useState(defaultPageSize);
+  const [limit, setLimit] = React.useState<number>(defaultPageSize);
 
   const displayData = React.useMemo(() => {
     if (!clientPagination) return data;

@@ -64,6 +64,13 @@ export function ManageList<T extends { id: string }>({
   }, [filtered, page, limit]);
 
   React.useEffect(() => {
+    const totalPages = Math.ceil(filtered.length / limit) || 1;
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [filtered.length, limit, page]);
+
+  React.useEffect(() => {
     setPage(1);
   }, [debouncedSearch]);
 

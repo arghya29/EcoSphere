@@ -44,8 +44,8 @@ export default function TargetsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!targetValue || isNaN(Number(targetValue))) {
-      toast.error('Validation Error', 'Please enter a valid numeric target value');
+    if (targetValue === '' || isNaN(Number(targetValue)) || Number(targetValue) <= 0) {
+      toast.error('Validation Error', 'Please enter a valid numeric target value greater than 0');
       return;
     }
     mutate({

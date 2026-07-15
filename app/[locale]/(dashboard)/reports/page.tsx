@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { downloadJsonReport, downloadCsvReport, downloadPdfReport } from '@/lib/reports';
 import { FileText, FileSpreadsheet, FileJson, FileDown } from 'lucide-react';
 import type { DashboardSummary, InsightRecord } from '@/types/api';
+import { useLocale } from 'next-intl';
 
 interface ReportRecord {
   id: string;
@@ -18,6 +19,7 @@ interface ReportRecord {
 }
 
 export default function ReportsPage() {
+  const locale = useLocale();
   const { toast } = useToast();
   const { data: summary } = useApi<DashboardSummary>('/api/dashboard');
   const { data: insightsData } = useApi<{ insights: InsightRecord[] }>('/api/insights');
@@ -29,7 +31,7 @@ export default function ReportsPage() {
   const [isGenerating, setIsGenerating] = React.useState<string | null>(null);
 
   const recordReport = async (format: 'PDF' | 'CSV' | 'JSON') => {
-    await fetch('/api/reports', {
+    const res = await fetch('/api/reports', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -42,6 +44,9 @@ export default function ReportsPage() {
         },
       }),
     });
+    if (!res.ok) {
+      throw new Error('Failed to record report');
+    }
     refetch();
   };
 
@@ -165,7 +170,7 @@ export default function ReportsPage() {
               {history.map((r) => (
                 <li key={r.id} className="flex items-center justify-between border-b border-border pb-2 text-sm last:border-0">
                   <span className="font-medium">{r.format}</span>
-                  <span className="text-muted-foreground">{new Date(r.createdAt).toLocaleString()}</span>
+                  <span className="text-muted-foreground">{new Date(r.createdAt).toLocaleString(locale)}</span>
                 </li>
               ))}
             </ul>

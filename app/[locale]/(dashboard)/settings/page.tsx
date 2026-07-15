@@ -7,8 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { OrgProfileForm } from '@/components/ui/org-profile-form';
 import Link from 'next/link';
+import { useLocale } from 'next-intl';
 
 export default function SettingsPage() {
+  const locale = useLocale();
   const { data: session } = useSession();
 
   return (
@@ -26,7 +28,7 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <Button asChild size="sm">
-              <Link href="/settings/members">Manage Team</Link>
+              <Link href={`/${locale}/settings/members`}>Manage Team</Link>
             </Button>
           </CardContent>
         </Card>
@@ -38,7 +40,7 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <Button asChild size="sm">
-              <Link href="/settings/factors">Manage Factors</Link>
+              <Link href={`/${locale}/settings/factors`}>Manage Factors</Link>
             </Button>
           </CardContent>
         </Card>
@@ -50,7 +52,7 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <Button asChild size="sm">
-              <Link href="/settings/audit">View Logs</Link>
+              <Link href={`/${locale}/settings/audit`}>View Logs</Link>
             </Button>
           </CardContent>
         </Card>

@@ -54,8 +54,8 @@ export default function FactorsSettingsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!category || !value || !unit) {
-      toast.error('Validation Error', 'Please fill in all required fields.');
+    if (!category || !value || !unit || isNaN(Number(value))) {
+      toast.error('Validation Error', 'Please fill in all required fields with valid values.');
       return;
     }
     saveFactor({

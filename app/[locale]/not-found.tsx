@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useLocale } from 'next-intl';
 
 export default function NotFound() {
+  const locale = useLocale();
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="text-center max-w-md">
@@ -14,10 +16,10 @@ export default function NotFound() {
         </p>
         <div className="mt-6 flex items-center justify-center gap-3">
           <Button asChild>
-            <Link href="/dashboard">Back to dashboard</Link>
+            <Link href={`/${locale}/dashboard`}>Back to dashboard</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/">Home</Link>
+            <Link href={`/${locale}`}>Home</Link>
           </Button>
         </div>
       </div>

@@ -2,13 +2,15 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { InteractiveDemo } from '@/components/landing/interactive-demo';
 import { Ship, Factory, Plug, FileBarChart, Github } from 'lucide-react';
+import { useLocale } from 'next-intl';
 
 export default function LandingPage() {
+  const locale = useLocale();
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-border">
         <div className="container flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold">
+          <Link href={`/${locale}`} className="flex items-center gap-2 font-display text-lg font-semibold">
             <Ship className="h-5 w-5" aria-hidden="true" />
             EcoSphere
           </Link>
@@ -23,10 +25,10 @@ export default function LandingPage() {
               GitHub
             </a>
             <Button asChild variant="ghost" size="sm">
-              <Link href="/login">Log in</Link>
+              <Link href={`/${locale}/login`}>Log in</Link>
             </Button>
             <Button asChild size="sm">
-              <Link href="/signup">Sign up</Link>
+              <Link href={`/${locale}/signup`}>Sign up</Link>
             </Button>
           </nav>
         </div>
@@ -47,7 +49,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
               <Button asChild size="lg">
-                <Link href="/signup">Start mapping your supply chain</Link>
+                <Link href={`/${locale}/signup`}>Start mapping your supply chain</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <a href="#demo">Try the demo below</a>
@@ -113,7 +115,7 @@ export default function LandingPage() {
             <a href="https://github.com/arghya29/EcoSphere" target="_blank" rel="noreferrer" className="hover:text-foreground">
               GitHub
             </a>
-            <Link href="/login" className="hover:text-foreground">
+            <Link href={`/${locale}/login`} className="hover:text-foreground">
               Log in
             </Link>
           </div>

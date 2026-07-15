@@ -5,8 +5,10 @@ import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { useLocale } from 'next-intl';
 
 export default function ProfilePage() {
+  const locale = useLocale();
   const { data: session } = useSession();
   const name = session?.user?.name ?? '';
   const email = session?.user?.email ?? '';
@@ -52,7 +54,7 @@ export default function ProfilePage() {
           <p className="text-xs text-muted-foreground">
             Profile editing isn&apos;t available in this build yet. To manage your organization details,
             head to{' '}
-            <Link href="/settings" className="font-medium underline underline-offset-4 hover:text-foreground">
+            <Link href={`/${locale}/settings`} className="font-medium underline underline-offset-4 hover:text-foreground">
               Settings
             </Link>
             .
