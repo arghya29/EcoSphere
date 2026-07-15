@@ -121,7 +121,9 @@ export function MapView({
         const a = document.createElement('a');
         a.setAttribute('download', `supply-chain-map.${format}`);
         a.setAttribute('href', dataUrl);
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
       })
       .catch((err) => console.error('Error exporting image:', err));
   }, []);

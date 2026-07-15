@@ -123,9 +123,10 @@ export function SupplyChainGraph({
     return { nodes, edges };
   }, [suppliers, facilities, routes, emissionsByRoute]);
 
+  const graphRef = React.useRef<HTMLDivElement>(null);
+
   const handleDownload = React.useCallback((format: 'png' | 'svg') => {
-    const wrapper = document.querySelector('.react-flow') as HTMLElement;
-    if (!wrapper) return;
+    if (!graphRef.current) return;
 
     const filter = (node: HTMLElement) => {
       const excludeClasses = ['react-flow__panel', 'react-flow__controls', 'react-flow__minimap'];
@@ -142,12 +143,14 @@ export function SupplyChainGraph({
     };
 
     const exporter = format === 'png' ? toPng : toSvg;
-    exporter(wrapper, options)
+    exporter(graphRef.current, options)
       .then((dataUrl) => {
         const a = document.createElement('a');
         a.setAttribute('download', `supply-chain-graph.${format}`);
         a.setAttribute('href', dataUrl);
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
       })
       .catch((err) => console.error('Error exporting image:', err));
   }, []);
@@ -163,7 +166,7 @@ export function SupplyChainGraph({
 
   return (
     <div className="h-[420px] w-full rounded-md border border-border" role="img" aria-label="Supply chain network diagram">
-      <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} fitView proOptions={{ hideAttribution: true }}>
+      <ReactFlow ref={graphRef} nodes={nodes} edges={edges} nodeTypes={nodeTypes} fitView proOptions={{ hideAttribution: true }}>
         <Background />
         <Controls
           className="!bg-background/80 !border-border !shadow-sm [&>button]:!bg-background [&>button]:!border-border [&>button]:!text-foreground [&>button:hover]:!bg-muted"
