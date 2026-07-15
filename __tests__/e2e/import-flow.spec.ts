@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 import * as path from 'path';
+import * as crypto from 'crypto';
 
 test.describe('CSV Data Import Flow', () => {
   test('user can upload and preview a CSV of suppliers', async ({ page }) => {
     // 1. Sign up to reach the dashboard
-    const uniqueEmail = `e2e-import-${Date.now()}@example.com`;
+    const uniqueEmail = `e2e-import-${crypto.randomUUID()}@example.com`;
     await page.goto('/signup');
     await page.getByLabel('Your name').fill('Import E2E User');
     await page.getByLabel('Organization name').fill('Import Test Org');
