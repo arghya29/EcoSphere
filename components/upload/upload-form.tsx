@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { UploadCloud, FileSpreadsheet, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import { ValidationErrorList } from '@/components/ui/validation-error-list';
 import { cn } from '@/lib/utils';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 const SCHEMA_LABELS: Record<UploadSchemaKind, { title: string; description: string; example: string }> = {
   suppliers: {
@@ -39,7 +40,15 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [step, setStep] = React.useState(0);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const parentRef = React.useRef<HTMLDivElement>(null);
   const label = SCHEMA_LABELS[kind];
+
+  const rowVirtualizer = useVirtualizer({
+    count: parsed?.rows.length || 0,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 36,
+    overscan: 10,
+  });
 
   const handleFile = async (file: File) => {
     try {
@@ -186,17 +195,16 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
               </div>
             )}
 
-            {/* FIX 2: Only render the preview table if the schema (columns) are valid */}
             {missingColumns.length === 0 && (
               <>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
-                  {parsed.fileName} &mdash; {parsed.rowCount} rows detected. Preview of the first 5:
+                  {parsed.fileName} &mdash; {parsed.rowCount} rows detected. Data preview:
                 </div>
 
-                <div className="overflow-x-auto rounded-md border border-border scrollbar-thin">
+                <div ref={parentRef} className="overflow-auto max-h-[400px] rounded-md border border-border scrollbar-thin relative">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-muted">
+                    <thead className="bg-muted sticky top-0 z-10 shadow-[0_1px_3px_0_rgb(0,0,0,0.1)]">
                       <tr>
                         {parsed.headers.map((h) => (
                           <th key={h} scope="col" className="whitespace-nowrap px-3 py-2 font-medium">
@@ -205,16 +213,29 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
                         ))}
                       </tr>
                     </thead>
-                    <tbody>
-                      {parsed.rows.slice(0, 5).map((row, i) => (
-                        <tr key={i} className="border-t border-border">
-                          {parsed.headers.map((h) => (
-                            <td key={h} className="whitespace-nowrap px-3 py-2">
-                              {row[h]}
-                            </td>
-                          ))}
+                    <tbody className="divide-y">
+                      {rowVirtualizer.getVirtualItems().length > 0 && rowVirtualizer.getVirtualItems()[0]?.start > 0 && (
+                        <tr>
+                          <td style={{ height: `${rowVirtualizer.getVirtualItems()[0]?.start}px` }} colSpan={parsed.headers.length} />
                         </tr>
-                      ))}
+                      )}
+                      {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                        const row = parsed.rows[virtualRow.index];
+                        return (
+                          <tr key={virtualRow.index} data-index={virtualRow.index} ref={(node) => { if (node) rowVirtualizer.measureElement(node); }} className="border-t border-border hover:bg-muted/30">
+                            {parsed.headers.map((h) => (
+                              <td key={h} className="whitespace-nowrap px-3 py-2">
+                                {row[h]}
+                              </td>
+                            ))}
+                          </tr>
+                        );
+                      })}
+                      {rowVirtualizer.getVirtualItems().length > 0 && rowVirtualizer.getTotalSize() - (rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]?.end || 0) > 0 && (
+                        <tr>
+                          <td style={{ height: `${rowVirtualizer.getTotalSize() - (rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]?.end || 0)}px` }} colSpan={parsed.headers.length} />
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
