@@ -1,6 +1,14 @@
 import { middleware, rateLimitMap } from '@/middleware';
 import { NextRequest, NextResponse } from 'next/server';
 
+jest.mock('next-intl/middleware', () => {
+  return jest.fn(() => (req: any) => {
+    // return a dummy response for next-intl UI routes if needed
+    // or just let it pass
+    return new (NextResponse as any)();
+  });
+});
+
 // Mock NextRequest and NextResponse
 jest.mock('next/server', () => {
   class MockNextResponse {

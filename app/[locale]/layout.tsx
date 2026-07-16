@@ -8,6 +8,8 @@ import { SkipToContent } from '@/components/shared/skip-to-content';
 import { ThemeProvider } from '@/components/shared/theme-provider';
 import { LiveRegionProvider } from '@/components/shared/live-region';
 import { THEME_INIT_SCRIPT } from '@/components/shared/theme-script';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend', display: 'swap', weight: ['500', '600', '700'] });
@@ -19,9 +21,17 @@ export const metadata: Metadata = {
     'Map your suppliers, routes, and facilities, then see exactly where Scope 1, 2, and 3 emissions originate in your supply chain.',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+  params: { locale }
+}: {
+  children: React.ReactNode;
+  params: { locale: string };
+}) {
+  const messages = await getMessages();
+
   return (
-    <html lang="en" className={`${inter.variable} ${lexend.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+    <html lang={locale} className={`${inter.variable} ${lexend.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -31,18 +41,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans">
         <SkipToContent />
-        <LiveRegionProvider>
-          <AuthSessionProvider>
-            <ThemeProvider>
-              <ToastProvider>
-                <main id="main-content" tabIndex={-1}>
-                  {children}
-                </main>
-                <ErrorLogger />
-              </ToastProvider>
-            </ThemeProvider>
-          </AuthSessionProvider>
-        </LiveRegionProvider>
+        <NextIntlClientProvider messages={messages}>
+          <LiveRegionProvider>
+            <AuthSessionProvider>
+              <ThemeProvider>
+                <ToastProvider>
+                  <main id="main-content" tabIndex={-1}>
+                    {children}
+                  </main>
+                  <ErrorLogger />
+                </ToastProvider>
+              </ThemeProvider>
+            </AuthSessionProvider>
+          </LiveRegionProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

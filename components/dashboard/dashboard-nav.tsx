@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   LayoutDashboard,
   Upload,
@@ -31,26 +32,19 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
 import { OrgSwitcher } from '@/components/OrgSwitcher';
-
-const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/upload', label: 'Upload Data', icon: Upload },
-  { href: '/builder', label: 'Supply-Chain Builder', icon: Network },
-  { href: '/analysis', label: 'Emissions', icon: BarChart3 },
-  { href: '/targets', label: 'Targets', icon: Target },
-  { href: '/insights', label: 'Insights', icon: Lightbulb },
-  { href: '/reports', label: 'Reports', icon: FileDown },
-];
+import { LanguageSwitcher } from '@/components/nav/LanguageSwitcher';
 
 export function DashboardNav({ userName }: { userName: string }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const locale = useLocale();
+  const t = useTranslations('DashboardNav');
 
   return (
     <>
       {/* Mobile top bar */}
       <div className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm p-3 md:hidden">
-        <Link href="/dashboard" className="flex items-center gap-2 font-display text-base font-semibold">
+        <Link href={`/${locale}/dashboard`} className="flex items-center gap-2 font-display text-base font-semibold">
           <Ship className="h-5 w-5" aria-hidden="true" />
           <span className="text-sm">EcoSphere</span>
         </Link>
@@ -60,12 +54,13 @@ export function DashboardNav({ userName }: { userName: string }) {
               <OrgSwitcher />
             </div>
           )}
+          <LanguageSwitcher />
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}
             aria-expanded={mobileOpen}
             aria-controls="mobile-nav"
-            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-label={mobileOpen ? t('closeNav') : t('openNav')}
             className="rounded-md p-2 hover:bg-muted focus-ring"
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -109,6 +104,7 @@ export function DashboardNav({ userName }: { userName: string }) {
             <OrgSwitcher />
           </div>
           <div className="flex items-center gap-1 w-full">
+            <LanguageSwitcher />
             <ThemeToggle />
             <div className="flex-1">
               <AccountMenu userName={userName} />
@@ -121,6 +117,19 @@ export function DashboardNav({ userName }: { userName: string }) {
 }
 
 function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  const t = useTranslations('DashboardNav');
+  const locale = useLocale();
+
+  const NAV_ITEMS = [
+    { href: `/${locale}/dashboard`, label: t('dashboard'), icon: LayoutDashboard },
+    { href: `/${locale}/upload`, label: t('uploadData'), icon: Upload },
+    { href: `/${locale}/builder`, label: t('builder'), icon: Network },
+    { href: `/${locale}/analysis`, label: t('emissions'), icon: BarChart3 },
+    { href: `/${locale}/targets`, label: t('targets'), icon: Target },
+    { href: `/${locale}/insights`, label: t('insights'), icon: Lightbulb },
+    { href: `/${locale}/reports`, label: t('reports'), icon: FileDown },
+  ];
+
   return (
     <ul className="flex flex-col gap-0.5 px-2" role="list">
       {NAV_ITEMS.map((item) => {
@@ -153,10 +162,13 @@ function getInitial(name: string): string {
 }
 
 function AccountMenu({ userName, onNavigate }: { userName: string; onNavigate?: () => void }) {
+  const t = useTranslations('DashboardNav');
+  const locale = useLocale();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label={userName ? `${userName} account menu` : 'Account menu'}
+        aria-label={userName ? `${userName} ${t('accountMenu')}` : t('accountMenu')}
         className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span className="flex min-w-0 items-center gap-2">
@@ -178,27 +190,27 @@ function AccountMenu({ userName, onNavigate }: { userName: string; onNavigate?: 
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/profile" onClick={onNavigate} className="flex items-center gap-2">
+          <Link href={`/${locale}/profile`} onClick={onNavigate} className="flex items-center gap-2">
             <User className="h-4 w-4" aria-hidden="true" />
-            Profile
+            {t('profile')}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/settings" onClick={onNavigate} className="flex items-center gap-2">
+          <Link href={`/${locale}/settings`} onClick={onNavigate} className="flex items-center gap-2">
             <Settings className="h-4 w-4" aria-hidden="true" />
-            Settings
+            {t('settings')}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={(event) => {
             event.preventDefault();
-            signOut({ callbackUrl: '/' });
+            signOut({ callbackUrl: `/${locale}` });
           }}
           className="flex items-center gap-2 text-destructive focus:text-destructive"
         >
           <LogOut className="h-4 w-4" aria-hidden="true" />
-          Log out
+          {t('logout')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

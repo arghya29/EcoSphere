@@ -1,0 +1,42 @@
+{
+  "DashboardNav": {
+    "dashboard": "Panel de control",
+    "uploadData": "Subir Datos",
+    "builder": "Constructor de Cadena",
+    "emissions": "Emisiones",
+    "targets": "Objetivos",
+    "insights": "Análisis",
+    "reports": "Reportes",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión",
+    "accountMenu": "Menú de la cuenta",
+    "closeNav": "Cerrar menú de navegación",
+    "openNav": "Abrir menú de navegación"
+  },
+  "LocaleSwitcher": {
+    "label": "Cambiar idioma",
+    "en": "English",
+    "es": "Español"
+  },
+  "LandingPage": {
+    "login": "Iniciar sesión",
+    "signup": "Registrarse",
+    "badge": "Código abierto · gratis para alojar",
+    "title": "Mira exactamente dónde tu cadena de suministro quema carbono.",
+    "subtitle": "Mapea proveedores, rutas e instalaciones en un lienzo. EcoSphere calcula las emisiones de Alcance 1, 2 y 3 con los datos que ya tienes y señala los puntos críticos que debes arreglar primero.",
+    "startMapping": "Comienza a mapear tu cadena",
+    "tryDemoBtn": "Prueba la demostración abajo",
+    "demoTitle": "Pruébalo sin registrarte",
+    "demoSubtitle": "Elige una industria. El gráfico de red y el desglose de alcances se actualizan instantáneamente — sin llamadas al servidor, sin necesidad de cuenta.",
+    "howItWorks": "Cómo funciona",
+    "featureUploadTitle": "Sube tus datos",
+    "featureUploadText": "Importa proveedores, instalaciones y rutas desde CSV o Excel. No hay que aprender esquemas especiales — proporcionamos plantillas.",
+    "featureSeeTitle": "Mira tus emisiones",
+    "featureSeeText": "Los totales de Alcance 1, 2 y 3 se calculan automáticamente utilizando factores de emisión publicados, desglosados por proveedor, instalación y ruta.",
+    "featureHotspotsTitle": "Obtén los puntos críticos",
+    "featureHotspotsText": "Análisis basados en reglas sacan a la luz a tus mayores emisores y oportunidades concretas de cambio de modo, luego exporta todo como un informe.",
+    "builtOn": "Construido completamente con herramientas de código abierto y gratuitas",
+    "footerRights": "© {year} EcoSphere. Código abierto bajo la licencia Apache 2.0."
+  }
+}
