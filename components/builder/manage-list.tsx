@@ -66,11 +66,13 @@ export function ManageList<T extends { id: string }>({
   const [isBulkDeleting, setIsBulkDeleting] = React.useState(false);
   const [bulkError, setBulkError] = React.useState<string | null>(null);
 
-  // Clear selection whenever the filtered items or search filter changes.
-  const filteredIds = filtered.map((i) => i.id).join(',');
+  // Clear selection only when the underlying items list changes (e.g. after a
+  // refetch), NOT when the search query changes — that would silently drop a
+  // user's selection just because they refined the search.
+  const itemIds = items.map((i) => i.id).join(',');
   React.useEffect(() => {
     setSelected(new Set());
-  }, [filteredIds]);
+  }, [itemIds]);
 
   // ── Checkbox helpers ─────────────────────────────────────────────────────
   const allSelected = filtered.length > 0 && selected.size === filtered.length;
@@ -114,6 +116,13 @@ export function ManageList<T extends { id: string }>({
     onSuccess: () => {
       if (pending) {
         toast.success(`${noun.charAt(0).toUpperCase()}${noun.slice(1)} removed`, describe(pending));
+        // Remove the deleted item from the bulk-selection set so the action bar
+        // count stays accurate without waiting for the parent refetch.
+        setSelected((prev) => {
+          const next = new Set(prev);
+          next.delete(pending.id);
+          return next;
+        });
         setPending(null);
         setError(null);
         onDeleted();
@@ -172,6 +181,9 @@ export function ManageList<T extends { id: string }>({
       const count = json.data?.deleted ?? selected.size;
       const nounPlural = count === 1 ? noun : `${noun}s`;
       toast.success(`${count} ${nounPlural} deleted`);
+      // Eagerly clear selection so the sticky action bar disappears immediately
+      // and doesn't show a stale count while the parent refetch is in-flight.
+      setSelected(new Set());
       setIsBulkConfirmOpen(false);
       setBulkError(null);
       onDeleted();
