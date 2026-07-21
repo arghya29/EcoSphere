@@ -245,6 +245,7 @@ export default function BuilderPage() {
               items={suppliers}
               describe={(s) => s.name}
               deleteUrl={(s) => `/api/suppliers/${s.id}`}
+              bulkDeleteUrl="/api/suppliers/bulk-delete"
               onDeleted={() => {
                 refetchSuppliers();
                 refetchRoutes();
@@ -275,6 +276,7 @@ export default function BuilderPage() {
               items={facilities}
               describe={(f) => f.name}
               deleteUrl={(f) => `/api/facilities/${f.id}`}
+              bulkDeleteUrl="/api/facilities/bulk-delete"
               onDeleted={() => {
                 refetchFacilities();
                 refetchRoutes();
@@ -303,6 +305,7 @@ export default function BuilderPage() {
               items={routes}
               describe={describeRoute}
               deleteUrl={(r) => `/api/routes/${r.id}`}
+              bulkDeleteUrl="/api/routes/bulk-delete"
               onDeleted={refetchRoutes}
               onMutate={onMutateRouteDelete}
               onError={onErrorRouteDelete}
