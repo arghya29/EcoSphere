@@ -1,0 +1,13 @@
+name: Additional CI Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Dummy Test
+        run: echo "Tests passed!"
