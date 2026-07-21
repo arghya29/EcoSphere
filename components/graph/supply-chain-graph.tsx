@@ -25,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { usePreferences } from '@/hooks';
 
 function SupplierNode({ data }: { data: { label: string } }) {
   return (
@@ -75,6 +76,8 @@ export function SupplyChainGraph({
   routes: RouteRecord[];
   emissionsByRoute?: Map<string, number>;
 }) {
+  const animationsDisabled = usePreferences((state) => state.animationsDisabled);
+  
   const { nodes, edges } = React.useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
@@ -107,21 +110,30 @@ export function SupplyChainGraph({
       const sourceId = r.originSupplierId ? `supplier-${r.originSupplierId}` : `facility-${r.originFacilityId}`;
       const targetId = `facility-${r.destinationId}`;
       const emissions = emissionsByRoute?.get(r.id);
+      
+      const isAnimated = !animationsDisabled;
+      const thickness = emissions !== undefined ? Math.min(6, Math.max(1.5, 1.5 + (emissions / 2000))) : 1.5;
+      const speed = emissions !== undefined ? Math.max(0.5, 3 - (emissions / 4000)) : 2;
+
       edges.push({
         id: `route-${r.id}`,
         source: sourceId,
         target: targetId,
         label: emissions !== undefined ? `${MODE_LABEL[r.mode]} · ${formatKg(emissions)}` : `${MODE_LABEL[r.mode]} · ${r.distanceKm}km`,
-        animated: r.mode === 'AIR',
+        animated: isAnimated,
         markerEnd: { type: MarkerType.ArrowClosed },
-        style: { stroke: r.mode === 'AIR' ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))' },
+        style: { 
+          stroke: r.mode === 'AIR' ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))',
+          strokeWidth: thickness,
+          ...(isAnimated && { animationDuration: `${speed}s` })
+        },
         labelStyle: { fill: 'hsl(var(--foreground))', fontSize: 10, fontWeight: 500 },
         labelBgStyle: { fill: 'hsl(var(--background))' },
       });
     });
 
     return { nodes, edges };
-  }, [suppliers, facilities, routes, emissionsByRoute]);
+  }, [suppliers, facilities, routes, emissionsByRoute, animationsDisabled]);
 
   const graphRef = React.useRef<HTMLDivElement>(null);
 
