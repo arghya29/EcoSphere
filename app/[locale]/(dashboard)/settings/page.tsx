@@ -70,7 +70,7 @@ export default function SettingsPage() {
           <CardDescription>Customize the interface for reduced motion.</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center space-x-2">
-          {mounted && (
+          {mounted ? (
             <input
               type="checkbox"
               id="disable-animations"
@@ -78,6 +78,8 @@ export default function SettingsPage() {
               checked={animationsDisabled}
               onChange={(e) => setAnimationsDisabled(e.target.checked)}
             />
+          ) : (
+            <div className="h-4 w-4 rounded border border-border bg-muted/50" />
           )}
           <Label htmlFor="disable-animations" className="cursor-pointer">
             Disable Animations

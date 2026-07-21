@@ -77,6 +77,8 @@ export function SupplyChainGraph({
   emissionsByRoute?: Map<string, number>;
 }) {
   const animationsDisabled = usePreferences((state) => state.animationsDisabled);
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
   
   const { nodes, edges } = React.useMemo(() => {
     const nodes: Node[] = [];
@@ -111,7 +113,7 @@ export function SupplyChainGraph({
       const targetId = `facility-${r.destinationId}`;
       const emissions = emissionsByRoute?.get(r.id);
       
-      const isAnimated = !animationsDisabled;
+      const isAnimated = mounted ? !animationsDisabled : true;
       const thickness = emissions !== undefined ? Math.min(6, Math.max(1.5, 1.5 + (emissions / 2000))) : 1.5;
       const speed = emissions !== undefined ? Math.max(0.5, 3 - (emissions / 4000)) : 2;
 
@@ -133,7 +135,7 @@ export function SupplyChainGraph({
     });
 
     return { nodes, edges };
-  }, [suppliers, facilities, routes, emissionsByRoute, animationsDisabled]);
+  }, [suppliers, facilities, routes, emissionsByRoute, animationsDisabled, mounted]);
 
   const graphRef = React.useRef<HTMLDivElement>(null);
 
