@@ -4,6 +4,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
+import { logAudit } from '@/lib/audit';
 
 export const authOptions: NextAuthOptions = {
   // Credentials provider requires JWT sessions (no DB session row for
@@ -46,17 +47,64 @@ export const authOptions: NextAuthOptions = {
       : []),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
+        // On initial login, find the first membership to set as default activeOrgId/activeOrgName
+        const firstMembership = await prisma.membership.findFirst({
+          where: { userId: user.id },
+          include: { organization: true },
+          orderBy: { createdAt: 'asc' },
+        });
+        if (firstMembership) {
+          token.activeOrgId = firstMembership.organizationId;
+          token.activeOrgName = firstMembership.organization.name;
+        }
+      }
+
+      if (trigger === 'update' && session?.activeOrgId) {
+        // Verify the user is actually a member of this organization
+        const membership = await prisma.membership.findFirst({
+          where: {
+            userId: token.id,
+            organizationId: session.activeOrgId,
+          },
+          include: { organization: true },
+        });
+
+        if (membership) {
+          token.activeOrgId = session.activeOrgId;
+          token.activeOrgName = membership.organization.name;
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as { id?: string }).id = token.id as string;
+        session.user.id = token.id;
+        session.activeOrgId = token.activeOrgId;
+        session.activeOrgName = token.activeOrgName;
       }
       return session;
+    },
+  },
+  events: {
+    async signIn({ user }) {
+      if (user?.id) {
+        const membership = await prisma.membership.findFirst({
+          where: { userId: user.id },
+          orderBy: { createdAt: 'asc' },
+        });
+        if (membership) {
+          await logAudit({
+            actor: user.id,
+            action: 'LOGIN',
+            entity: 'User',
+            entityId: user.id,
+            orgId: membership.organizationId,
+          });
+        }
+      }
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

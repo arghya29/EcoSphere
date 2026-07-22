@@ -1,0 +1,43 @@
+{
+  "DashboardNav": {
+    "dashboard": "Dashboard",
+    "uploadData": "Upload Data",
+    "builder": "Supply-Chain Builder",
+    "emissions": "Emissions",
+    "targets": "Targets",
+    "emissionFactors": "Emission Factors",
+    "insights": "Insights",
+    "reports": "Reports",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Log out",
+    "accountMenu": "Account menu",
+    "closeNav": "Close navigation menu",
+    "openNav": "Open navigation menu"
+  },
+  "LocaleSwitcher": {
+    "label": "Change language",
+    "en": "English",
+    "es": "Español"
+  },
+  "LandingPage": {
+    "login": "Log in",
+    "signup": "Sign up",
+    "badge": "Open-source · free to self-host",
+    "title": "See exactly where your supply chain burns carbon.",
+    "subtitle": "Map suppliers, routes, and facilities on one canvas. EcoSphere computes Scope 1, 2, and 3 emissions from the data you already have, and flags the hotspots worth fixing first.",
+    "startMapping": "Start mapping your supply chain",
+    "tryDemoBtn": "Try the demo below",
+    "demoTitle": "Try it without signing up",
+    "demoSubtitle": "Pick an industry. The network graph and scope breakdown update instantly — no server calls, no account needed.",
+    "howItWorks": "How it works",
+    "featureUploadTitle": "Upload your data",
+    "featureUploadText": "Import suppliers, facilities, and routes from CSV or Excel. No special schema to learn — we provide templates.",
+    "featureSeeTitle": "See your emissions",
+    "featureSeeText": "Scope 1, 2, and 3 totals are calculated automatically using published emission factors, broken down by supplier, facility, and route.",
+    "featureHotspotsTitle": "Get the hotspots",
+    "featureHotspotsText": "Rule-based insights surface your biggest emitters and concrete mode-shift opportunities, then export everything as a report.",
+    "builtOn": "Built entirely on free, open-source tools",
+    "footerRights": "© {year} EcoSphere. Open-source under the Apache 2.0 license."
+  }
+}

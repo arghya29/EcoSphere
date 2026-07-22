@@ -11,11 +11,23 @@ const MODE_COLOR: Record<string, string> = {
   Sea: 'hsl(var(--scope2))',
 };
 
+function buildEdgeBreakdown(scenario: typeof DEMO_SCENARIOS[number]) {
+  const byMode: Record<string, number> = {};
+  for (const edge of scenario.edges) {
+    byMode[edge.mode] = (byMode[edge.mode] ?? 0) + edge.kgCO2e;
+  }
+  return Object.entries(byMode)
+    .map(([mode, kg]) => ({ mode, kg }))
+    .sort((a, b) => b.kg - a.kg);
+}
+
 export function InteractiveDemo() {
   const [scenarioId, setScenarioId] = React.useState(DEMO_SCENARIOS[0].id);
   const [showScope3, setShowScope3] = React.useState(true);
+  const [showEmitters, setShowEmitters] = React.useState(true);
   const scenario = DEMO_SCENARIOS.find((s) => s.id === scenarioId) ?? DEMO_SCENARIOS[0];
   const total = scenario.scope1 + scenario.scope2 + scenario.scope3;
+  const edgeBreakdown = buildEdgeBreakdown(scenario);
 
   return (
     <div className="rounded-xl border border-border bg-card shadow-sm">
@@ -38,15 +50,26 @@ export function InteractiveDemo() {
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={showScope3}
-            onChange={(e) => setShowScope3(e.target.checked)}
-            className="h-4 w-4 rounded border-input"
-          />
-          Show Scope 3 (transport)
-        </label>
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={showScope3}
+              onChange={(e) => setShowScope3(e.target.checked)}
+              className="h-4 w-4 rounded border-input"
+            />
+            Transport
+          </label>
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={showEmitters}
+              onChange={(e) => setShowEmitters(e.target.checked)}
+              className="h-4 w-4 rounded border-input"
+            />
+            Top emitters
+          </label>
+        </div>
       </div>
 
       <div className="grid gap-4 p-4 md:grid-cols-[1.4fr_1fr]">
@@ -55,13 +78,12 @@ export function InteractiveDemo() {
             viewBox="0 0 600 260"
             className="h-auto w-full min-w-[480px]"
             role="img"
-            aria-label={`Network diagram for ${scenario.label}: suppliers feeding into a factory, then onward to a distribution node, connected by transport routes.`}
+            aria-label={`Network diagram for ${scenario.label}: ${scenario.nodes.map(n => n.label.split(' — ')[0]).join(', ')} connected by ${scenario.edges.length} transport routes.`}
           >
             {scenario.edges.map((edge) => {
               const source = scenario.nodes.find((n) => n.id === edge.source)!;
               const target = scenario.nodes.find((n) => n.id === edge.target)!;
-              const isFreight = true; // all edges in the demo represent Scope 3 freight
-              if (isFreight && !showScope3) return null;
+              if (!showScope3) return null;
               return (
                 <g key={edge.id}>
                   <line
@@ -130,6 +152,30 @@ export function InteractiveDemo() {
             </p>
             <p className="text-xs text-muted-foreground">Total estimated emissions, this scenario</p>
           </div>
+
+          {showEmitters && edgeBreakdown.length > 0 && (
+            <>
+              <div className="manifest-rule pt-3 mt-1">
+                <p className="text-xs font-semibold text-muted-foreground mb-2">Top transport emitters</p>
+                {edgeBreakdown.map(({ mode, kg }) => (
+                  <div key={mode} className="flex items-center gap-2 py-1">
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: MODE_COLOR[mode] }}
+                      aria-hidden="true"
+                    />
+                    <span className="flex-1 text-xs text-foreground">{mode}</span>
+                    <span className="font-mono-data text-xs text-muted-foreground">
+                      {formatKg(kg)}
+                      <span className="ml-1 text-muted-foreground/60">
+                        ({total > 0 ? Math.round((kg / total) * 100) : 0}%)
+                      </span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -146,7 +192,7 @@ function ScopeBar({ label, value, total, colorVar }: { label: string; value: num
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full transition-all"
+          className="h-full rounded-full transition-all duration-500 ease-out"
           style={{ width: `${pct}%`, backgroundColor: `hsl(var(${colorVar}))` }}
         />
       </div>

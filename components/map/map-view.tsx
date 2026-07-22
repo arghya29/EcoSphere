@@ -4,6 +4,15 @@ import * as React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { SupplierRecord, FacilityRecord, RouteRecord } from '@/types/api';
+import { toPng, toSvg } from 'html-to-image';
+import { Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 // Leaflet's default marker icons reference image files via relative
 // paths that don't resolve correctly under Next.js bundling, so we
@@ -61,6 +70,7 @@ export function MapView({
   const [showFacilities, setShowFacilities] = React.useState(true);
   const [selectedMode, setSelectedMode] = React.useState('ALL');
   const [searchQuery, setSearchQuery] = React.useState('');
+  const mapRef = React.useRef<HTMLDivElement>(null);
 
   const supplierById = new Map(suppliers.map((s) => [s.id, s]));
   const facilityById = new Map(facilities.map((f) => [f.id, f]));
@@ -88,6 +98,36 @@ export function MapView({
     ...filteredFacilities.map((f) => [f.latitude, f.longitude] as [number, number]),
   ];
 
+  const handleDownload = React.useCallback((format: 'png' | 'svg') => {
+    if (!mapRef.current) return;
+
+    const filter = (node: HTMLElement) => {
+      const excludeClasses = ['leaflet-control-container', 'export-controls'];
+      if (node.classList && typeof node.classList.contains === 'function') {
+        return !excludeClasses.some((className) => node.classList.contains(className));
+      }
+      return true;
+    };
+
+    const isDark = document.documentElement.classList.contains('dark');
+    const options = {
+      filter,
+      backgroundColor: isDark ? '#09090b' : '#ffffff',
+    };
+
+    const exporter = format === 'png' ? toPng : toSvg;
+    exporter(mapRef.current, options)
+      .then((dataUrl) => {
+        const a = document.createElement('a');
+        a.setAttribute('download', `supply-chain-map.${format}`);
+        a.setAttribute('href', dataUrl);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      })
+      .catch((err) => console.error('Error exporting image:', err));
+  }, []);
+
   if (suppliers.length === 0 && facilities.length === 0) {
     return (
       <div className="flex h-72 items-center justify-center rounded-md border border-dashed border-border text-sm text-muted-foreground">
@@ -99,7 +139,7 @@ export function MapView({
   const center = allPoints[0] || [0, 0];
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
       <MapToolbar
         showSuppliers={showSuppliers}
         setShowSuppliers={setShowSuppliers}
@@ -110,7 +150,12 @@ export function MapView({
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
-      <div className="h-[420px] w-full overflow-hidden rounded-md border border-border" tabIndex={0} aria-label="Map of supplier and facility locations">
+      <div 
+        ref={mapRef}
+        className="h-[420px] w-full overflow-hidden rounded-md border border-border relative" 
+        tabIndex={0} 
+        aria-label="Map of supplier and facility locations"
+      >
         <MapContainer center={center} zoom={3} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -168,6 +213,26 @@ export function MapView({
             );
           })}
         </MapContainer>
+
+        {/* Overlay the Export button */}
+        <div className="export-controls absolute top-4 right-4 z-[1000]">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2 bg-background/80 backdrop-blur-sm">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleDownload('png')}>
+                Download PNG
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDownload('svg')}>
+                Download SVG
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <MapLegend />
     </div>

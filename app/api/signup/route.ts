@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { signupSchema } from '@/lib/validations';
+import { logAudit } from '@/lib/audit';
 
 export async function POST(req: NextRequest) {
   try {
@@ -53,6 +54,15 @@ export async function POST(req: NextRequest) {
       });
 
       return createdUser;
+    });
+
+    await logAudit({
+      actor: user.id,
+      action: 'SIGNUP',
+      entity: 'User',
+      entityId: user.id,
+      orgId: user.organizations[0]?.id || '',
+      metadata: { name: user.name, email: user.email },
     });
 
     return NextResponse.json({ success: true, data: { id: user.id, email: user.email } }, { status: 201 });

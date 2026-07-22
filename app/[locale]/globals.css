@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  EcoSphere design tokens — "Cargo Manifest" direction.
+
+  Rationale: the subject is freight, fuel, and facilities — a logistics
+  ledger, not a wellness brand. We avoid the default eco-SaaS gradient
+  green and the cream/terracotta or near-black/acid-accent clusters.
+  Instead: deep ink-navy (the cover of a shipping manifest), a warm
+  paper background, and a single signal-amber used ONLY for hotspots/
+  alerts so it carries real meaning instead of decorating everything.
+  Numbers and units are set in a monospace utility face, like a meter
+  readout, because this product's job is to make quantities legible.
+*/
+
+@layer base {
+  :root {
+    --background: 42 22% 96%;        /* warm paper, #F6F2EA-ish */
+    --foreground: 222 47% 11%;       /* ink navy */
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 222 47% 11%;          /* ink navy as primary action color */
+    --primary-foreground: 42 22% 96%;
+
+    --secondary: 200 18% 90%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 40 14% 91%;
+    --muted-foreground: 222 14% 40%;
+
+    --accent: 36 92% 50%;            /* signal amber — used sparingly for hotspots */
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 4 72% 46%;
+    --destructive-foreground: 42 22% 96%;
+
+    --border: 222 20% 85%;
+    --input: 222 20% 85%;
+    --ring: 222 47% 11%;
+
+    --radius: 0.5rem;
+
+    /* Scope chart colors — distinct hues, not a green ramp, since
+       Scope 1/2/3 are categorically different sources, not a gradient
+       of "more or less green". */
+    --scope1: 222 47% 30%;  /* ink blue — direct/owned */
+    --scope2: 36 70% 45%;   /* amber-bronze — purchased energy */
+    --scope3: 4 55% 48%;    /* brick red — indirect/supply chain */
+    --mobile-nav-height: 57px;
+  }
+
+  .dark {
+    --background: 222 47% 8%;
+    --foreground: 42 22% 94%;
+    --card: 222 40% 12%;
+    --card-foreground: 42 22% 94%;
+    --popover: 222 40% 12%;
+    --popover-foreground: 42 22% 94%;
+    --primary: 42 22% 94%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 222 30% 18%;
+    --secondary-foreground: 42 22% 94%;
+    --muted: 222 25% 18%;
+    --muted-foreground: 222 14% 65%;
+    --accent: 36 92% 55%;
+    --accent-foreground: 222 47% 8%;
+    --destructive: 4 72% 50%;
+    --destructive-foreground: 42 22% 94%;
+    --border: 222 25% 22%;
+    --input: 222 25% 22%;
+    --ring: 42 22% 94%;
+    --scope1: 215 70% 70%;
+    --scope2: 36 80% 60%;
+    --scope3: 4 70% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  .font-mono-data {
+    font-family: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-feature-settings: 'tnum' 1;
+  }
+}
+
+@layer components {
+  .focus-ring {
+    outline: none;
+  }
+
+  .focus-ring:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .manifest-rule {
+    @apply border-t border-dashed border-border;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  .container-padding {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-padding {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .container-padding {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+}
+
+/* Smooth theme transitions — opt in via the class below */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, fill 0.3s ease, stroke 0.3s ease !important;
+}
+
+/* Respect reduced-motion preference globally */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Leaflet base CSS overrides for theming */
+.leaflet-container {
+  font-family: inherit;
+  background: hsl(var(--muted));
+  border-radius: var(--radius);
+}
+
+/* Mobile card list — ensure definition list is accessible and responsive */
+@media (max-width: 639px) {
+  .responsive-table-card dl > div {
+    min-width: 0;
+  }
+  .responsive-table-card dd {
+    word-break: break-word;
+  }
+}
