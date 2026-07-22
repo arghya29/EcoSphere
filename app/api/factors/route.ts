@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
         source: parsed.data.source,
       },
       update: {
+        scope: parsed.data.scope,
         value: parsed.data.value,
         unit: parsed.data.unit,
         source: parsed.data.source,

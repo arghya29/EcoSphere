@@ -70,19 +70,7 @@ export default function FactorsSettingsPage() {
     },
   });
 
-  const { mutate: deleteFactor, isLoading: isDeleting } = useMutation({
-    url: '/api/factors',
-    method: 'DELETE',
-    onSuccess: () => {
-      toast.success('Factor Deleted', 'The custom emission factor has been removed.');
-      setDeleteDialogOpen(false);
-      setFactorToDelete(null);
-      refetchCustom();
-    },
-    onError: (err) => {
-      toast.error('Failed to delete factor', err || 'Something went wrong.');
-    },
-  });
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const resetForm = () => {
     setCategory('');
@@ -133,24 +121,25 @@ export default function FactorsSettingsPage() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!factorToDelete) return;
-    deleteFactor(null as any); // trigger mutation using fetch parameter below or query param
-    fetch(`/api/factors?id=${factorToDelete.id}`, { method: 'DELETE' })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          toast.success('Factor Deleted', `Custom factor for "${factorToDelete.category}" was removed.`);
-          setDeleteDialogOpen(false);
-          setFactorToDelete(null);
-          refetchCustom();
-        } else {
-          toast.error('Failed to delete factor', data.error);
-        }
-      })
-      .catch((err) => {
-        toast.error('Failed to delete factor', err.message);
-      });
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/factors?id=${factorToDelete.id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Factor Deleted', `Custom factor for "${factorToDelete.category}" was removed.`);
+        setDeleteDialogOpen(false);
+        setFactorToDelete(null);
+        refetchCustom();
+      } else {
+        toast.error('Failed to delete factor', data.error || 'Failed to delete factor');
+      }
+    } catch (err: any) {
+      toast.error('Failed to delete factor', err?.message || 'Network error');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // Map custom factors by category for fast override lookup
@@ -304,10 +293,13 @@ export default function FactorsSettingsPage() {
                   placeholder="e.g. diesel, electricity_UK-grid"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
+                  disabled={Boolean(editingFactorId)}
                   required
                 />
                 <p className="text-[11px] text-muted-foreground">
-                  Use exact category name to override a standard system factor.
+                  {editingFactorId
+                    ? 'Category key cannot be changed in edit mode. Delete and re-create if you need a different key.'
+                    : 'Use exact category name to override a standard system factor.'}
                 </p>
               </div>
 
