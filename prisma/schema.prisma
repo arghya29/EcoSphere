@@ -69,6 +69,7 @@ model VerificationToken {
 model Organization {
   id        String   @id @default(cuid())
   name      String
+  region    String?
   ownerId   String
   createdAt DateTime @default(now())
 
@@ -256,4 +257,37 @@ model Target {
   organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
+}
+
+enum AuditAction {
+  CREATE
+  DELETE
+  UPLOAD
+  LOGIN
+  SIGNUP
+}
+
+model AuditLog {
+  id             String      @id @default(cuid())
+  actor          String      // userId
+  action         AuditAction
+  entity         String      // Entity name (e.g., "Supplier", "Facility", "Route", "Upload", "User")
+  entityId       String?     // Optional entity ID
+  orgId          String      // Organization ID
+  timestamp      DateTime    @default(now())
+  metadata       Json?       // Optional JSON metadata
+
+  @@index([orgId])
+  @@index([timestamp])
+}
+
+model IdempotencyRecord {
+  id           String   @id @default(cuid())
+  key          String   @unique
+  responseBody Json
+  statusCode   Int
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  @@index([expiresAt])
 }

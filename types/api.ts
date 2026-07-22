@@ -9,6 +9,10 @@ export interface DashboardSummary {
   activityCount: number;
   supplierCount: number;
   facilityCount: number;
+  previousTotal: number | null;
+  previousScope1: number | null;
+  previousScope2: number | null;
+  previousScope3: number | null;
 }
 
 export interface SupplierRecord {

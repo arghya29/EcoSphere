@@ -4,6 +4,7 @@ import { requireOrg, isErrorResponse } from '@/lib/session';
 import { routesPayloadSchema } from '@/lib/validations';
 import { findUnauthorizedIds } from '@/lib/utils';
 import { normalizeAndValidateRoutes } from './validate';
+import { logAudit } from '@/lib/audit';
 
 export async function GET() {
   const ctx = await requireOrg();
@@ -93,6 +94,17 @@ export async function POST(req: NextRequest) {
       })
     )
   );
+
+  for (const route of created) {
+    await logAudit({
+      actor: ctx.userId,
+      action: 'CREATE',
+      entity: 'Route',
+      entityId: route.id,
+      orgId: ctx.organizationId,
+      metadata: { mode: route.mode, distanceKm: route.distanceKm },
+    });
+  }
 
   return NextResponse.json({ success: true, data: created }, { status: 201 });
 }

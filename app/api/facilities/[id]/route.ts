@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireOrg, isErrorResponse } from '@/lib/session';
 import { guardNodeDeletion } from '@/lib/builder-delete';
+import { logAudit } from '@/lib/audit';
 
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
   const ctx = await requireOrg();
@@ -59,6 +60,15 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
     if (result.deleted === 0) {
       return NextResponse.json({ success: false, error: 'Facility not found' }, { status: 404 });
     }
+
+    await logAudit({
+      actor: ctx.userId,
+      action: 'DELETE',
+      entity: 'Facility',
+      entityId: id,
+      orgId: ctx.organizationId,
+    });
+
     return NextResponse.json({ success: true, data: { id } });
   } catch (err) {
     // Concurrency backstop: if a route referencing this facility as its required

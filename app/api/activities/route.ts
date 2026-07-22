@@ -10,34 +10,75 @@ export async function GET(req: NextRequest) {
   if (isErrorResponse(ctx)) return ctx;
 
   const url = new URL(req.url);
-  const limit = parseInt(url.searchParams.get('limit') ?? '10');
-  const offset = parseInt(url.searchParams.get('offset') ?? '0');
+  const limit = Math.max(1, Math.min(100, Number.parseInt(url.searchParams.get('limit') ?? '10', 10) || 10));
+  const offset = Math.max(0, Number.parseInt(url.searchParams.get('offset') ?? '0', 10) || 0);
   const type = url.searchParams.get('type');
   const startDateStr = url.searchParams.get('startDate');
   const endDateStr = url.searchParams.get('endDate');
+  const searchQuery = url.searchParams.get('search')?.trim();
+  const sortBy = url.searchParams.get('sortBy') ?? 'dateRecorded';
+  const sortOrder = (url.searchParams.get('sortOrder') ?? 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
+  const skip = offset;
+  const page = Math.floor(offset / limit) + 1;
 
   const where: any = { organizationId: ctx.organizationId };
   if (type && type !== 'ALL') {
     where.type = type;
   }
+
   if (startDateStr || endDateStr) {
     where.dateRecorded = {};
-    if (startDateStr) where.dateRecorded.gte = new Date(startDateStr);
-    if (endDateStr) where.dateRecorded.lte = new Date(endDateStr);
+    if (startDateStr) {
+      where.dateRecorded.gte = new Date(startDateStr);
+    }
+    if (endDateStr) {
+      // Set to end of the day to include activities on the end date
+      const endDate = new Date(endDateStr);
+      endDate.setHours(23, 59, 59, 999);
+      where.dateRecorded.lte = endDate;
+    }
+  }
+  if (searchQuery) {
+    where.OR = [
+      { factor: { category: { contains: searchQuery, mode: 'insensitive' } } },
+      { type: { contains: searchQuery, mode: 'insensitive' } },
+    ];
   }
 
-  const [activities, total] = await Promise.all([
-    prisma.activity.findMany({
-      where,
-      include: { factor: true, supplier: true, facility: true, route: true },
-      orderBy: { dateRecorded: 'desc' },
-      take: limit,
-      skip: offset,
-    }),
-    prisma.activity.count({ where }),
-  ]);
+  // Validate sortBy to avoid Prisma errors on invalid fields
+  const allowedSortFields = ['dateRecorded', 'emissionsKg', 'amount', 'type'];
+  const orderByField = allowedSortFields.includes(sortBy) ? sortBy : 'dateRecorded';
 
-  return NextResponse.json({ success: true, data: { activities, total } });
+  try {
+    const [total, activities] = await Promise.all([
+      prisma.activity.count({ where }),
+      prisma.activity.findMany({
+        where,
+        include: { factor: true, supplier: true, facility: true, route: true },
+        orderBy: { [orderByField]: sortOrder },
+        skip,
+        take: limit,
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        activities,
+        total,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages,
+        },
+      },
+    });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Failed to fetch activities' }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: NextRequest) {

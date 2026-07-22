@@ -68,6 +68,26 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
     scope3: 9300,
   },
   {
+    id: 'automotive',
+    label: 'Automotive Supply Chain',
+    nodes: [
+      { id: 's1', label: 'Steel Mill — Ghent', kind: 'supplier', x: 40, y: 60 },
+      { id: 's2', label: 'Electronics Tier-2 — Stuttgart', kind: 'supplier', x: 40, y: 200 },
+      { id: 's3', label: 'Battery Pack Plant — Wroclaw', kind: 'supplier', x: 180, y: 40 },
+      { id: 'f1', label: 'Assembly Plant — Leipzig', kind: 'factory', x: 300, y: 130 },
+      { id: 'c1', label: 'Regional Distribution — Hamburg', kind: 'customer', x: 500, y: 130 },
+    ],
+    edges: [
+      { id: 'e1', source: 's1', target: 'f1', mode: 'Rail', kgCO2e: 12000 },
+      { id: 'e2', source: 's2', target: 'f1', mode: 'Truck', kgCO2e: 5400 },
+      { id: 'e3', source: 's3', target: 'f1', mode: 'Truck', kgCO2e: 3800 },
+      { id: 'e4', source: 'f1', target: 'c1', mode: 'Rail', kgCO2e: 2100 },
+    ],
+    scope1: 15400,
+    scope2: 22100,
+    scope3: 23300,
+  },
+  {
     id: 'apparel',
     label: 'Apparel & Textiles',
     nodes: [
