@@ -7,9 +7,17 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { OrgProfileForm } from '@/components/ui/org-profile-form';
 import Link from 'next/link';
+import * as React from 'react';
+
+import { usePreferences } from '@/hooks';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
+  const animationsDisabled = usePreferences((state) => state.animationsDisabled);
+  const setAnimationsDisabled = usePreferences((state) => state.setAnimationsDisabled);
+  // Avoid hydration mismatch by only rendering after mount
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
 
   return (
     <div className="flex flex-col gap-6">
@@ -55,6 +63,29 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-foreground">Accessibility</CardTitle>
+          <CardDescription>Customize the interface for reduced motion.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center space-x-2">
+          {mounted ? (
+            <input
+              type="checkbox"
+              id="disable-animations"
+              className="h-4 w-4 rounded border-border"
+              checked={animationsDisabled}
+              onChange={(e) => setAnimationsDisabled(e.target.checked)}
+            />
+          ) : (
+            <div className="h-4 w-4 rounded border border-border bg-muted/50" />
+          )}
+          <Label htmlFor="disable-animations" className="cursor-pointer">
+            Disable Animations
+          </Label>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
