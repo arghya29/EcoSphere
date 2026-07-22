@@ -21,6 +21,7 @@ import {
   User,
   ChevronsUpDown,
   Target,
+  Sliders,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -126,6 +127,7 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
     { href: `/${locale}/builder`, label: t('builder'), icon: Network },
     { href: `/${locale}/analysis`, label: t('emissions'), icon: BarChart3 },
     { href: `/${locale}/targets`, label: t('targets'), icon: Target },
+    { href: `/${locale}/settings/factors`, label: t('emissionFactors'), icon: Sliders },
     { href: `/${locale}/insights`, label: t('insights'), icon: Lightbulb },
     { href: `/${locale}/reports`, label: t('reports'), icon: FileDown },
   ];
