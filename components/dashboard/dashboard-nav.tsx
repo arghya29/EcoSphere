@@ -20,6 +20,7 @@ import {
   User,
   ChevronsUpDown,
   Target,
+  Sliders,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -37,6 +38,7 @@ const NAV_ITEMS = [
   { href: '/builder', label: 'Supply-Chain Builder', icon: Network },
   { href: '/analysis', label: 'Emissions', icon: BarChart3 },
   { href: '/targets', label: 'Targets', icon: Target },
+  { href: '/settings/factors', label: 'Emission Factors', icon: Sliders },
   { href: '/insights', label: 'Insights', icon: Lightbulb },
   { href: '/reports', label: 'Reports', icon: FileDown },
 ];
