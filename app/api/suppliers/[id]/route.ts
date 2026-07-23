@@ -76,7 +76,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
       return NextResponse.json(
         {
           success: false,
-          error: 'This supplier is still used by a route. Remove it first, then delete the supplier.',
+          error:
+            'This supplier is still used by a route. Remove it first, then delete the supplier.',
         },
         { status: 409 }
       );

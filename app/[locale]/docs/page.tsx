@@ -66,7 +66,9 @@ export default function DocsPage() {
             Back to Dashboard
           </Link>
           <div className="h-4 w-px bg-border" />
-          <h1 className="font-display text-lg font-semibold text-foreground">Interactive API Explorer</h1>
+          <h1 className="font-display text-lg font-semibold text-foreground">
+            Interactive API Explorer
+          </h1>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs bg-emerald-500/10 text-emerald-500 font-semibold px-2 py-0.5 rounded-full">
@@ -83,7 +85,11 @@ export default function DocsPage() {
           </div>
         )}
         {/* Swagger container */}
-        <div className={loaded ? 'block bg-white rounded-lg border border-border shadow-sm p-4' : 'hidden'}>
+        <div
+          className={
+            loaded ? 'block bg-white rounded-lg border border-border shadow-sm p-4' : 'hidden'
+          }
+        >
           <div id="swagger-ui" />
         </div>
       </div>

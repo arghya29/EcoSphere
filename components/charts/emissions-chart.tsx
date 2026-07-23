@@ -36,7 +36,12 @@ export function EmissionsChart({ data }: { data: TrendData[] }) {
             }}
           />
           <Legend className="text-xs" />
-          <Bar dataKey="emissions" name="Emissions" fill="var(--color-scope3, #3b82f6)" radius={[4, 4, 0, 0]} />
+          <Bar
+            dataKey="emissions"
+            name="Emissions"
+            fill="var(--color-scope3, #3b82f6)"
+            radius={[4, 4, 0, 0]}
+          />
           {data.some((d) => d.target !== undefined) && (
             <Line
               type="monotone"

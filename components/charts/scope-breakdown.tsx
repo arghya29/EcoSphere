@@ -53,4 +53,3 @@ export function ScopeBreakdown({ scope1, scope2, scope3 }: ScopeBreakdownProps) 
     </div>
   );
 }
-

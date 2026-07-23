@@ -45,7 +45,10 @@ export function DashboardNav({ userName }: { userName: string }) {
     <>
       {/* Mobile top bar */}
       <div className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm p-3 md:hidden">
-        <Link href={`/${locale}/dashboard`} className="flex items-center gap-2 font-display text-base font-semibold">
+        <Link
+          href={`/${locale}/dashboard`}
+          className="flex items-center gap-2 font-display text-base font-semibold"
+        >
           <Ship className="h-5 w-5" aria-hidden="true" />
           <span className="text-sm">EcoSphere</span>
         </Link>
@@ -70,7 +73,11 @@ export function DashboardNav({ userName }: { userName: string }) {
       </div>
 
       {mobileOpen && (
-        <nav id="mobile-nav" aria-label="Mobile Primary" className="fixed inset-x-0 bottom-0 top-[var(--mobile-nav-height)] z-30 overflow-y-auto border-b border-border bg-card md:hidden">
+        <nav
+          id="mobile-nav"
+          aria-label="Mobile Primary"
+          className="fixed inset-x-0 bottom-0 top-[var(--mobile-nav-height)] z-30 overflow-y-auto border-b border-border bg-card md:hidden"
+        >
           <div className="flex flex-col min-h-full">
             <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
             <div className="mt-auto border-t border-border p-3 flex flex-col gap-2">
@@ -80,10 +87,7 @@ export function DashboardNav({ userName }: { userName: string }) {
               <div className="flex items-center gap-1 w-full">
                 <ThemeToggle />
                 <div className="flex-1">
-                  <AccountMenu
-                    userName={userName}
-                    onNavigate={() => setMobileOpen(false)}
-                  />
+                  <AccountMenu userName={userName} onNavigate={() => setMobileOpen(false)} />
                 </div>
               </div>
             </div>
@@ -145,7 +149,9 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
               aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-ring',
-                isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                isActive
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
               <Icon className="h-4 w-4" aria-hidden="true" />
@@ -192,13 +198,21 @@ function AccountMenu({ userName, onNavigate }: { userName: string; onNavigate?: 
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href={`/${locale}/profile`} onClick={onNavigate} className="flex items-center gap-2">
+          <Link
+            href={`/${locale}/profile`}
+            onClick={onNavigate}
+            className="flex items-center gap-2"
+          >
             <User className="h-4 w-4" aria-hidden="true" />
             {t('profile')}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={`/${locale}/settings`} onClick={onNavigate} className="flex items-center gap-2">
+          <Link
+            href={`/${locale}/settings`}
+            onClick={onNavigate}
+            className="flex items-center gap-2"
+          >
             <Settings className="h-4 w-4" aria-hidden="true" />
             {t('settings')}
           </Link>

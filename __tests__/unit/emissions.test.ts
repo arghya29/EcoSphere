@@ -1,8 +1,16 @@
-import { calculateActivityEmissions, aggregateByScope, aggregateByEntity, aggregateByMonth, deriveActivityType } from '@/lib/emissions';
+import {
+  calculateActivityEmissions,
+  aggregateByScope,
+  aggregateByEntity,
+  aggregateByMonth,
+  deriveActivityType,
+} from '@/lib/emissions';
 import type { ActivityWithFactor } from '@/lib/emissions';
 
 function makeActivity(
-  overrides: Partial<Omit<ActivityWithFactor, 'factor'>> & { factor?: Partial<ActivityWithFactor['factor']> }
+  overrides: Partial<Omit<ActivityWithFactor, 'factor'>> & {
+    factor?: Partial<ActivityWithFactor['factor']>;
+  }
 ): ActivityWithFactor {
   const { factor: factorOverrides, ...activityOverrides } = overrides;
   return {
@@ -54,7 +62,10 @@ describe('aggregateByScope', () => {
   it('sums emissions into the correct scope bucket', () => {
     const activities = [
       makeActivity({ emissionsKg: 1340, factor: { scope: 'SCOPE_1' } }),
-      makeActivity({ emissionsKg: 2484, factor: { scope: 'SCOPE_2', category: 'electricity_UK-grid' } }),
+      makeActivity({
+        emissionsKg: 2484,
+        factor: { scope: 'SCOPE_2', category: 'electricity_UK-grid' },
+      }),
       makeActivity({ emissionsKg: 4816, factor: { scope: 'SCOPE_3', category: 'air_freight' } }),
     ];
 
@@ -66,7 +77,13 @@ describe('aggregateByScope', () => {
   });
 
   it('falls back to amount * factor.value when emissionsKg is missing', () => {
-    const activities = [makeActivity({ emissionsKg: undefined as unknown as number, amount: 500, factor: { value: 2.68 } })];
+    const activities = [
+      makeActivity({
+        emissionsKg: undefined as unknown as number,
+        amount: 500,
+        factor: { value: 2.68 },
+      }),
+    ];
     const result = aggregateByScope(activities);
     expect(result.scope1).toBeCloseTo(1340);
   });
@@ -110,7 +127,9 @@ describe('aggregateByEntity', () => {
   });
 
   it('ignores activities with no matching entity id for the requested type', () => {
-    const activities = [makeActivity({ supplierId: null, facilityId: null, routeId: null, emissionsKg: 500 })];
+    const activities = [
+      makeActivity({ supplierId: null, facilityId: null, routeId: null, emissionsKg: 500 }),
+    ];
     const result = aggregateByEntity(activities, 'supplier', []);
     expect(result).toEqual([]);
   });

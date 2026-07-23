@@ -24,7 +24,11 @@ export default function InsightsPage() {
       <RiskPanel />
 
       {isLoading ? (
-        <output className="grid gap-4 sm:grid-cols-2" aria-live="polite" aria-label="Loading insights">
+        <output
+          className="grid gap-4 sm:grid-cols-2"
+          aria-live="polite"
+          aria-label="Loading insights"
+        >
           {Array.from({ length: 2 }).map((_, i) => (
             <SkeletonCard key={i} className="h-32" />
           ))}

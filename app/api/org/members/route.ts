@@ -44,7 +44,10 @@ export async function POST(req: NextRequest) {
   });
 
   if (!requesterMembership || requesterMembership.role !== 'OWNER') {
-    return NextResponse.json({ success: false, error: 'Forbidden: Requires OWNER role' }, { status: 403 });
+    return NextResponse.json(
+      { success: false, error: 'Forbidden: Requires OWNER role' },
+      { status: 403 }
+    );
   }
 
   try {
@@ -78,7 +81,10 @@ export async function POST(req: NextRequest) {
 
     // Prevent modifying own role
     if (user.id === ctx.userId) {
-      return NextResponse.json({ success: false, error: 'Cannot change your own role' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'Cannot change your own role' },
+        { status: 400 }
+      );
     }
 
     // If target user is an existing OWNER, prevent demoting them if they are the last owner
@@ -99,7 +105,10 @@ export async function POST(req: NextRequest) {
         },
       });
       if (ownerCount <= 1) {
-        return NextResponse.json({ success: false, error: 'Cannot demote the last owner' }, { status: 400 });
+        return NextResponse.json(
+          { success: false, error: 'Cannot demote the last owner' },
+          { status: 400 }
+        );
       }
     }
 
@@ -145,7 +154,10 @@ export async function DELETE(req: NextRequest) {
   });
 
   if (!requesterMembership || requesterMembership.role !== 'OWNER') {
-    return NextResponse.json({ success: false, error: 'Forbidden: Requires OWNER role' }, { status: 403 });
+    return NextResponse.json(
+      { success: false, error: 'Forbidden: Requires OWNER role' },
+      { status: 403 }
+    );
   }
 
   try {
@@ -163,7 +175,10 @@ export async function DELETE(req: NextRequest) {
     }
 
     if (userId === ctx.userId) {
-      return NextResponse.json({ success: false, error: 'Cannot remove yourself from the organization' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'Cannot remove yourself from the organization' },
+        { status: 400 }
+      );
     }
 
     const targetMembership = await prisma.membership.findUnique({
@@ -187,7 +202,10 @@ export async function DELETE(req: NextRequest) {
         },
       });
       if (ownerCount <= 1) {
-        return NextResponse.json({ success: false, error: 'Cannot remove the last owner of the organization' }, { status: 400 });
+        return NextResponse.json(
+          { success: false, error: 'Cannot remove the last owner of the organization' },
+          { status: 400 }
+        );
       }
     }
 
@@ -202,10 +220,6 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Member removed successfully' });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: 'Failed to remove member' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Failed to remove member' }, { status: 500 });
   }
 }
-

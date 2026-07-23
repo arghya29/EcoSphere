@@ -48,11 +48,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const value = React.useMemo(() => ({ theme, toggle, setTheme }), [theme, toggle, setTheme]);
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {

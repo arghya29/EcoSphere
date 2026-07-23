@@ -26,7 +26,16 @@ export function TargetCard({ scope, targetValue, currentValue, year }: TargetPro
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <CardTitle className="text-sm font-semibold">{scopeLabels[scope]}</CardTitle>
-        <Badge variant={isOver ? 'default' : 'outline'} className={isOver ? 'bg-red-600 text-white hover:bg-red-700 border-transparent' : percent > 85 ? 'bg-amber-500 text-white border-transparent' : ''}>
+        <Badge
+          variant={isOver ? 'default' : 'outline'}
+          className={
+            isOver
+              ? 'bg-red-600 text-white hover:bg-red-700 border-transparent'
+              : percent > 85
+                ? 'bg-amber-500 text-white border-transparent'
+                : ''
+          }
+        >
           {year} Target
         </Badge>
       </CardHeader>
@@ -34,13 +43,18 @@ export function TargetCard({ scope, targetValue, currentValue, year }: TargetPro
         <div className="flex justify-between items-baseline text-sm">
           <span className="text-muted-foreground">Current / Target</span>
           <span className="font-medium text-foreground">
-            {Math.round(currentValue).toLocaleString()} / {Math.round(targetValue).toLocaleString()} kg CO₂e
+            {Math.round(currentValue).toLocaleString()} / {Math.round(targetValue).toLocaleString()}{' '}
+            kg CO₂e
           </span>
         </div>
         <ProgressBar value={percent} className="h-2" />
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>{percent}% of limit reached</span>
-          {isOver && <span className="text-destructive font-semibold">Exceeded by {(currentValue - targetValue).toFixed(0)} kg</span>}
+          {isOver && (
+            <span className="text-destructive font-semibold">
+              Exceeded by {(currentValue - targetValue).toFixed(0)} kg
+            </span>
+          )}
         </div>
       </CardContent>
     </Card>

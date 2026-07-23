@@ -50,9 +50,12 @@ export default function ProfilePage() {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Profile editing isn&apos;t available in this build yet. To manage your organization details,
-            head to{' '}
-            <Link href="/settings" className="font-medium underline underline-offset-4 hover:text-foreground">
+            Profile editing isn&apos;t available in this build yet. To manage your organization
+            details, head to{' '}
+            <Link
+              href="/settings"
+              className="font-medium underline underline-offset-4 hover:text-foreground"
+            >
               Settings
             </Link>
             .

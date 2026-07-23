@@ -13,14 +13,21 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="items-center text-center">
-          <Link href="/" className="mb-2 flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+          <Link
+            href="/"
+            className="mb-2 flex items-center gap-2 font-display text-lg font-semibold text-foreground"
+          >
             <Ship className="h-5 w-5" aria-hidden="true" />
             EcoSphere
           </Link>
           <CardTitle className="text-base text-foreground">Log in to your workspace</CardTitle>
           <CardDescription>Demo login: demo@ecosphere.dev / EcoSphereDemo123!</CardDescription>
         </CardHeader>
-        <React.Suspense fallback={<div className="px-5 pb-5 text-center text-sm text-muted-foreground">Loading…</div>}>
+        <React.Suspense
+          fallback={
+            <div className="px-5 pb-5 text-center text-sm text-muted-foreground">Loading…</div>
+          }
+        >
           <LoginForm />
         </React.Suspense>
       </Card>

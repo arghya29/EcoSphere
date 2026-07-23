@@ -1,6 +1,14 @@
 'use client';
 
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts';
 import { formatKg } from '@/lib/utils';
 import { EmptyChart } from './chart-pie';
 
@@ -15,9 +23,20 @@ export function ChartLine({ data }: { data: { month: string; emissionsKg: number
         <LineChart data={data} margin={{ left: 8, right: 16 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
           <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-          <YAxis tickFormatter={(v) => formatKg(v)} stroke="hsl(var(--muted-foreground))" fontSize={11} />
+          <YAxis
+            tickFormatter={(v) => formatKg(v)}
+            stroke="hsl(var(--muted-foreground))"
+            fontSize={11}
+          />
           <Tooltip formatter={(value: number) => formatKg(value)} />
-          <Line type="monotone" dataKey="emissionsKg" stroke="hsl(var(--primary))" strokeWidth={2} dot name="Emissions" />
+          <Line
+            type="monotone"
+            dataKey="emissionsKg"
+            stroke="hsl(var(--primary))"
+            strokeWidth={2}
+            dot
+            name="Emissions"
+          />
         </LineChart>
       </ResponsiveContainer>
       <table className="sr-only">

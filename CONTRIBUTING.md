@@ -70,6 +70,7 @@ cp .env.example .env
 ```
 
 Fill in `.env`:
+
 - `DATABASE_URL` — from your Neon project dashboard
 - `NEXTAUTH_SECRET` — generate with `openssl rand -base64 32`
 - `NEXTAUTH_URL` — `http://localhost:3000` for local dev
@@ -109,6 +110,7 @@ docs/             — Additional documentation
 ```
 
 For detailed documentation, see:
+
 - [Architecture Overview](docs/ARCHITECTURE.md) — Data flow, tech stack, and key decisions
 - [API Reference](docs/API.md) — All API route documentation with request/response examples
 - [Component Reference](docs/COMPONENTS.md) — UI component catalog and usage patterns
@@ -133,14 +135,14 @@ Comment on the issue saying you'd like to work on it. A maintainer will assign i
 
 Always branch off from `dev` (the default branch). Use this naming convention:
 
-| Type | Format | Example |
-|---|---|---|
-| New feature | `feat/short-description` | `feat/dark-mode-toggle` |
-| Bug fix | `fix/short-description` | `fix/map-marker-overlap` |
-| Documentation | `docs/short-description` | `docs/update-setup-guide` |
-| Tests | `test/short-description` | `test/insights-edge-cases` |
-| Refactor | `refactor/short-description` | `refactor/emissions-engine` |
-| UI/styling | `ui/short-description` | `ui/mobile-nav-polish` |
+| Type          | Format                       | Example                     |
+| ------------- | ---------------------------- | --------------------------- |
+| New feature   | `feat/short-description`     | `feat/dark-mode-toggle`     |
+| Bug fix       | `fix/short-description`      | `fix/map-marker-overlap`    |
+| Documentation | `docs/short-description`     | `docs/update-setup-guide`   |
+| Tests         | `test/short-description`     | `test/insights-edge-cases`  |
+| Refactor      | `refactor/short-description` | `refactor/emissions-engine` |
+| UI/styling    | `ui/short-description`       | `ui/mobile-nav-polish`      |
 
 ```bash
 git checkout dev
@@ -165,6 +167,7 @@ Optional longer body explaining what and why (not how).
 **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 **Examples:**
+
 ```
 feat(insights): add carbon intensity per revenue metric
 fix(map): prevent marker overlap when coordinates are identical
@@ -179,16 +182,19 @@ Keep the first line under 72 characters. Use the imperative mood ("add", not "ad
 ## Pull Request Process
 
 1. **Make sure your branch is up to date** with `dev` before opening a PR:
+
    ```bash
    git fetch upstream
    git rebase upstream/dev
    ```
 
 2. **Run the full test suite** before submitting:
+
    ```bash
    npm test
    npm run lint
    ```
+
    Fix any failures before opening the PR — PRs that fail CI won't be reviewed.
 
 3. **Open the PR against `dev`** on the original repo (not `main`).
@@ -217,6 +223,7 @@ Every PR is automatically reviewed by **[CodeRabbit](https://coderabbit.ai)**, a
 - Pre-merge checks (e.g. missing tests, accessibility issues, type safety)
 
 **What to do with CodeRabbit feedback:**
+
 - Address any `❌` (failing) checks before asking for a human review
 - `⚠️` warnings are suggestions — use your judgement
 - You can reply directly to CodeRabbit's comments to ask it to explain something or re-check after a fix

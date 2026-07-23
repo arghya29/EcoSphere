@@ -29,6 +29,9 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data: organizations });
   } catch (error) {
-    return NextResponse.json({ success: false, error: 'Failed to fetch organizations' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch organizations' },
+      { status: 500 }
+    );
   }
 }

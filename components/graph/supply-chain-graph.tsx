@@ -63,7 +63,13 @@ function CustomerNode({ data }: { data: { label: string } }) {
 
 const nodeTypes = { supplier: SupplierNode, facility: FacilityNode, customer: CustomerNode };
 
-const MODE_LABEL: Record<string, string> = { TRUCK: 'Truck', RAIL: 'Rail', AIR: 'Air', SEA: 'Sea', OTHER: 'Other' };
+const MODE_LABEL: Record<string, string> = {
+  TRUCK: 'Truck',
+  RAIL: 'Rail',
+  AIR: 'Air',
+  SEA: 'Sea',
+  OTHER: 'Other',
+};
 
 export function SupplyChainGraph({
   suppliers,
@@ -79,7 +85,7 @@ export function SupplyChainGraph({
   const animationsDisabled = usePreferences((state) => state.animationsDisabled);
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
-  
+
   const { nodes, edges } = React.useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
@@ -109,25 +115,31 @@ export function SupplyChainGraph({
     });
 
     routes.forEach((r) => {
-      const sourceId = r.originSupplierId ? `supplier-${r.originSupplierId}` : `facility-${r.originFacilityId}`;
+      const sourceId = r.originSupplierId
+        ? `supplier-${r.originSupplierId}`
+        : `facility-${r.originFacilityId}`;
       const targetId = `facility-${r.destinationId}`;
       const emissions = emissionsByRoute?.get(r.id);
-      
+
       const isAnimated = mounted ? !animationsDisabled : true;
-      const thickness = emissions !== undefined ? Math.min(6, Math.max(1.5, 1.5 + (emissions / 2000))) : 1.5;
-      const speed = emissions !== undefined ? Math.max(0.5, 3 - (emissions / 4000)) : 2;
+      const thickness =
+        emissions !== undefined ? Math.min(6, Math.max(1.5, 1.5 + emissions / 2000)) : 1.5;
+      const speed = emissions !== undefined ? Math.max(0.5, 3 - emissions / 4000) : 2;
 
       edges.push({
         id: `route-${r.id}`,
         source: sourceId,
         target: targetId,
-        label: emissions !== undefined ? `${MODE_LABEL[r.mode]} · ${formatKg(emissions)}` : `${MODE_LABEL[r.mode]} · ${r.distanceKm}km`,
+        label:
+          emissions !== undefined
+            ? `${MODE_LABEL[r.mode]} · ${formatKg(emissions)}`
+            : `${MODE_LABEL[r.mode]} · ${r.distanceKm}km`,
         animated: isAnimated,
         markerEnd: { type: MarkerType.ArrowClosed },
-        style: { 
+        style: {
           stroke: r.mode === 'AIR' ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))',
           strokeWidth: thickness,
-          ...(isAnimated && { animationDuration: `${speed}s` })
+          ...(isAnimated && { animationDuration: `${speed}s` }),
         },
         labelStyle: { fill: 'hsl(var(--foreground))', fontSize: 10, fontWeight: 500 },
         labelBgStyle: { fill: 'hsl(var(--background))' },
@@ -179,8 +191,19 @@ export function SupplyChainGraph({
   }
 
   return (
-    <div className="h-[420px] w-full rounded-md border border-border" role="img" aria-label="Supply chain network diagram">
-      <ReactFlow ref={graphRef} nodes={nodes} edges={edges} nodeTypes={nodeTypes} fitView proOptions={{ hideAttribution: true }}>
+    <div
+      className="h-[420px] w-full rounded-md border border-border"
+      role="img"
+      aria-label="Supply chain network diagram"
+    >
+      <ReactFlow
+        ref={graphRef}
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        fitView
+        proOptions={{ hideAttribution: true }}
+      >
         <Background />
         <Controls
           className="!bg-background/80 !border-border !shadow-sm [&>button]:!bg-background [&>button]:!border-border [&>button]:!text-foreground [&>button:hover]:!bg-muted"
@@ -195,7 +218,11 @@ export function SupplyChainGraph({
         <Panel position="top-right">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 bg-background/80 backdrop-blur-sm">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 bg-background/80 backdrop-blur-sm"
+              >
                 <Download className="h-4 w-4" />
                 Export
               </Button>

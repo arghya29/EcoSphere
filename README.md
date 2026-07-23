@@ -75,6 +75,7 @@ cp .env.example .env
 ```
 
 Fill in `.env`:
+
 - `DATABASE_URL` — your Neon connection string (use the pooled string for Vercel)
 - `NEXTAUTH_SECRET` — generate with `openssl rand -base64 32`
 - `NEXTAUTH_URL` — `http://localhost:3000` for local dev
@@ -152,18 +153,18 @@ __tests__/
 
 All routes are scoped to the signed-in user's organization.
 
-| Route | Methods | Purpose |
-|---|---|---|
-| `/api/auth/[...nextauth]` | GET/POST | NextAuth session handling |
-| `/api/signup` | POST | Create user + first organization |
-| `/api/suppliers` | GET/POST | List / batch-create suppliers |
-| `/api/facilities` | GET/POST | List / batch-create facilities |
-| `/api/routes` | GET/POST | List / batch-create transport routes |
-| `/api/activities` | GET/POST | List / batch-create usage records |
-| `/api/upload` | POST | Bulk CSV/Excel ingestion |
-| `/api/dashboard` | GET | Scope totals, top emitters, monthly trend |
-| `/api/insights` | GET | Runs the rule-based insight engine |
-| `/api/reports` | GET/POST | Report export history |
+| Route                     | Methods  | Purpose                                   |
+| ------------------------- | -------- | ----------------------------------------- |
+| `/api/auth/[...nextauth]` | GET/POST | NextAuth session handling                 |
+| `/api/signup`             | POST     | Create user + first organization          |
+| `/api/suppliers`          | GET/POST | List / batch-create suppliers             |
+| `/api/facilities`         | GET/POST | List / batch-create facilities            |
+| `/api/routes`             | GET/POST | List / batch-create transport routes      |
+| `/api/activities`         | GET/POST | List / batch-create usage records         |
+| `/api/upload`             | POST     | Bulk CSV/Excel ingestion                  |
+| `/api/dashboard`          | GET      | Scope totals, top emitters, monthly trend |
+| `/api/insights`           | GET      | Runs the rule-based insight engine        |
+| `/api/reports`            | GET/POST | Report export history                     |
 
 ---
 
@@ -182,6 +183,7 @@ All factors live in the `EmissionFactor` table (seeded with indicative DEFRA/EPA
 ## Insights engine
 
 `lib/insights.ts` is fully rule-based (no ML/LLM):
+
 - Top-emitter concentration (supplier or facility > 30% of total)
 - High-carbon transport mode flags (air freight, with rail/sea mode-shift suggestions)
 - Scope 2 share warnings (purchased electricity > 30% of total)

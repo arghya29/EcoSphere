@@ -20,7 +20,10 @@ export function MapLegend() {
         <div key={mode} className="flex items-center gap-1">
           <span
             className="w-3 h-0.5 inline-block"
-            style={{ backgroundColor: color, borderTop: `2px ${mode === 'AIR' ? 'dashed' : 'solid'} ${color}` }}
+            style={{
+              backgroundColor: color,
+              borderTop: `2px ${mode === 'AIR' ? 'dashed' : 'solid'} ${color}`,
+            }}
           />
           <span className="font-medium text-foreground">{mode}</span>
         </div>

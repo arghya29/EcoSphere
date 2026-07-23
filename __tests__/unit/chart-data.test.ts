@@ -22,4 +22,3 @@ describe('Chart Data Mapping Formatting', () => {
     expect(filtered.find((d) => d.name.includes('Scope 2'))?.value).toBe(5000);
   });
 });
-

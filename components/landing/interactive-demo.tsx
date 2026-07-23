@@ -11,7 +11,7 @@ const MODE_COLOR: Record<string, string> = {
   Sea: 'hsl(var(--scope2))',
 };
 
-function buildEdgeBreakdown(scenario: typeof DEMO_SCENARIOS[number]) {
+function buildEdgeBreakdown(scenario: (typeof DEMO_SCENARIOS)[number]) {
   const byMode: Record<string, number> = {};
   for (const edge of scenario.edges) {
     byMode[edge.mode] = (byMode[edge.mode] ?? 0) + edge.kgCO2e;
@@ -78,7 +78,7 @@ export function InteractiveDemo() {
             viewBox="0 0 600 260"
             className="h-auto w-full min-w-[480px]"
             role="img"
-            aria-label={`Network diagram for ${scenario.label}: ${scenario.nodes.map(n => n.label.split(' — ')[0]).join(', ')} connected by ${scenario.edges.length} transport routes.`}
+            aria-label={`Network diagram for ${scenario.label}: ${scenario.nodes.map((n) => n.label.split(' — ')[0]).join(', ')} connected by ${scenario.edges.length} transport routes.`}
           >
             {scenario.edges.map((edge) => {
               const source = scenario.nodes.find((n) => n.id === edge.source)!;
@@ -123,7 +123,11 @@ export function InteractiveDemo() {
                   y={node.y + 17}
                   fontSize="9"
                   textAnchor="middle"
-                  fill={node.kind === 'factory' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--foreground))'}
+                  fill={
+                    node.kind === 'factory'
+                      ? 'hsl(var(--primary-foreground))'
+                      : 'hsl(var(--foreground))'
+                  }
                   fontWeight={600}
                 >
                   {node.label.split(' — ')[0]}
@@ -133,7 +137,11 @@ export function InteractiveDemo() {
                   y={node.y + 29}
                   fontSize="8"
                   textAnchor="middle"
-                  fill={node.kind === 'factory' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))'}
+                  fill={
+                    node.kind === 'factory'
+                      ? 'hsl(var(--primary-foreground))'
+                      : 'hsl(var(--muted-foreground))'
+                  }
                 >
                   {node.label.split(' — ')[1]}
                 </text>
@@ -145,18 +153,27 @@ export function InteractiveDemo() {
         <div className="flex flex-col gap-3">
           <ScopeBar label="Scope 1" value={scenario.scope1} total={total} colorVar="--scope1" />
           <ScopeBar label="Scope 2" value={scenario.scope2} total={total} colorVar="--scope2" />
-          <ScopeBar label="Scope 3" value={showScope3 ? scenario.scope3 : 0} total={total} colorVar="--scope3" />
+          <ScopeBar
+            label="Scope 3"
+            value={showScope3 ? scenario.scope3 : 0}
+            total={total}
+            colorVar="--scope3"
+          />
           <div className="manifest-rule mt-1 pt-3">
             <p className="font-mono-data text-2xl font-semibold">
               {formatKg(scenario.scope1 + scenario.scope2 + (showScope3 ? scenario.scope3 : 0))}
             </p>
-            <p className="text-xs text-muted-foreground">Total estimated emissions, this scenario</p>
+            <p className="text-xs text-muted-foreground">
+              Total estimated emissions, this scenario
+            </p>
           </div>
 
           {showEmitters && edgeBreakdown.length > 0 && (
             <>
               <div className="manifest-rule pt-3 mt-1">
-                <p className="text-xs font-semibold text-muted-foreground mb-2">Top transport emitters</p>
+                <p className="text-xs font-semibold text-muted-foreground mb-2">
+                  Top transport emitters
+                </p>
                 {edgeBreakdown.map(({ mode, kg }) => (
                   <div key={mode} className="flex items-center gap-2 py-1">
                     <span
@@ -182,7 +199,17 @@ export function InteractiveDemo() {
   );
 }
 
-function ScopeBar({ label, value, total, colorVar }: { label: string; value: number; total: number; colorVar: string }) {
+function ScopeBar({
+  label,
+  value,
+  total,
+  colorVar,
+}: {
+  label: string;
+  value: number;
+  total: number;
+  colorVar: string;
+}) {
   const pct = total > 0 ? Math.round((value / total) * 100) : 0;
   return (
     <div>

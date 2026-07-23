@@ -21,13 +21,7 @@ const data: TestItem[] = [
 
 describe('ResponsiveTable', () => {
   it('renders table headers and data', () => {
-    render(
-      <ResponsiveTable
-        columns={columns}
-        data={data}
-        keyExtractor={(item) => item.id}
-      />
-    );
+    render(<ResponsiveTable columns={columns} data={data} keyExtractor={(item) => item.id} />);
 
     expect(screen.getAllByText('Name').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Value').length).toBeGreaterThan(0);

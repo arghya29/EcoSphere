@@ -31,10 +31,15 @@ export function MemberList({
   return (
     <div className="space-y-3">
       {members.map((m) => (
-        <div key={m.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-sm bg-card transition-shadow">
+        <div
+          key={m.id}
+          className="flex items-center justify-between p-4 border rounded-lg hover:shadow-sm bg-card transition-shadow"
+        >
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm">{m.user.name || m.user.email.split('@')[0]}</span>
+              <span className="font-semibold text-sm">
+                {m.user.name || m.user.email.split('@')[0]}
+              </span>
               <Badge className={roleColors[m.role]}>{m.role}</Badge>
             </div>
             <p className="text-xs text-muted-foreground">{m.user.email}</p>
@@ -72,7 +77,9 @@ export function MemberList({
 
       <ConfirmDialog
         isOpen={pendingDelete !== null}
-        onOpenChange={(open) => { if (!open) setPendingDelete(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
         title="Remove team member?"
         description="This member will lose access to the organization. Their associated data will remain."
         confirmLabel="Remove"
@@ -87,4 +94,3 @@ export function MemberList({
     </div>
   );
 }
-

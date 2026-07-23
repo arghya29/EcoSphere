@@ -81,7 +81,9 @@ export function OrgSwitcher() {
             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
           </div>
         ) : organizations.length === 0 ? (
-          <div className="p-2 text-xs text-muted-foreground text-center">No organizations found.</div>
+          <div className="p-2 text-xs text-muted-foreground text-center">
+            No organizations found.
+          </div>
         ) : (
           organizations.map((org) => (
             <DropdownMenuItem

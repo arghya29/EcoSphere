@@ -19,7 +19,9 @@ export function calculateRiskScore(
   if (totalEmissions > 100000) {
     score += 30;
     flags.push('High overall carbon footprint exceeding 100t CO₂e');
-    recommendations.push('Implement carbon offsets or source local materials to decrease total footprint.');
+    recommendations.push(
+      'Implement carbon offsets or source local materials to decrease total footprint.'
+    );
   } else if (totalEmissions > 20000) {
     score += 15;
     flags.push('Moderate emission volumes detected');
@@ -30,11 +32,15 @@ export function calculateRiskScore(
   if (airRatio > 0.3) {
     score += 40;
     flags.push('Severe air freight carbon dependency (exceeds 30% of total)');
-    recommendations.push('Transition high-priority shipments from air to sea or rail where delivery times permit.');
+    recommendations.push(
+      'Transition high-priority shipments from air to sea or rail where delivery times permit.'
+    );
   } else if (airRatio > 0.1) {
     score += 20;
     flags.push('Moderate shipping intensity ratios');
-    recommendations.push('Consolidate cargo to utilize sea freight options and decrease air reliance.');
+    recommendations.push(
+      'Consolidate cargo to utilize sea freight options and decrease air reliance.'
+    );
   }
 
   // 3. Grid dependency (Scope 2)
@@ -42,7 +48,9 @@ export function calculateRiskScore(
   if (gridRatio > 0.5) {
     score += 30;
     flags.push('High reliance on regional electricity grid footprints (exceeds 50% of total)');
-    recommendations.push('Investigate power purchase agreements (PPAs) for renewable electricity or install solar systems.');
+    recommendations.push(
+      'Investigate power purchase agreements (PPAs) for renewable electricity or install solar systems.'
+    );
   } else if (gridRatio > 0.2) {
     score += 15;
     flags.push('Moderate electricity grid footprint exposure');

@@ -24,11 +24,13 @@ graph TD
 ### Initial Setup
 
 1. Clone the repository and install dependencies:
+
    ```bash
    npm install
    ```
 
 2. Seed the database with standard emission factors:
+
    ```bash
    npm run db:push
    ```
@@ -41,6 +43,7 @@ graph TD
 ## Contribution Workflow
 
 We enforce clean branch isolation and modular pull requests:
+
 - Base your changes on the latest `dev` branch.
 - Avoid large monolithic pull requests; focus on one problem per branch.
 - Keep test coverage updated.

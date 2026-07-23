@@ -105,12 +105,20 @@ export function ResponsiveTable<T>({
   return (
     <>
       {/* Desktop table view */}
-      <div 
-        ref={virtualize ? desktopRef : undefined} 
-        className={cn("hidden sm:block overflow-auto rounded-md border bg-card relative scrollbar-thin", virtualize ? maxHeight : "")}
+      <div
+        ref={virtualize ? desktopRef : undefined}
+        className={cn(
+          'hidden sm:block overflow-auto rounded-md border bg-card relative scrollbar-thin',
+          virtualize ? maxHeight : ''
+        )}
       >
         <table className="w-full text-left text-sm">
-          <thead className={cn("bg-muted text-muted-foreground text-xs uppercase font-medium border-b", virtualize && "sticky top-0 z-10 shadow-sm")}>
+          <thead
+            className={cn(
+              'bg-muted text-muted-foreground text-xs uppercase font-medium border-b',
+              virtualize && 'sticky top-0 z-10 shadow-sm'
+            )}
+          >
             <tr>
               {selection && (
                 <th className="px-4 py-3 w-10">
@@ -133,15 +141,26 @@ export function ResponsiveTable<T>({
           <tbody className="divide-y">
             {virtualize ? (
               <>
-                {desktopVirtualizer.getVirtualItems().length > 0 && desktopVirtualizer.getVirtualItems()[0]?.start > 0 && (
-                  <tr>
-                    <td style={{ height: `${desktopVirtualizer.getVirtualItems()[0]?.start}px` }} colSpan={columns.length + (selection ? 1 : 0) + (actions ? 1 : 0)} />
-                  </tr>
-                )}
+                {desktopVirtualizer.getVirtualItems().length > 0 &&
+                  desktopVirtualizer.getVirtualItems()[0]?.start > 0 && (
+                    <tr>
+                      <td
+                        style={{ height: `${desktopVirtualizer.getVirtualItems()[0]?.start}px` }}
+                        colSpan={columns.length + (selection ? 1 : 0) + (actions ? 1 : 0)}
+                      />
+                    </tr>
+                  )}
                 {desktopVirtualizer.getVirtualItems().map((virtualRow) => {
                   const item = displayData[virtualRow.index];
                   return (
-                    <tr key={keyExtractor(item)} data-index={virtualRow.index} ref={(node) => { if (node) desktopVirtualizer.measureElement(node); }} className="hover:bg-muted/50">
+                    <tr
+                      key={keyExtractor(item)}
+                      data-index={virtualRow.index}
+                      ref={(node) => {
+                        if (node) desktopVirtualizer.measureElement(node);
+                      }}
+                      className="hover:bg-muted/50"
+                    >
                       {selection && (
                         <td className="px-4 py-3">
                           <input
@@ -161,11 +180,21 @@ export function ResponsiveTable<T>({
                     </tr>
                   );
                 })}
-                {desktopVirtualizer.getVirtualItems().length > 0 && desktopVirtualizer.getTotalSize() - (desktopVirtualizer.getVirtualItems()[desktopVirtualizer.getVirtualItems().length - 1]?.end || 0) > 0 && (
-                  <tr>
-                    <td style={{ height: `${desktopVirtualizer.getTotalSize() - (desktopVirtualizer.getVirtualItems()[desktopVirtualizer.getVirtualItems().length - 1]?.end || 0)}px` }} colSpan={columns.length + (selection ? 1 : 0) + (actions ? 1 : 0)} />
-                  </tr>
-                )}
+                {desktopVirtualizer.getVirtualItems().length > 0 &&
+                  desktopVirtualizer.getTotalSize() -
+                    (desktopVirtualizer.getVirtualItems()[
+                      desktopVirtualizer.getVirtualItems().length - 1
+                    ]?.end || 0) >
+                    0 && (
+                    <tr>
+                      <td
+                        style={{
+                          height: `${desktopVirtualizer.getTotalSize() - (desktopVirtualizer.getVirtualItems()[desktopVirtualizer.getVirtualItems().length - 1]?.end || 0)}px`,
+                        }}
+                        colSpan={columns.length + (selection ? 1 : 0) + (actions ? 1 : 0)}
+                      />
+                    </tr>
+                  )}
               </>
             ) : (
               displayData.map((item) => (
@@ -194,19 +223,32 @@ export function ResponsiveTable<T>({
       </div>
 
       {/* Mobile card view */}
-      <div 
+      <div
         ref={virtualize ? mobileRef : undefined}
-        className={cn("sm:hidden", virtualize ? `overflow-auto scrollbar-thin relative ${maxHeight} flex flex-col gap-3` : "space-y-3")}
+        className={cn(
+          'sm:hidden',
+          virtualize
+            ? `overflow-auto scrollbar-thin relative ${maxHeight} flex flex-col gap-3`
+            : 'space-y-3'
+        )}
       >
         {virtualize ? (
           <>
-            {mobileVirtualizer.getVirtualItems().length > 0 && mobileVirtualizer.getVirtualItems()[0]?.start > 0 && (
-              <div style={{ height: `${mobileVirtualizer.getVirtualItems()[0]?.start}px` }} />
-            )}
+            {mobileVirtualizer.getVirtualItems().length > 0 &&
+              mobileVirtualizer.getVirtualItems()[0]?.start > 0 && (
+                <div style={{ height: `${mobileVirtualizer.getVirtualItems()[0]?.start}px` }} />
+              )}
             {mobileVirtualizer.getVirtualItems().map((virtualRow) => {
               const item = displayData[virtualRow.index];
               return (
-                <div key={keyExtractor(item)} data-index={virtualRow.index} ref={(node) => { if (node) mobileVirtualizer.measureElement(node); }} className="rounded-lg border bg-card p-4">
+                <div
+                  key={keyExtractor(item)}
+                  data-index={virtualRow.index}
+                  ref={(node) => {
+                    if (node) mobileVirtualizer.measureElement(node);
+                  }}
+                  className="rounded-lg border bg-card p-4"
+                >
                   {selection && (
                     <div className="mb-2 flex items-center gap-2">
                       <input
@@ -233,13 +275,23 @@ export function ResponsiveTable<T>({
                         </div>
                       ))}
                   </dl>
-                  {actions && <div className="mt-2 pt-2 border-t border-border">{actions(item)}</div>}
+                  {actions && (
+                    <div className="mt-2 pt-2 border-t border-border">{actions(item)}</div>
+                  )}
                 </div>
               );
             })}
-            {mobileVirtualizer.getVirtualItems().length > 0 && mobileVirtualizer.getTotalSize() - (mobileVirtualizer.getVirtualItems()[mobileVirtualizer.getVirtualItems().length - 1]?.end || 0) > 0 && (
-              <div style={{ height: `${mobileVirtualizer.getTotalSize() - (mobileVirtualizer.getVirtualItems()[mobileVirtualizer.getVirtualItems().length - 1]?.end || 0)}px` }} />
-            )}
+            {mobileVirtualizer.getVirtualItems().length > 0 &&
+              mobileVirtualizer.getTotalSize() -
+                (mobileVirtualizer.getVirtualItems()[mobileVirtualizer.getVirtualItems().length - 1]
+                  ?.end || 0) >
+                0 && (
+                <div
+                  style={{
+                    height: `${mobileVirtualizer.getTotalSize() - (mobileVirtualizer.getVirtualItems()[mobileVirtualizer.getVirtualItems().length - 1]?.end || 0)}px`,
+                  }}
+                />
+              )}
           </>
         ) : (
           displayData.map((item) => (
@@ -283,7 +335,10 @@ export function ResponsiveTable<T>({
           limit={limit}
           total={data.length}
           onPageChange={setPage}
-          onLimitChange={(newLimit) => { setLimit(newLimit); setPage(1); }}
+          onLimitChange={(newLimit) => {
+            setLimit(newLimit);
+            setPage(1);
+          }}
         />
       )}
     </>

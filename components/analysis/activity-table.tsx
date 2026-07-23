@@ -129,8 +129,6 @@ export function ActivityTable() {
     }, 100);
   };
 
-
-
   const selectedSet = new Set(selectedIds);
   const allSelected = activities.length > 0 && activities.every((a) => selectedSet.has(a.id));
 
@@ -143,7 +141,9 @@ export function ActivityTable() {
     {
       key: 'category',
       header: 'Factor Category',
-      render: (act: Activity) => <span className="text-muted-foreground">{act.factor?.category}</span>,
+      render: (act: Activity) => (
+        <span className="text-muted-foreground">{act.factor?.category}</span>
+      ),
       hideOnMobile: true,
     },
     {
@@ -160,7 +160,9 @@ export function ActivityTable() {
       key: 'date',
       header: 'Date',
       render: (act: Activity) => (
-        <span className="text-muted-foreground">{new Date(act.dateRecorded).toLocaleDateString()}</span>
+        <span className="text-muted-foreground">
+          {new Date(act.dateRecorded).toLocaleDateString()}
+        </span>
       ),
       hideOnMobile: true,
     },
@@ -170,11 +172,20 @@ export function ActivityTable() {
     <div className="space-y-4">
       <ActivityFilters
         type={type}
-        onTypeChange={(v) => { setType(v); setOffset(0); }}
+        onTypeChange={(v) => {
+          setType(v);
+          setOffset(0);
+        }}
         startDate={startDate}
-        onStartDateChange={(v) => { setStartDate(v); setOffset(0); }}
+        onStartDateChange={(v) => {
+          setStartDate(v);
+          setOffset(0);
+        }}
         endDate={endDate}
-        onEndDateChange={(v) => { setEndDate(v); setOffset(0); }}
+        onEndDateChange={(v) => {
+          setEndDate(v);
+          setOffset(0);
+        }}
         search={search}
         onSearchChange={setSearch}
         onExport={handleExport}
@@ -184,9 +195,7 @@ export function ActivityTable() {
 
       {selectedIds.length > 0 && (
         <div className="flex items-center justify-between rounded-lg border bg-muted/50 px-4 py-2 text-sm">
-          <span className="text-muted-foreground">
-            {selectedIds.length} activity(ies) selected
-          </span>
+          <span className="text-muted-foreground">{selectedIds.length} activity(ies) selected</span>
           <Button
             variant="destructive"
             size="sm"
@@ -204,13 +213,16 @@ export function ActivityTable() {
         data={activities}
         keyExtractor={(a) => a.id}
         loading={loading}
-        emptyMessage={debouncedSearch ? `No activities match "${debouncedSearch}".` : 'No activities found.'}
+        emptyMessage={
+          debouncedSearch ? `No activities match "${debouncedSearch}".` : 'No activities found.'
+        }
         mobileCardTitle={(a) => `${a.type} — ${formatKg(a.emissionsKg)}`}
         selection={{
           selected: selectedSet,
-          onToggle: (id) => setSelectedIds((prev) =>
-            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-          ),
+          onToggle: (id) =>
+            setSelectedIds((prev) =>
+              prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+            ),
           onToggleAll: () => {
             if (allSelected) {
               setSelectedIds((prev) => prev.filter((id) => !activities.some((a) => a.id === id)));
@@ -253,7 +265,9 @@ export function ActivityTable() {
 
       <ConfirmDialog
         isOpen={showBulkDeleteDialog}
-        onOpenChange={(open) => { if (!open) setShowBulkDeleteDialog(false); }}
+        onOpenChange={(open) => {
+          if (!open) setShowBulkDeleteDialog(false);
+        }}
         title="Delete selected activities?"
         description={`This will permanently remove ${selectedIds.length} activity record(s). This action cannot be undone.`}
         confirmLabel="Delete"
@@ -265,4 +279,3 @@ export function ActivityTable() {
     </div>
   );
 }
-

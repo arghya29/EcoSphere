@@ -8,11 +8,26 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/ToastProvider';
-import { AlertCircle, Plus, Search, ShieldCheck, UserCheck, CornerUpRight, RotateCcw, Sliders } from 'lucide-react';
+import {
+  AlertCircle,
+  Plus,
+  Search,
+  ShieldCheck,
+  UserCheck,
+  CornerUpRight,
+  RotateCcw,
+  Sliders,
+} from 'lucide-react';
 import { SkeletonCard } from '@/components/ui/skeleton';
 
 interface CustomFactor {
@@ -34,8 +49,17 @@ interface SystemFactor {
 }
 
 export default function FactorsSettingsPage() {
-  const { data: customFactors, isLoading: loadingCustom, error: errorCustom, refetch: refetchCustom } = useApi<CustomFactor[]>('/api/factors');
-  const { data: systemFactors, isLoading: loadingSystem, error: errorSystem } = useApi<SystemFactor[]>('/api/system-factors');
+  const {
+    data: customFactors,
+    isLoading: loadingCustom,
+    error: errorCustom,
+    refetch: refetchCustom,
+  } = useApi<CustomFactor[]>('/api/factors');
+  const {
+    data: systemFactors,
+    isLoading: loadingSystem,
+    error: errorSystem,
+  } = useApi<SystemFactor[]>('/api/system-factors');
   const { toast } = useToast();
 
   const [category, setCategory] = React.useState('');
@@ -50,7 +74,10 @@ export default function FactorsSettingsPage() {
 
   // Confirm dialog state for delete
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
-  const [factorToDelete, setFactorToDelete] = React.useState<{ id: string; category: string } | null>(null);
+  const [factorToDelete, setFactorToDelete] = React.useState<{
+    id: string;
+    category: string;
+  } | null>(null);
 
   const formRef = React.useRef<HTMLDivElement>(null);
 
@@ -60,7 +87,9 @@ export default function FactorsSettingsPage() {
     onSuccess: () => {
       toast.success(
         editingFactorId ? 'Factor Updated' : 'Factor Saved',
-        editingFactorId ? 'Custom emission factor was successfully updated.' : 'Custom emission factor was successfully recorded.'
+        editingFactorId
+          ? 'Custom emission factor was successfully updated.'
+          : 'Custom emission factor was successfully recorded.'
       );
       resetForm();
       refetchCustom();
@@ -128,7 +157,10 @@ export default function FactorsSettingsPage() {
       const res = await fetch(`/api/factors?id=${factorToDelete.id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
-        toast.success('Factor Deleted', `Custom factor for "${factorToDelete.category}" was removed.`);
+        toast.success(
+          'Factor Deleted',
+          `Custom factor for "${factorToDelete.category}" was removed.`
+        );
         setDeleteDialogOpen(false);
         setFactorToDelete(null);
         refetchCustom();
@@ -171,7 +203,7 @@ export default function FactorsSettingsPage() {
 
     // Combined all items: Custom factors + System factors that are NOT overridden (or system factors with override info)
     const allItems: FactorItem[] = [...customItems];
-    
+
     // Add system factors if they aren't already represented as custom factor category
     systemItems.forEach((sf) => {
       if (!customFactorMap.has(sf.category.toLowerCase())) {
@@ -218,7 +250,8 @@ export default function FactorsSettingsPage() {
           Emission Factors Management
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-          Configure custom carbon intensity factors for your organization. User-defined custom factors automatically override standard system factors during emission calculations.
+          Configure custom carbon intensity factors for your organization. User-defined custom
+          factors automatically override standard system factors during emission calculations.
         </p>
       </div>
 
@@ -228,7 +261,9 @@ export default function FactorsSettingsPage() {
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground font-medium">Standard System Factors</p>
-              <p className="text-2xl font-bold text-foreground mt-0.5">{systemFactors?.length ?? 0}</p>
+              <p className="text-2xl font-bold text-foreground mt-0.5">
+                {systemFactors?.length ?? 0}
+              </p>
             </div>
             <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center text-secondary-foreground">
               <ShieldCheck className="h-5 w-5" />
@@ -252,7 +287,9 @@ export default function FactorsSettingsPage() {
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground font-medium">Active Overrides</p>
-              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-0.5">{overriddenCount}</p>
+              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-0.5">
+                {overriddenCount}
+              </p>
             </div>
             <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
               <CornerUpRight className="h-5 w-5" />
@@ -356,11 +393,7 @@ export default function FactorsSettingsPage() {
 
               <div className="flex gap-2 pt-2">
                 <Button type="submit" disabled={isSaving} className="flex-1">
-                  {isSaving
-                    ? 'Saving...'
-                    : editingFactorId
-                    ? 'Update Factor'
-                    : 'Save Factor'}
+                  {isSaving ? 'Saving...' : editingFactorId ? 'Update Factor' : 'Save Factor'}
                 </Button>
                 {editingFactorId && (
                   <Button type="button" variant="outline" onClick={resetForm}>
@@ -400,22 +433,19 @@ export default function FactorsSettingsPage() {
 
           <Tabs defaultValue="all">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="all">
-                All Factors ({filteredAll.length})
-              </TabsTrigger>
-              <TabsTrigger value="custom">
-                Custom Factors ({filteredCustom.length})
-              </TabsTrigger>
-              <TabsTrigger value="system">
-                System Factors ({filteredSystem.length})
-              </TabsTrigger>
+              <TabsTrigger value="all">All Factors ({filteredAll.length})</TabsTrigger>
+              <TabsTrigger value="custom">Custom Factors ({filteredCustom.length})</TabsTrigger>
+              <TabsTrigger value="system">System Factors ({filteredSystem.length})</TabsTrigger>
             </TabsList>
 
             {/* TAB: All Factors */}
             <TabsContent value="all" className="space-y-3">
-              {(errorCustom || errorSystem) ? (
+              {errorCustom || errorSystem ? (
                 <Card>
-                  <CardContent className="flex items-center gap-3 py-4 text-destructive" role="alert">
+                  <CardContent
+                    className="flex items-center gap-3 py-4 text-destructive"
+                    role="alert"
+                  >
                     <AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
                     <p className="text-sm">{errorCustom || errorSystem}</p>
                   </CardContent>
@@ -456,7 +486,10 @@ export default function FactorsSettingsPage() {
                 <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg bg-card text-center text-muted-foreground space-y-2">
                   <UserCheck className="h-8 w-8 text-muted-foreground/50" />
                   <p className="font-medium text-sm">No custom factors defined</p>
-                  <p className="text-xs">Use the form on the left to add your organization&apos;s custom emission factors or overrides.</p>
+                  <p className="text-xs">
+                    Use the form on the left to add your organization&apos;s custom emission factors
+                    or overrides.
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-3">

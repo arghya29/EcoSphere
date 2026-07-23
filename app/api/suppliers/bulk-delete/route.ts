@@ -5,7 +5,8 @@ import { requireOrg, isErrorResponse } from '@/lib/session';
 import { z } from 'zod';
 
 const bulkDeleteSchema = z.object({
-  ids: z.array(z.string().min(1))
+  ids: z
+    .array(z.string().min(1))
     .min(1, 'At least one ID is required')
     .max(1000, 'Cannot delete more than 1000 items at a time'),
 });
@@ -32,7 +33,10 @@ export async function DELETE(req: NextRequest) {
   });
   const ownedIds = owned.map((s) => s.id);
   if (ownedIds.length === 0) {
-    return NextResponse.json({ success: false, error: 'No matching suppliers found' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, error: 'No matching suppliers found' },
+      { status: 404 }
+    );
   }
 
   try {

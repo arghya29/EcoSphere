@@ -20,7 +20,10 @@ export async function parseFile(file: File): Promise<ParsedFile> {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: 'array' });
     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json<Record<string, string>>(firstSheet, { raw: false, defval: '' });
+    const rows = XLSX.utils.sheet_to_json<Record<string, string>>(firstSheet, {
+      raw: false,
+      defval: '',
+    });
     const headers = rows.length > 0 ? Object.keys(rows[0]) : [];
     return { headers, rows, fileName: file.name, rowCount: rows.length };
   }
@@ -51,7 +54,10 @@ export function validateColumns(kind: UploadSchemaKind, headers: string[]): stri
   return missing;
 }
 
-export function validateRows(kind: UploadSchemaKind, rows: Record<string, string>[]): ValidationError[] {
+export function validateRows(
+  kind: UploadSchemaKind,
+  rows: Record<string, string>[]
+): ValidationError[] {
   const errors: ValidationError[] = [];
   const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -61,16 +67,25 @@ export function validateRows(kind: UploadSchemaKind, rows: Record<string, string
 
     if (kind === 'activities') {
       if (!row.factor_category || row.factor_category.trim() === '') {
-        errors.push({ column: 'factor_category', message: `Row ${rowNum}: factor_category is required` });
+        errors.push({
+          column: 'factor_category',
+          message: `Row ${rowNum}: factor_category is required`,
+        });
       }
       if (!row.amount || isNaN(Number(row.amount)) || Number(row.amount) <= 0) {
-        errors.push({ column: 'amount', message: `Row ${rowNum}: amount must be a positive number` });
+        errors.push({
+          column: 'amount',
+          message: `Row ${rowNum}: amount must be a positive number`,
+        });
       }
       if (!row.unit || row.unit.trim() === '') {
         errors.push({ column: 'unit', message: `Row ${rowNum}: unit is required` });
       }
       if (!row.date || !isoDatePattern.test(row.date) || isNaN(Date.parse(row.date))) {
-        errors.push({ column: 'date', message: `Row ${rowNum}: date must be a valid date (YYYY-MM-DD)` });
+        errors.push({
+          column: 'date',
+          message: `Row ${rowNum}: date must be a valid date (YYYY-MM-DD)`,
+        });
       }
     }
 
@@ -81,13 +96,19 @@ export function validateRows(kind: UploadSchemaKind, rows: Record<string, string
       if (row.latitude && row.latitude.trim() !== '') {
         const lat = Number(row.latitude);
         if (isNaN(lat) || lat < -90 || lat > 90) {
-          errors.push({ column: 'latitude', message: `Row ${rowNum}: latitude must be a valid number between -90 and 90` });
+          errors.push({
+            column: 'latitude',
+            message: `Row ${rowNum}: latitude must be a valid number between -90 and 90`,
+          });
         }
       }
       if (row.longitude && row.longitude.trim() !== '') {
         const lng = Number(row.longitude);
         if (isNaN(lng) || lng < -180 || lng > 180) {
-          errors.push({ column: 'longitude', message: `Row ${rowNum}: longitude must be a valid number between -180 and 180` });
+          errors.push({
+            column: 'longitude',
+            message: `Row ${rowNum}: longitude must be a valid number between -180 and 180`,
+          });
         }
       }
     }
