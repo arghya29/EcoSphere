@@ -87,7 +87,11 @@ describe('normalizeAndValidateRoutes', () => {
   it('accepts a well-formed multi-route batch (no regression on the happy path)', () => {
     const result = normalizeAndValidateRoutes([
       route({ destinationId: 'facility-1' }),
-      route({ destinationId: 'facility-2', originSupplierId: undefined, originFacilityId: 'facility-9' }),
+      route({
+        destinationId: 'facility-2',
+        originSupplierId: undefined,
+        originFacilityId: 'facility-9',
+      }),
     ]);
     expect(result.ok).toBe(true);
     if (result.ok) {

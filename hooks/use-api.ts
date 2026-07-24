@@ -21,7 +21,10 @@ const defaultOptions: Required<UseApiOptions> = {
 };
 
 class HttpError extends Error {
-  constructor(message: string, public status: number) {
+  constructor(
+    message: string,
+    public status: number
+  ) {
     super(message);
   }
 }
@@ -31,10 +34,7 @@ function shouldRetry(error: unknown): boolean {
   return error.status === 429 || error.status >= 500;
 }
 
-export function useApi<T>(
-  url: string,
-  options?: UseApiOptions
-): ApiState<T> {
+export function useApi<T>(url: string, options?: UseApiOptions): ApiState<T> {
   const { retries, retryDelay } = { ...defaultOptions, ...options };
   const [data, setData] = React.useState<T | null>(null);
   const [error, setError] = React.useState<string | null>(null);
@@ -67,7 +67,8 @@ export function useApi<T>(
               if (!cancelled) setError(e instanceof Error ? e.message : 'Unknown error');
               return;
             }
-            if (!cancelled) await new Promise((r) => setTimeout(r, retryDelay * 2 ** (attempt - 1)));
+            if (!cancelled)
+              await new Promise((r) => setTimeout(r, retryDelay * 2 ** (attempt - 1)));
           }
         }
       } finally {

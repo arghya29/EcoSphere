@@ -31,17 +31,14 @@ export async function POST(req: NextRequest) {
     const MAX_ERRORS = 20;
     const issues = parsed.error.issues;
     const messages = issues.slice(0, MAX_ERRORS).map((issue) => issue.message);
-    
+
     if (issues.length > MAX_ERRORS) {
       messages.push(`...and ${issues.length - MAX_ERRORS} more validation error(s)`);
     }
-    
+
     const allErrors = messages.join('; ');
 
-    return respond(
-      { success: false, error: allErrors || 'Invalid upload payload' },
-      400
-    );
+    return respond({ success: false, error: allErrors || 'Invalid upload payload' }, 400);
   }
 
   if (parsed.data.kind === 'suppliers') {
@@ -124,9 +121,18 @@ export async function POST(req: NextRequest) {
   ]);
 
   const unauthorized = [
-    ...findUnauthorizedIds(facilityIds, ownedFacilities.map((f: { id: string }) => f.id)).map((id) => `facility ${id}`),
-    ...findUnauthorizedIds(routeIds, ownedRoutes.map((r: { id: string }) => r.id)).map((id) => `route ${id}`),
-    ...findUnauthorizedIds(supplierIds, ownedSuppliers.map((s: { id: string }) => s.id)).map((id) => `supplier ${id}`),
+    ...findUnauthorizedIds(
+      facilityIds,
+      ownedFacilities.map((f: { id: string }) => f.id)
+    ).map((id) => `facility ${id}`),
+    ...findUnauthorizedIds(
+      routeIds,
+      ownedRoutes.map((r: { id: string }) => r.id)
+    ).map((id) => `route ${id}`),
+    ...findUnauthorizedIds(
+      supplierIds,
+      ownedSuppliers.map((s: { id: string }) => s.id)
+    ).map((id) => `supplier ${id}`),
   ];
   if (unauthorized.length > 0) {
     return respond(

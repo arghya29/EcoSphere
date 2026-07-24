@@ -12,6 +12,10 @@ const MapView = dynamic(() => import('./map-view').then((m) => m.MapView), {
   ),
 });
 
-export function MapViewClient(props: { suppliers: SupplierRecord[]; facilities: FacilityRecord[]; routes: RouteRecord[] }) {
+export function MapViewClient(props: {
+  suppliers: SupplierRecord[];
+  facilities: FacilityRecord[];
+  routes: RouteRecord[];
+}) {
   return <MapView {...props} />;
 }

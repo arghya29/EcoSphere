@@ -24,12 +24,7 @@ interface FactorRowProps {
   onOverride?: (factor: FactorItem) => void;
 }
 
-export function FactorRow({
-  factor,
-  onDelete,
-  onEdit,
-  onOverride,
-}: FactorRowProps) {
+export function FactorRow({ factor, onDelete, onEdit, onOverride }: FactorRowProps) {
   const scopeColors = {
     SCOPE_1: 'bg-scope1 text-white border-transparent',
     SCOPE_2: 'bg-scope2 text-white border-transparent',
@@ -37,19 +32,22 @@ export function FactorRow({
   };
 
   return (
-    <div className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:shadow-sm bg-card transition-shadow gap-3 ${
-      factor.isCustom ? 'border-primary/30 bg-primary/5' : ''
-    }`}>
+    <div
+      className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:shadow-sm bg-card transition-shadow gap-3 ${
+        factor.isCustom ? 'border-primary/30 bg-primary/5' : ''
+      }`}
+    >
       <div className="space-y-1.5 min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-semibold text-sm truncate">{factor.category}</span>
-          
-          <Badge className={scopeColors[factor.scope]}>
-            {factor.scope.replace('_', ' ')}
-          </Badge>
+
+          <Badge className={scopeColors[factor.scope]}>{factor.scope.replace('_', ' ')}</Badge>
 
           {factor.isCustom ? (
-            <Badge variant="outline" className="border-primary text-primary bg-primary/10 flex items-center gap-1">
+            <Badge
+              variant="outline"
+              className="border-primary text-primary bg-primary/10 flex items-center gap-1"
+            >
               <UserCheck className="h-3 w-3" />
               Custom
             </Badge>
@@ -61,7 +59,10 @@ export function FactorRow({
           )}
 
           {factor.isOverridden && (
-            <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center gap-1 text-[10px]">
+            <Badge
+              variant="outline"
+              className="border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center gap-1 text-[10px]"
+            >
               Overridden
             </Badge>
           )}
@@ -70,7 +71,9 @@ export function FactorRow({
         <div className="text-xs text-muted-foreground space-y-0.5">
           <p>
             Value:{' '}
-            <span className={`font-semibold ${factor.isOverridden ? 'line-through text-muted-foreground/70' : 'text-foreground'}`}>
+            <span
+              className={`font-semibold ${factor.isOverridden ? 'line-through text-muted-foreground/70' : 'text-foreground'}`}
+            >
               {factor.value}
             </span>{' '}
             kg CO₂e / {factor.unit}
@@ -80,7 +83,8 @@ export function FactorRow({
           {factor.isOverridden && factor.overrideFactor && (
             <p className="text-primary font-medium flex items-center gap-1">
               <CornerUpRight className="h-3.5 w-3.5" />
-              Active Custom Override: {factor.overrideFactor.value} kg CO₂e / {factor.overrideFactor.unit}
+              Active Custom Override: {factor.overrideFactor.value} kg CO₂e /{' '}
+              {factor.overrideFactor.unit}
               {factor.overrideFactor.source && ` (${factor.overrideFactor.source})`}
             </p>
           )}
@@ -120,7 +124,11 @@ export function FactorRow({
             <Button
               variant={factor.isOverridden ? 'outline' : 'default'}
               size="sm"
-              onClick={() => onOverride(factor.isOverridden && factor.overrideFactor ? factor.overrideFactor : factor)}
+              onClick={() =>
+                onOverride(
+                  factor.isOverridden && factor.overrideFactor ? factor.overrideFactor : factor
+                )
+              }
               className="h-8 px-2.5 text-xs flex items-center gap-1"
             >
               <CornerUpRight className="h-3.5 w-3.5" />

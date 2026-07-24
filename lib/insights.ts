@@ -90,7 +90,8 @@ export function generateInsights(params: {
       id: 'scope2-share',
       kind: 'breakdown',
       text: `Purchased electricity (Scope 2) makes up ${pct}% of your emissions.`,
-      detail: 'Exploring renewable energy procurement or a green tariff could meaningfully cut this.',
+      detail:
+        'Exploring renewable energy procurement or a green tariff could meaningfully cut this.',
     });
   }
 
@@ -108,7 +109,8 @@ export function generateInsights(params: {
         id: `anomaly-${outlier.id}`,
         kind: 'anomaly',
         text: `${outlier.name} emits over 3x the average of your other facilities.`,
-        detail: 'Worth checking for data entry errors, or genuine inefficiency worth investigating.',
+        detail:
+          'Worth checking for data entry errors, or genuine inefficiency worth investigating.',
       });
     }
   }

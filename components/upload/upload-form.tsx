@@ -1,7 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { parseFile, validateColumns, validateRows, type ParsedFile, type UploadSchemaKind } from '@/lib/csv-parser';
+import {
+  parseFile,
+  validateColumns,
+  validateRows,
+  type ParsedFile,
+  type UploadSchemaKind,
+} from '@/lib/csv-parser';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ProgressSteps } from '@/components/ui/progress-bar';
@@ -11,7 +17,10 @@ import { ValidationErrorList } from '@/components/ui/validation-error-list';
 import { cn } from '@/lib/utils';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-const SCHEMA_LABELS: Record<UploadSchemaKind, { title: string; description: string; example: string }> = {
+const SCHEMA_LABELS: Record<
+  UploadSchemaKind,
+  { title: string; description: string; example: string }
+> = {
   suppliers: {
     title: 'Suppliers',
     description: 'name, location, category, latitude, longitude',
@@ -31,7 +40,13 @@ const SCHEMA_LABELS: Record<UploadSchemaKind, { title: string; description: stri
 
 const UPLOAD_STEPS = ['Select file', 'Review & validate', 'Confirm import'];
 
-export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUploaded?: () => void }) {
+export function UploadForm({
+  kind,
+  onUploaded,
+}: {
+  kind: UploadSchemaKind;
+  onUploaded?: () => void;
+}) {
   const { toast } = useToast();
   const [parsed, setParsed] = React.useState<ParsedFile | null>(null);
   const [missingColumns, setMissingColumns] = React.useState<string[]>([]);
@@ -60,7 +75,11 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
       setRowErrors(errors);
       setStep(missing.length === 0 && errors.length === 0 ? 1 : 0);
     } catch (err) {
-      toast({ title: 'Could not read file', description: 'Check that it is a valid CSV or Excel file.', variant: 'destructive' });
+      toast({
+        title: 'Could not read file',
+        description: 'Check that it is a valid CSV or Excel file.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -109,7 +128,10 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
         throw new Error(json.error ?? 'Upload failed');
       }
 
-      toast({ title: 'Upload complete', description: `${json.data.length} ${label.title.toLowerCase()} imported.` });
+      toast({
+        title: 'Upload complete',
+        description: `${json.data.length} ${label.title.toLowerCase()} imported.`,
+      });
       setParsed(null);
       setStep(0);
       onUploaded?.();
@@ -153,8 +175,15 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
             )}
           >
             <UploadCloud className="h-7 w-7 text-muted-foreground" aria-hidden="true" />
-            <p className="text-sm text-muted-foreground">Drag and drop a CSV or Excel file here, or</p>
-            <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()}>
+            <p className="text-sm text-muted-foreground">
+              Drag and drop a CSV or Excel file here, or
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => inputRef.current?.click()}
+            >
               Choose file
             </Button>
             <input
@@ -174,7 +203,10 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
         {parsed && step >= 1 && (
           <div className="flex flex-col gap-3" aria-live="polite" aria-atomic="true">
             {missingColumns.length > 0 && (
-              <div role="alert" className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+              <div
+                role="alert"
+                className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+              >
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                 <div>
                   <p className="font-medium">Missing required columns</p>
@@ -184,9 +216,7 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
               </div>
             )}
 
-            {rowErrors.length > 0 && (
-              <ValidationErrorList errors={rowErrors} />
-            )}
+            {rowErrors.length > 0 && <ValidationErrorList errors={rowErrors} />}
 
             {missingColumns.length === 0 && rowErrors.length === 0 && (
               <div className="flex items-start gap-2 rounded-md border border-green-500/40 bg-green-500/5 p-3 text-sm text-green-600">
@@ -202,27 +232,45 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
                   {parsed.fileName} &mdash; {parsed.rowCount} rows detected. Data preview:
                 </div>
 
-                <div ref={parentRef} className="overflow-auto max-h-[400px] rounded-md border border-border scrollbar-thin relative">
+                <div
+                  ref={parentRef}
+                  className="overflow-auto max-h-[400px] rounded-md border border-border scrollbar-thin relative"
+                >
                   <table className="w-full text-left text-xs">
                     <thead className="bg-muted sticky top-0 z-10 shadow-[0_1px_3px_0_rgb(0,0,0,0.1)]">
                       <tr>
                         {parsed.headers.map((h) => (
-                          <th key={h} scope="col" className="whitespace-nowrap px-3 py-2 font-medium">
+                          <th
+                            key={h}
+                            scope="col"
+                            className="whitespace-nowrap px-3 py-2 font-medium"
+                          >
                             {h}
                           </th>
                         ))}
                       </tr>
                     </thead>
                     <tbody className="divide-y">
-                      {rowVirtualizer.getVirtualItems().length > 0 && rowVirtualizer.getVirtualItems()[0]?.start > 0 && (
-                        <tr>
-                          <td style={{ height: `${rowVirtualizer.getVirtualItems()[0]?.start}px` }} colSpan={parsed.headers.length} />
-                        </tr>
-                      )}
+                      {rowVirtualizer.getVirtualItems().length > 0 &&
+                        rowVirtualizer.getVirtualItems()[0]?.start > 0 && (
+                          <tr>
+                            <td
+                              style={{ height: `${rowVirtualizer.getVirtualItems()[0]?.start}px` }}
+                              colSpan={parsed.headers.length}
+                            />
+                          </tr>
+                        )}
                       {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                         const row = parsed.rows[virtualRow.index];
                         return (
-                          <tr key={virtualRow.index} data-index={virtualRow.index} ref={(node) => { if (node) rowVirtualizer.measureElement(node); }} className="border-t border-border hover:bg-muted/30">
+                          <tr
+                            key={virtualRow.index}
+                            data-index={virtualRow.index}
+                            ref={(node) => {
+                              if (node) rowVirtualizer.measureElement(node);
+                            }}
+                            className="border-t border-border hover:bg-muted/30"
+                          >
                             {parsed.headers.map((h) => (
                               <td key={h} className="whitespace-nowrap px-3 py-2">
                                 {row[h]}
@@ -231,11 +279,21 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
                           </tr>
                         );
                       })}
-                      {rowVirtualizer.getVirtualItems().length > 0 && rowVirtualizer.getTotalSize() - (rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]?.end || 0) > 0 && (
-                        <tr>
-                          <td style={{ height: `${rowVirtualizer.getTotalSize() - (rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]?.end || 0)}px` }} colSpan={parsed.headers.length} />
-                        </tr>
-                      )}
+                      {rowVirtualizer.getVirtualItems().length > 0 &&
+                        rowVirtualizer.getTotalSize() -
+                          (rowVirtualizer.getVirtualItems()[
+                            rowVirtualizer.getVirtualItems().length - 1
+                          ]?.end || 0) >
+                          0 && (
+                          <tr>
+                            <td
+                              style={{
+                                height: `${rowVirtualizer.getTotalSize() - (rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]?.end || 0)}px`,
+                              }}
+                              colSpan={parsed.headers.length}
+                            />
+                          </tr>
+                        )}
                     </tbody>
                   </table>
                 </div>
@@ -243,7 +301,14 @@ export function UploadForm({ kind, onUploaded }: { kind: UploadSchemaKind; onUpl
             )}
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={() => { setParsed(null); setStep(0); }}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setParsed(null);
+                  setStep(0);
+                }}
+              >
                 Cancel
               </Button>
               <Button

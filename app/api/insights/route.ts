@@ -9,7 +9,10 @@ export async function GET() {
   if (isErrorResponse(ctx)) return ctx;
 
   const [activities, suppliers, facilities, routes] = await Promise.all([
-    prisma.activity.findMany({ where: { organizationId: ctx.organizationId }, include: { factor: true } }),
+    prisma.activity.findMany({
+      where: { organizationId: ctx.organizationId },
+      include: { factor: true },
+    }),
     prisma.supplier.findMany({ where: { organizationId: ctx.organizationId } }),
     prisma.facility.findMany({ where: { organizationId: ctx.organizationId } }),
     prisma.route.findMany({ where: { organizationId: ctx.organizationId } }),

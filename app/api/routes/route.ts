@@ -74,8 +74,14 @@ export async function POST(req: NextRequest) {
   ]);
 
   const unauthorized = [
-    ...findUnauthorizedIds(supplierIds, ownedSuppliers.map((s: { id: string }) => s.id)).map((id) => `supplier ${id}`),
-    ...findUnauthorizedIds(facilityIds, ownedFacilities.map((f: { id: string }) => f.id)).map((id) => `facility ${id}`),
+    ...findUnauthorizedIds(
+      supplierIds,
+      ownedSuppliers.map((s: { id: string }) => s.id)
+    ).map((id) => `supplier ${id}`),
+    ...findUnauthorizedIds(
+      facilityIds,
+      ownedFacilities.map((f: { id: string }) => f.id)
+    ).map((id) => `facility ${id}`),
   ];
   if (unauthorized.length > 0) {
     return NextResponse.json(

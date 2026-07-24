@@ -45,9 +45,7 @@ export default function LandingPage() {
             <h1 className="mt-5 text-balance font-display text-4xl font-semibold tracking-tight sm:text-5xl">
               {t('title')}
             </h1>
-            <p className="mt-4 text-balance text-lg text-muted-foreground">
-              {t('subtitle')}
-            </p>
+            <p className="mt-4 text-balance text-lg text-muted-foreground">{t('subtitle')}</p>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
               <Button asChild size="lg">
                 <Link href="/signup">{t('startMapping')}</Link>
@@ -61,17 +59,19 @@ export default function LandingPage() {
 
         <section id="demo" className="container pb-16">
           <div className="mx-auto max-w-4xl">
-            <h2 className="mb-1 text-center font-display text-2xl font-semibold">{t('demoTitle')}</h2>
-            <p className="mb-6 text-center text-sm text-muted-foreground">
-              {t('demoSubtitle')}
-            </p>
+            <h2 className="mb-1 text-center font-display text-2xl font-semibold">
+              {t('demoTitle')}
+            </h2>
+            <p className="mb-6 text-center text-sm text-muted-foreground">{t('demoSubtitle')}</p>
             <InteractiveDemo />
           </div>
         </section>
 
         <section className="border-t border-border bg-muted/40 py-16">
           <div className="container">
-            <h2 className="mb-10 text-center font-display text-2xl font-semibold">{t('howItWorks')}</h2>
+            <h2 className="mb-10 text-center font-display text-2xl font-semibold">
+              {t('howItWorks')}
+            </h2>
             <div className="grid gap-6 sm:grid-cols-3">
               <FeatureCard
                 icon={<Plug className="h-5 w-5" aria-hidden="true" />}
@@ -98,11 +98,18 @@ export default function LandingPage() {
               {t('builtOn')}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm font-medium text-muted-foreground">
-              {['Next.js', 'React Flow', 'Leaflet', 'Recharts', 'Tailwind CSS', 'NextAuth.js', 'Prisma', 'Neon'].map(
-                (name) => (
-                  <span key={name}>{name}</span>
-                )
-              )}
+              {[
+                'Next.js',
+                'React Flow',
+                'Leaflet',
+                'Recharts',
+                'Tailwind CSS',
+                'NextAuth.js',
+                'Prisma',
+                'Neon',
+              ].map((name) => (
+                <span key={name}>{name}</span>
+              ))}
             </div>
           </div>
         </section>
@@ -112,7 +119,12 @@ export default function LandingPage() {
         <div className="container flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground sm:flex-row">
           <p>{t('footerRights', { year: new Date().getFullYear() })}</p>
           <div className="flex gap-4">
-            <a href="https://github.com/arghya29/EcoSphere" target="_blank" rel="noreferrer" className="hover:text-foreground">
+            <a
+              href="https://github.com/arghya29/EcoSphere"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-foreground"
+            >
               GitHub
             </a>
             <Link href="/login" className="hover:text-foreground">
@@ -125,7 +137,15 @@ export default function LandingPage() {
   );
 }
 
-function FeatureCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
+function FeatureCard({
+  icon,
+  title,
+  text,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+}) {
   return (
     <div className="rounded-lg border border-border bg-card p-6">
       <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">

@@ -24,4 +24,3 @@ describe('Activity Pagination Calculations', () => {
     expect(isStartValid && isEndValid).toBe(true);
   });
 });
-

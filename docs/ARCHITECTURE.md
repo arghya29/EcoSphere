@@ -6,18 +6,18 @@ EcoSphere is a supply-chain carbon intelligence platform built with Next.js 14 (
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 14 (App Router), TypeScript |
-| Styling | Tailwind CSS, Radix UI primitives, class-variance-authority |
-| Database | PostgreSQL (Neon) via Prisma ORM |
-| Authentication | NextAuth.js v4 (Credentials + Google OAuth), JWT strategy |
-| Charts | Recharts |
-| Graph Visualization | @xyflow/react (React Flow) |
-| Maps | Leaflet + react-leaflet (OpenStreetMap, no API key) |
-| CSV/Excel | PapaParse, SheetJS (client-side) |
-| PDF Reports | jsPDF + jspdf-autotable (client-side) |
-| Testing | Jest (unit), Playwright (E2E) |
+| Layer               | Technology                                                  |
+| ------------------- | ----------------------------------------------------------- |
+| Framework           | Next.js 14 (App Router), TypeScript                         |
+| Styling             | Tailwind CSS, Radix UI primitives, class-variance-authority |
+| Database            | PostgreSQL (Neon) via Prisma ORM                            |
+| Authentication      | NextAuth.js v4 (Credentials + Google OAuth), JWT strategy   |
+| Charts              | Recharts                                                    |
+| Graph Visualization | @xyflow/react (React Flow)                                  |
+| Maps                | Leaflet + react-leaflet (OpenStreetMap, no API key)         |
+| CSV/Excel           | PapaParse, SheetJS (client-side)                            |
+| PDF Reports         | jsPDF + jspdf-autotable (client-side)                       |
+| Testing             | Jest (unit), Playwright (E2E)                               |
 
 ## Directory Structure
 

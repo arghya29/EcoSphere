@@ -9,7 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useToast } from '@/components/ui/ToastProvider';
 import { EntityForm, Field, ManageList } from '@/components/builder';
@@ -35,8 +41,10 @@ const asNullableNumber = (value: unknown): number | null =>
   value === undefined || value === null || value === '' ? null : Number(value);
 
 export default function BuilderPage() {
-  const { data: apiSuppliers, refetch: refetchSuppliers } = useApi<SupplierRecord[]>('/api/suppliers');
-  const { data: apiFacilities, refetch: refetchFacilities } = useApi<FacilityRecord[]>('/api/facilities');
+  const { data: apiSuppliers, refetch: refetchSuppliers } =
+    useApi<SupplierRecord[]>('/api/suppliers');
+  const { data: apiFacilities, refetch: refetchFacilities } =
+    useApi<FacilityRecord[]>('/api/facilities');
   const { data: apiRoutes, refetch: refetchRoutes } = useApi<RouteRecord[]>('/api/routes');
 
   const [suppliers, setSuppliers] = React.useState<SupplierRecord[]>([]);
@@ -137,7 +145,9 @@ export default function BuilderPage() {
 
     setFacilities((prev) => prev.filter((f) => f.id !== facilityToDelete.id));
     setRoutes((prev) =>
-      prev.filter((r) => r.destinationId !== facilityToDelete.id && r.originFacilityId !== facilityToDelete.id)
+      prev.filter(
+        (r) => r.destinationId !== facilityToDelete.id && r.originFacilityId !== facilityToDelete.id
+      )
     );
 
     return { deletedFacility, deletedRoutes };
@@ -210,7 +220,9 @@ export default function BuilderPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display text-2xl font-semibold">Supply-Chain Builder</h1>
-        <p className="text-sm text-muted-foreground">Add nodes and routes one at a time, and watch the graph update.</p>
+        <p className="text-sm text-muted-foreground">
+          Add nodes and routes one at a time, and watch the graph update.
+        </p>
       </div>
 
       <Card>
@@ -406,8 +418,16 @@ function AddRouteForm({
         <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label>Origin type</Label>
-            <Select value={originType} onValueChange={(v) => { setOriginType(v as 'supplier' | 'facility'); setOriginId(''); }}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select
+              value={originType}
+              onValueChange={(v) => {
+                setOriginType(v as 'supplier' | 'facility');
+                setOriginId('');
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="supplier">Supplier</SelectItem>
                 <SelectItem value="facility">Facility</SelectItem>
@@ -417,10 +437,14 @@ function AddRouteForm({
           <div className="flex flex-col gap-1.5">
             <Label>Origin</Label>
             <Select value={originId} onValueChange={setOriginId}>
-              <SelectTrigger><SelectValue placeholder="Select origin" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Select origin" />
+              </SelectTrigger>
               <SelectContent>
                 {(originType === 'supplier' ? suppliers : facilities).map((item) => (
-                  <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -428,10 +452,14 @@ function AddRouteForm({
           <div className="flex flex-col gap-1.5">
             <Label>Destination facility</Label>
             <Select value={destinationId} onValueChange={setDestinationId}>
-              <SelectTrigger><SelectValue placeholder="Select destination" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Select destination" />
+              </SelectTrigger>
               <SelectContent>
                 {facilities.map((f) => (
-                  <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                  <SelectItem key={f.id} value={f.id}>
+                    {f.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -439,7 +467,9 @@ function AddRouteForm({
           <div className="flex flex-col gap-1.5">
             <Label>Transport mode</Label>
             <Select value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="TRUCK">Truck</SelectItem>
                 <SelectItem value="RAIL">Rail</SelectItem>

@@ -2,11 +2,7 @@ import { SkeletonTitle, SkeletonCard, SkeletonChart } from '@/components/ui/skel
 
 export default function DashboardLoading() {
   return (
-    <output
-      className="flex flex-col gap-6 p-6"
-      aria-live="polite"
-      aria-label="Loading dashboard"
-    >
+    <output className="flex flex-col gap-6 p-6" aria-live="polite" aria-label="Loading dashboard">
       <SkeletonTitle />
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

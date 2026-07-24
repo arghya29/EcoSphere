@@ -79,7 +79,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
       return NextResponse.json(
         {
           success: false,
-          error: 'This facility is still used by a route. Remove it first, then delete the facility.',
+          error:
+            'This facility is still used by a route. Remove it first, then delete the facility.',
         },
         { status: 409 }
       );

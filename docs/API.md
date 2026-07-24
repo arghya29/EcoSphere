@@ -5,7 +5,7 @@ All API routes are scoped to the authenticated user's organization. Responses fo
 ```json
 {
   "success": true,
-  "data": { /* ... */ },
+  "data": {/* ... */},
   "error": "Error message if success is false"
 }
 ```
@@ -21,6 +21,7 @@ NextAuth.js catch-all handler. Handles sign-in, sign-out, and session retrieval.
 Create a new user account and organization.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -44,11 +45,10 @@ List all suppliers for the current organization.
 Batch-create suppliers.
 
 **Request Body:**
+
 ```json
 {
-  "suppliers": [
-    { "name": "Supplier A", "location": "New York", "category": "Raw Materials" }
-  ]
+  "suppliers": [{ "name": "Supplier A", "location": "New York", "category": "Raw Materials" }]
 }
 ```
 
@@ -67,11 +67,10 @@ List all facilities for the current organization.
 Batch-create facilities.
 
 **Request Body:**
+
 ```json
 {
-  "facilities": [
-    { "name": "Warehouse 1", "type": "Storage", "location": "Chicago" }
-  ]
+  "facilities": [{ "name": "Warehouse 1", "type": "Storage", "location": "Chicago" }]
 }
 ```
 
@@ -90,6 +89,7 @@ List all transport routes.
 Batch-create routes.
 
 **Request Body:**
+
 ```json
 {
   "routes": [
@@ -120,6 +120,7 @@ List all activity records.
 Batch-create activity records with automatic emissions calculation.
 
 **Request Body:**
+
 ```json
 {
   "activities": [
@@ -141,10 +142,11 @@ Batch-create activity records with automatic emissions calculation.
 Bulk import suppliers, facilities, or activity data from CSV/Excel content.
 
 **Request Body:**
+
 ```json
 {
   "kind": "suppliers | facilities | activities",
-  "rows": [ /* parsed rows */ ]
+  "rows": [/* parsed rows */]
 }
 ```
 
@@ -155,6 +157,7 @@ Bulk import suppliers, facilities, or activity data from CSV/Excel content.
 Get the organization's carbon footprint summary.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -180,6 +183,7 @@ Get the organization's carbon footprint summary.
 Run the rule-based insight engine and return observations.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -207,6 +211,7 @@ List report generation history.
 Record a report generation event.
 
 **Request Body:**
+
 ```json
 {
   "format": "PDF | CSV | JSON"
@@ -217,12 +222,12 @@ Record a report generation event.
 
 All endpoints return appropriate HTTP status codes:
 
-| Status | Meaning |
-|---|---|
-| 200 | Success |
-| 400 | Validation error (invalid input) |
-| 401 | Not authenticated |
-| 404 | Organization not found or entity not found |
-| 500 | Internal server error |
+| Status | Meaning                                    |
+| ------ | ------------------------------------------ |
+| 200    | Success                                    |
+| 400    | Validation error (invalid input)           |
+| 401    | Not authenticated                          |
+| 404    | Organization not found or entity not found |
+| 500    | Internal server error                      |
 
 Error responses include a user-friendly message in the `error` field.

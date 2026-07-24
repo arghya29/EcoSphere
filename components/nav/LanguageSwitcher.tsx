@@ -19,11 +19,11 @@ export function LanguageSwitcher() {
 
   const switchLanguage = (newLocale: string) => {
     if (newLocale === locale) return;
-    
+
     // Replace the current locale in the pathname
     const pathWithoutLocale = pathname.replace(`/${locale}`, '');
     const newPath = `/${newLocale}${pathWithoutLocale === '' ? '' : pathWithoutLocale}`;
-    
+
     router.replace(newPath);
     // Refresh to apply language change server-side
     router.refresh();
@@ -38,10 +38,16 @@ export function LanguageSwitcher() {
         <Globe className="h-5 w-5 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => switchLanguage('en')} className={locale === 'en' ? 'font-bold bg-muted' : ''}>
+        <DropdownMenuItem
+          onClick={() => switchLanguage('en')}
+          className={locale === 'en' ? 'font-bold bg-muted' : ''}
+        >
           {t('en')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => switchLanguage('es')} className={locale === 'es' ? 'font-bold bg-muted' : ''}>
+        <DropdownMenuItem
+          onClick={() => switchLanguage('es')}
+          className={locale === 'es' ? 'font-bold bg-muted' : ''}
+        >
           {t('es')}
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -53,9 +53,7 @@ export function exportActivitiesAsCsv(activities: ActivityRecord[]): void {
     a.emissionsKg.toFixed(4),
   ]);
 
-  const csvContent = [headers, ...rows]
-    .map((row) => row.map(escapeCsvCell).join(','))
-    .join('\n');
+  const csvContent = [headers, ...rows].map((row) => row.map(escapeCsvCell).join(',')).join('\n');
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
