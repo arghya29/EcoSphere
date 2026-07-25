@@ -66,8 +66,7 @@ export interface ActivityRecord {
 }
 
 export type ApiResponse<T> =
-  | { success: true; data: T; error?: never }
-  | { success: false; data?: never; error?: string };
+  { success: true; data: T; error?: never } | { success: false; data?: never; error?: string };
 
 export interface MutationState<T> {
   data: T | null;

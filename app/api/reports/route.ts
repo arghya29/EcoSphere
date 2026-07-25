@@ -7,12 +7,14 @@ import { validateReportOptions } from '@/lib/report-generator';
 
 const reportSchema = z.object({
   format: z.enum(['PDF', 'CSV', 'JSON']),
-  options: z.object({
-    title: z.string().optional(),
-    themeColor: z.string().optional(),
-    includeSummary: z.boolean().optional(),
-    includeDetails: z.boolean().optional(),
-  }).optional(),
+  options: z
+    .object({
+      title: z.string().optional(),
+      themeColor: z.string().optional(),
+      includeSummary: z.boolean().optional(),
+      includeDetails: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export async function GET() {
@@ -43,7 +45,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (parsed.data.options && !validateReportOptions(parsed.data.options)) {
-      return NextResponse.json({ success: false, error: 'Invalid custom options' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'Invalid custom options' },
+        { status: 400 }
+      );
     }
 
     const report = await prisma.report.create({

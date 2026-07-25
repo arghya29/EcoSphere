@@ -59,7 +59,10 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="items-center text-center">
-          <Link href="/" className="mb-2 flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+          <Link
+            href="/"
+            className="mb-2 flex items-center gap-2 font-display text-lg font-semibold text-foreground"
+          >
             <Ship className="h-5 w-5" aria-hidden="true" />
             EcoSphere
           </Link>
@@ -70,19 +73,34 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="name">Your name</Label>
-              <Input id="name" autoComplete="name" {...register('name')} aria-invalid={!!errors.name} />
+              <Input
+                id="name"
+                autoComplete="name"
+                {...register('name')}
+                aria-invalid={!!errors.name}
+              />
               {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="organizationName">Organization name</Label>
-              <Input id="organizationName" {...register('organizationName')} aria-invalid={!!errors.organizationName} />
+              <Input
+                id="organizationName"
+                {...register('organizationName')}
+                aria-invalid={!!errors.organizationName}
+              />
               {errors.organizationName && (
                 <p className="text-xs text-destructive">{errors.organizationName.message}</p>
               )}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" autoComplete="email" {...register('email')} aria-invalid={!!errors.email} />
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                {...register('email')}
+                aria-invalid={!!errors.email}
+              />
               {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
             </div>
             <div className="flex flex-col gap-1.5">
@@ -94,7 +112,9 @@ export default function SignupPage() {
                 {...register('password')}
                 aria-invalid={!!errors.password}
               />
-              {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
+              {errors.password && (
+                <p className="text-xs text-destructive">{errors.password.message}</p>
+              )}
             </div>
             {serverError && (
               <p role="alert" className="text-sm text-destructive">
@@ -123,7 +143,10 @@ export default function SignupPage() {
 
           <p className="mt-5 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
+            <Link
+              href="/login"
+              className="font-medium text-foreground underline-offset-4 hover:underline"
+            >
               Log in
             </Link>
           </p>

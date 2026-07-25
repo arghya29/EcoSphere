@@ -86,7 +86,10 @@ registry.registerPath({
   description: 'Bulk upload suppliers, facilities, or activities',
   request: {
     headers: z.object({
-      'idempotency-key': z.string().optional().openapi({ description: 'Optional unique key to ensure request idempotency' }),
+      'idempotency-key': z
+        .string()
+        .optional()
+        .openapi({ description: 'Optional unique key to ensure request idempotency' }),
     }),
     body: {
       content: {
@@ -148,7 +151,8 @@ registry.registerPath({
   method: 'delete',
   path: '/api/suppliers/{id}',
   summary: 'Delete Supplier',
-  description: 'Remove a supplier from the organization. Will block if supplier is still referenced by any routes.',
+  description:
+    'Remove a supplier from the organization. Will block if supplier is still referenced by any routes.',
   security: [{ cookieAuth: [] }],
   request: {
     params: z.object({
@@ -288,13 +292,33 @@ registry.registerPath({
   security: [{ cookieAuth: [] }],
   request: {
     query: z.object({
-      limit: z.coerce.number().optional().openapi({ description: 'Number of records to fetch (max 100, default 10)' }),
+      limit: z.coerce
+        .number()
+        .optional()
+        .openapi({ description: 'Number of records to fetch (max 100, default 10)' }),
       page: z.coerce.number().optional().openapi({ description: 'Page number for pagination' }),
-      offset: z.coerce.number().optional().openapi({ description: 'Offset for skip-based pagination' }),
-      type: z.string().optional().openapi({ description: 'Filter by activity type (FUEL, ELECTRICITY, FREIGHT, OTHER, ALL)' }),
-      startDate: z.string().optional().openapi({ description: 'Filter records starting from date (YYYY-MM-DD)' }),
-      endDate: z.string().optional().openapi({ description: 'Filter records up to date (YYYY-MM-DD)' }),
-      sortBy: z.string().optional().openapi({ description: 'Sort by field (dateRecorded, emissionsKg, amount, type)' }),
+      offset: z.coerce
+        .number()
+        .optional()
+        .openapi({ description: 'Offset for skip-based pagination' }),
+      type: z
+        .string()
+        .optional()
+        .openapi({
+          description: 'Filter by activity type (FUEL, ELECTRICITY, FREIGHT, OTHER, ALL)',
+        }),
+      startDate: z
+        .string()
+        .optional()
+        .openapi({ description: 'Filter records starting from date (YYYY-MM-DD)' }),
+      endDate: z
+        .string()
+        .optional()
+        .openapi({ description: 'Filter records up to date (YYYY-MM-DD)' }),
+      sortBy: z
+        .string()
+        .optional()
+        .openapi({ description: 'Sort by field (dateRecorded, emissionsKg, amount, type)' }),
       sortOrder: z.enum(['asc', 'desc']).optional().openapi({ description: 'Sort direction' }),
     }),
   },
@@ -338,7 +362,10 @@ registry.registerPath({
       content: {
         'application/json': {
           schema: z.object({
-            ids: z.array(z.string()).min(1).openapi({ description: 'Array of activity IDs to delete' }),
+            ids: z
+              .array(z.string())
+              .min(1)
+              .openapi({ description: 'Array of activity IDs to delete' }),
           }),
         },
       },
@@ -359,7 +386,8 @@ export function generateOpenApiSpec() {
     info: {
       title: 'EcoSphere API Documentation',
       version: '1.0.0',
-      description: 'API contract and endpoints for the EcoSphere Supply-Chain Carbon Intelligence Platform.',
+      description:
+        'API contract and endpoints for the EcoSphere Supply-Chain Carbon Intelligence Platform.',
     },
     servers: [
       {

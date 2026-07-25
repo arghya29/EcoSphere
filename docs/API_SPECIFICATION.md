@@ -5,7 +5,9 @@ All API requests must include standard session authentication headers (NextAuth)
 ## Endpoints
 
 ### 1. `GET /api/dashboard`
+
 Returns the footprint summary and historical trend metrics for the organization.
+
 - **Response Format**:
   ```json
   {
@@ -15,9 +17,7 @@ Returns the footprint summary and historical trend metrics for the organization.
       "scope1": 25000,
       "scope2": 40000,
       "scope3": 60000,
-      "monthlyTrend": [
-        { "month": "2025-01", "emissionsKg": 15000 }
-      ],
+      "monthlyTrend": [{ "month": "2025-01", "emissionsKg": 15000 }],
       "topSuppliers": [],
       "topFacilities": []
     }
@@ -25,7 +25,9 @@ Returns the footprint summary and historical trend metrics for the organization.
   ```
 
 ### 2. `POST /api/activities`
+
 Records bulk greenhouse gas activities and computes emissions on-the-fly.
+
 - **Request Format**:
   ```json
   {
@@ -42,4 +44,5 @@ Records bulk greenhouse gas activities and computes emissions on-the-fly.
   ```
 
 ### 3. `GET /api/suppliers`
+
 Lists all active supplier profiles configured under this organization.

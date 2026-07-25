@@ -14,7 +14,13 @@ export interface ToastProps {
   onClose: () => void;
 }
 
-export function Toast({ title, description, variant = 'info', duration = 4000, onClose }: ToastProps) {
+export function Toast({
+  title,
+  description,
+  variant = 'info',
+  duration = 4000,
+  onClose,
+}: ToastProps) {
   const [isMounted, setIsMounted] = React.useState(false);
   const [isExiting, setIsExiting] = React.useState(false);
   const [paused, setPaused] = React.useState(false);
@@ -47,9 +53,11 @@ export function Toast({ title, description, variant = 'info', duration = 4000, o
   };
 
   const variantStyles = {
-    success: 'bg-emerald-50/90 dark:bg-emerald-950/30 border-emerald-500/20 text-emerald-900 dark:text-emerald-200',
+    success:
+      'bg-emerald-50/90 dark:bg-emerald-950/30 border-emerald-500/20 text-emerald-900 dark:text-emerald-200',
     error: 'bg-rose-50/90 dark:bg-rose-950/30 border-rose-500/20 text-rose-900 dark:text-rose-200',
-    warning: 'bg-amber-50/90 dark:bg-amber-950/30 border-amber-500/20 text-amber-900 dark:text-amber-200',
+    warning:
+      'bg-amber-50/90 dark:bg-amber-950/30 border-amber-500/20 text-amber-900 dark:text-amber-200',
     info: 'bg-sky-50/90 dark:bg-sky-950/30 border-sky-500/20 text-sky-900 dark:text-sky-200',
   };
 
@@ -58,7 +66,9 @@ export function Toast({ title, description, variant = 'info', duration = 4000, o
       className={cn(
         'relative flex w-full max-w-md items-start gap-3 rounded-xl border p-4 shadow-lg backdrop-blur-md transition-all duration-300 ease-out transform overflow-hidden',
         variantStyles[variant],
-        isMounted && !isExiting ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-4 scale-95'
+        isMounted && !isExiting
+          ? 'opacity-100 translate-x-0 scale-100'
+          : 'opacity-0 translate-x-4 scale-95'
       )}
       role={variant === 'error' ? 'alert' : 'status'}
       onMouseEnter={() => setPaused(true)}

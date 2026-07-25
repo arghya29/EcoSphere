@@ -29,7 +29,10 @@ export async function POST(request: Request) {
     });
 
     if (!membership) {
-      return NextResponse.json({ success: false, error: 'User is not a member of this organization' }, { status: 403 });
+      return NextResponse.json(
+        { success: false, error: 'User is not a member of this organization' },
+        { status: 403 }
+      );
     }
 
     // Return the updated session structure (which client-side update() will receive and update NextAuth with)

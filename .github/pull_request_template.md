@@ -1,10 +1,13 @@
 ## Description
+
 <!-- What does this PR do? Be specific. -->
 
 ## Related Issue
+
 Closes #<!-- issue number -->
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Documentation update
@@ -12,9 +15,11 @@ Closes #<!-- issue number -->
 - [ ] Tests
 
 ## Screenshots (for UI changes)
+
 <!-- Add before/after screenshots or a screen recording -->
 
 ## Checklist
+
 - [ ] I have read CONTRIBUTING.md
 - [ ] My code follows the existing style
 - [ ] I have run `npm test` and all tests pass

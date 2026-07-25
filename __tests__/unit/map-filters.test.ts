@@ -10,10 +10,7 @@ describe('Map Filters Logic', () => {
   });
 
   it('filters markers by search query', () => {
-    const suppliers = [
-      { name: 'Supplier Alpha' },
-      { name: 'Beta Industry' },
-    ];
+    const suppliers = [{ name: 'Supplier Alpha' }, { name: 'Beta Industry' }];
     const query = 'alpha';
     const filtered = suppliers.filter((s) => s.name.toLowerCase().includes(query));
     expect(filtered.length).toBe(1);

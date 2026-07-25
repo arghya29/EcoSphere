@@ -341,9 +341,7 @@ export function ManageList<T extends { id: string }>({
             if (!open) closeBulkDialog();
           }}
           title={
-            selected.size === 1
-              ? `Delete 1 ${noun}?`
-              : `Delete ${selected.size} ${nounPlural}?`
+            selected.size === 1 ? `Delete 1 ${noun}?` : `Delete ${selected.size} ${nounPlural}?`
           }
           description={bulkConfirmDescription}
           confirmLabel={`Delete ${selected.size === 1 ? `1 ${noun}` : `${selected.size} ${nounPlural}`}`}

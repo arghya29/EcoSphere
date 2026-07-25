@@ -10,14 +10,18 @@ export async function GET(req: NextRequest) {
   if (isErrorResponse(ctx)) return ctx;
 
   const url = new URL(req.url);
-  const limit = Math.max(1, Math.min(100, Number.parseInt(url.searchParams.get('limit') ?? '10', 10) || 10));
+  const limit = Math.max(
+    1,
+    Math.min(100, Number.parseInt(url.searchParams.get('limit') ?? '10', 10) || 10)
+  );
   const offset = Math.max(0, Number.parseInt(url.searchParams.get('offset') ?? '0', 10) || 0);
   const type = url.searchParams.get('type');
   const startDateStr = url.searchParams.get('startDate');
   const endDateStr = url.searchParams.get('endDate');
   const searchQuery = url.searchParams.get('search')?.trim();
   const sortBy = url.searchParams.get('sortBy') ?? 'dateRecorded';
-  const sortOrder = (url.searchParams.get('sortOrder') ?? 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
+  const sortOrder =
+    (url.searchParams.get('sortOrder') ?? 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
   const skip = offset;
   const page = Math.floor(offset / limit) + 1;
 
@@ -77,7 +81,10 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
-    return NextResponse.json({ success: false, error: 'Failed to fetch activities' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch activities' },
+      { status: 500 }
+    );
   }
 }
 
@@ -89,7 +96,10 @@ export async function DELETE(req: NextRequest) {
     const body = await req.json();
     const ids = body.ids;
     if (!Array.isArray(ids) || ids.length === 0) {
-      return NextResponse.json({ success: false, error: 'Invalid or missing activity IDs' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'Invalid or missing activity IDs' },
+        { status: 400 }
+      );
     }
 
     await prisma.activity.deleteMany({
@@ -101,7 +111,10 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Activities deleted' });
   } catch (error) {
-    return NextResponse.json({ success: false, error: 'Failed to delete activities' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete activities' },
+      { status: 500 }
+    );
   }
 }
 
@@ -123,7 +136,9 @@ export async function POST(req: NextRequest) {
   const categories = Array.from(new Set(parsed.data.activities.map((a) => a.factorCategory)));
   const [factors, customFactors] = await Promise.all([
     prisma.emissionFactor.findMany({ where: { category: { in: categories } } }),
-    prisma.customEmissionFactor.findMany({ where: { category: { in: categories }, organizationId: ctx.organizationId } }),
+    prisma.customEmissionFactor.findMany({
+      where: { category: { in: categories }, organizationId: ctx.organizationId },
+    }),
   ]);
   const factorByCategory = new Map<string, { id: string; value: number }>();
   factors.forEach((f) => factorByCategory.set(f.category, f));
@@ -188,9 +203,18 @@ export async function POST(req: NextRequest) {
   ]);
 
   const unauthorized = [
-    ...findUnauthorizedIds(supplierIds, ownedSuppliers.map((s: { id: string }) => s.id)).map((id) => `supplier ${id}`),
-    ...findUnauthorizedIds(facilityIds, ownedFacilities.map((f: { id: string }) => f.id)).map((id) => `facility ${id}`),
-    ...findUnauthorizedIds(routeIds, ownedRoutes.map((r: { id: string }) => r.id)).map((id) => `route ${id}`),
+    ...findUnauthorizedIds(
+      supplierIds,
+      ownedSuppliers.map((s: { id: string }) => s.id)
+    ).map((id) => `supplier ${id}`),
+    ...findUnauthorizedIds(
+      facilityIds,
+      ownedFacilities.map((f: { id: string }) => f.id)
+    ).map((id) => `facility ${id}`),
+    ...findUnauthorizedIds(
+      routeIds,
+      ownedRoutes.map((r: { id: string }) => r.id)
+    ).map((id) => `route ${id}`),
   ];
   if (unauthorized.length > 0) {
     return NextResponse.json(

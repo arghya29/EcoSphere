@@ -5,7 +5,9 @@ const prisma = new PrismaClient();
 
 async function main() {
   if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEMO_SEED !== 'true') {
-    throw new Error('Refusing to run reset-demo.ts against a production environment without ALLOW_DEMO_SEED=true');
+    throw new Error(
+      'Refusing to run reset-demo.ts against a production environment without ALLOW_DEMO_SEED=true'
+    );
   }
 
   console.log('Resetting demo seed dataset…');

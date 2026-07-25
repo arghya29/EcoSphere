@@ -15,16 +15,38 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Pagination } from '@/components/ui/Pagination';
 import { formatKg } from '@/lib/utils';
-import type { DashboardSummary, SupplierRecord, FacilityRecord, RouteRecord, ActivityRecord } from '@/types/api';
-import { Upload, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown, Calendar, Database, RefreshCw, TrendingUp, PieChart as PieIcon, Download, Loader2 } from 'lucide-react';
+import type {
+  DashboardSummary,
+  SupplierRecord,
+  FacilityRecord,
+  RouteRecord,
+  ActivityRecord,
+} from '@/types/api';
+import {
+  Upload,
+  AlertCircle,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Calendar,
+  Database,
+  RefreshCw,
+  TrendingUp,
+  PieChart as PieIcon,
+  Download,
+  Loader2,
+} from 'lucide-react';
 import { ScopeBreakdown } from '@/components/charts/scope-breakdown';
 import { EmissionsChart } from '@/components/charts/emissions-chart';
 import { exportActivitiesAsCsv } from '@/lib/utils/exportCsv';
 import { computeMonthlyChange, computeTrend } from '@/lib/utils/analytics';
 
-
 export default function DashboardPage() {
-  const { data: summary, isLoading: loadingSummary, error: summaryError } = useApi<DashboardSummary>('/api/dashboard');
+  const {
+    data: summary,
+    isLoading: loadingSummary,
+    error: summaryError,
+  } = useApi<DashboardSummary>('/api/dashboard');
   const { data: suppliers } = useApi<SupplierRecord[]>('/api/suppliers');
   const { data: facilities } = useApi<FacilityRecord[]>('/api/facilities');
   const { data: routes } = useApi<RouteRecord[]>('/api/routes');
@@ -40,12 +62,12 @@ export default function DashboardPage() {
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('desc');
 
   const activitiesUrl = `/api/activities?page=${page}&limit=${limit}&startDate=${startDate}&endDate=${endDate}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
-  
-  const { 
-    data: activitiesResponse, 
-    isLoading: loadingActivities, 
+
+  const {
+    data: activitiesResponse,
+    isLoading: loadingActivities,
     error: activitiesError,
-    refetch: refetchActivities 
+    refetch: refetchActivities,
   } = useApi<{
     activities: ActivityRecord[];
     pagination: {
@@ -58,7 +80,12 @@ export default function DashboardPage() {
 
   const hasData = (suppliers?.length ?? 0) > 0 || (facilities?.length ?? 0) > 0;
   const activities = activitiesResponse?.activities ?? [];
-  const pagination = activitiesResponse?.pagination ?? { total: 0, page: 1, limit: 10, totalPages: 1 };
+  const pagination = activitiesResponse?.pagination ?? {
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+  };
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -80,7 +107,8 @@ export default function DashboardPage() {
     if (activity.supplier) return `Supplier: ${activity.supplier.name}`;
     if (activity.facility) return `Facility: ${activity.facility.name}`;
     if (activity.route) {
-      const origin = activity.route.originSupplier?.name ?? activity.route.originFacility?.name ?? 'Unknown';
+      const origin =
+        activity.route.originSupplier?.name ?? activity.route.originFacility?.name ?? 'Unknown';
       const dest = activity.route.destination?.name ?? 'Unknown';
       return `Route: ${origin} → ${dest}`;
     }
@@ -125,7 +153,9 @@ export default function DashboardPage() {
       <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
         <div className="min-w-0">
           <h1 className="font-display text-xl sm:text-2xl font-semibold">Dashboard</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">Your organization&apos;s carbon footprint at a glance.</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Your organization&apos;s carbon footprint at a glance.
+          </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Button
@@ -141,7 +171,9 @@ export default function DashboardPage() {
             ) : (
               <Download className="h-4 w-4" aria-hidden="true" />
             )}
-            <span className="hidden sm:inline">{isExporting ? 'Exporting\u2026' : 'Export CSV'}</span>
+            <span className="hidden sm:inline">
+              {isExporting ? 'Exporting\u2026' : 'Export CSV'}
+            </span>
             <span className="sm:hidden">CSV</span>
           </Button>
           <Button asChild size="sm" className="shrink-0">
@@ -172,15 +204,18 @@ export default function DashboardPage() {
             scope3={summary.scope3}
             trends={{
               total: computeMonthlyChange(summary.monthlyTrend),
-              scope1: summary.previousScope1 !== null
-                ? computeTrend(summary.previousScope1, summary.scope1)
-                : undefined,
-              scope2: summary.previousScope2 !== null
-                ? computeTrend(summary.previousScope2, summary.scope2)
-                : undefined,
-              scope3: summary.previousScope3 !== null
-                ? computeTrend(summary.previousScope3, summary.scope3)
-                : undefined,
+              scope1:
+                summary.previousScope1 !== null
+                  ? computeTrend(summary.previousScope1, summary.scope1)
+                  : undefined,
+              scope2:
+                summary.previousScope2 !== null
+                  ? computeTrend(summary.previousScope2, summary.scope2)
+                  : undefined,
+              scope3:
+                summary.previousScope3 !== null
+                  ? computeTrend(summary.previousScope3, summary.scope3)
+                  : undefined,
             }}
           />
 
@@ -194,7 +229,12 @@ export default function DashboardPage() {
                 <CardDescription>Monthly aggregated footprint.</CardDescription>
               </CardHeader>
               <CardContent>
-                <EmissionsChart data={summary.monthlyTrend.map((m) => ({ month: m.month, emissions: m.emissionsKg }))} />
+                <EmissionsChart
+                  data={summary.monthlyTrend.map((m) => ({
+                    month: m.month,
+                    emissions: m.emissionsKg,
+                  }))}
+                />
               </CardContent>
             </Card>
 
@@ -207,7 +247,11 @@ export default function DashboardPage() {
                 <CardDescription>Scope breakdown comparison.</CardDescription>
               </CardHeader>
               <CardContent>
-                <ScopeBreakdown scope1={summary.scope1} scope2={summary.scope2} scope3={summary.scope3} />
+                <ScopeBreakdown
+                  scope1={summary.scope1}
+                  scope2={summary.scope2}
+                  scope3={summary.scope3}
+                />
               </CardContent>
             </Card>
           </div>
@@ -230,10 +274,18 @@ export default function DashboardPage() {
               <TabsTrigger value="map">Map view</TabsTrigger>
             </TabsList>
             <TabsContent value="graph">
-              <SupplyChainGraph suppliers={suppliers ?? []} facilities={facilities ?? []} routes={routes ?? []} />
+              <SupplyChainGraph
+                suppliers={suppliers ?? []}
+                facilities={facilities ?? []}
+                routes={routes ?? []}
+              />
             </TabsContent>
             <TabsContent value="map">
-              <MapViewClient suppliers={suppliers ?? []} facilities={facilities ?? []} routes={routes ?? []} />
+              <MapViewClient
+                suppliers={suppliers ?? []}
+                facilities={facilities ?? []}
+                routes={routes ?? []}
+              />
             </TabsContent>
           </Tabs>
 
@@ -242,36 +294,53 @@ export default function DashboardPage() {
             <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
               <div>
                 <CardTitle className="text-lg font-semibold text-foreground">Activities</CardTitle>
-                <CardDescription>View, filter, and sort your organization&apos;s activity records.</CardDescription>
+                <CardDescription>
+                  View, filter, and sort your organization&apos;s activity records.
+                </CardDescription>
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2">
                   <div className="flex flex-col gap-1">
-                    <Label htmlFor="start-date-input" className="sr-only">Start Date</Label>
+                    <Label htmlFor="start-date-input" className="sr-only">
+                      Start Date
+                    </Label>
                     <Input
                       id="start-date-input"
                       type="date"
                       value={startDate}
-                      onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
+                      onChange={(e) => {
+                        setStartDate(e.target.value);
+                        setPage(1);
+                      }}
                       className="h-8 text-xs py-1"
                       aria-label="Start date filter"
                     />
                   </div>
                   <span className="text-muted-foreground text-xs">to</span>
                   <div className="flex flex-col gap-1">
-                    <Label htmlFor="end-date-input" className="sr-only">End Date</Label>
+                    <Label htmlFor="end-date-input" className="sr-only">
+                      End Date
+                    </Label>
                     <Input
                       id="end-date-input"
                       type="date"
                       value={endDate}
-                      onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
+                      onChange={(e) => {
+                        setEndDate(e.target.value);
+                        setPage(1);
+                      }}
                       className="h-8 text-xs py-1"
                       aria-label="End date filter"
                     />
                   </div>
                 </div>
                 {(startDate || endDate) && (
-                  <Button variant="ghost" size="sm" onClick={handleClearFilters} className="h-8 px-2 text-xs">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearFilters}
+                    className="h-8 px-2 text-xs"
+                  >
                     Clear filters
                   </Button>
                 )}
@@ -301,17 +370,32 @@ export default function DashboardPage() {
                     <table className="w-full text-left text-sm border-collapse">
                       <thead>
                         <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wider">
-                          <th scope="col" className="pb-3 pl-2"><SortHeader field="dateRecorded" label="Date" /></th>
-                          <th scope="col" className="pb-3"><SortHeader field="type" label="Activity Type" /></th>
-                          <th scope="col" className="pb-3">Scope</th>
-                          <th scope="col" className="pb-3">Node / Source</th>
-                          <th scope="col" className="pb-3 text-right"><SortHeader field="amount" label="Amount" /></th>
-                          <th scope="col" className="pb-3 pr-2 text-right"><SortHeader field="emissionsKg" label="Emissions" /></th>
+                          <th scope="col" className="pb-3 pl-2">
+                            <SortHeader field="dateRecorded" label="Date" />
+                          </th>
+                          <th scope="col" className="pb-3">
+                            <SortHeader field="type" label="Activity Type" />
+                          </th>
+                          <th scope="col" className="pb-3">
+                            Scope
+                          </th>
+                          <th scope="col" className="pb-3">
+                            Node / Source
+                          </th>
+                          <th scope="col" className="pb-3 text-right">
+                            <SortHeader field="amount" label="Amount" />
+                          </th>
+                          <th scope="col" className="pb-3 pr-2 text-right">
+                            <SortHeader field="emissionsKg" label="Emissions" />
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
                         {activities.map((a) => (
-                          <tr key={a.id} className="border-b border-border hover:bg-muted/20 last:border-0 transition-colors">
+                          <tr
+                            key={a.id}
+                            className="border-b border-border hover:bg-muted/20 last:border-0 transition-colors"
+                          >
                             <td className="py-3 pl-2 font-mono-data text-xs whitespace-nowrap">
                               {new Date(a.dateRecorded).toLocaleDateString(undefined, {
                                 year: 'numeric',
@@ -319,21 +403,31 @@ export default function DashboardPage() {
                                 day: 'numeric',
                               })}
                             </td>
-                            <td className="py-3 font-medium capitalize text-xs">{a.type.toLowerCase()}</td>
+                            <td className="py-3 font-medium capitalize text-xs">
+                              {a.type.toLowerCase()}
+                            </td>
                             <td className="py-3 whitespace-nowrap">
-                              <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                                a.factor.scope === 'SCOPE_1' ? 'bg-scope1/10 text-scope1' :
-                                a.factor.scope === 'SCOPE_2' ? 'bg-scope2/10 text-scope2' :
-                                'bg-scope3/10 text-scope3'
-                              }`}>
+                              <span
+                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                                  a.factor.scope === 'SCOPE_1'
+                                    ? 'bg-scope1/10 text-scope1'
+                                    : a.factor.scope === 'SCOPE_2'
+                                      ? 'bg-scope2/10 text-scope2'
+                                      : 'bg-scope3/10 text-scope3'
+                                }`}
+                              >
                                 {a.factor.scope.replace('_', ' ')}
                               </span>
                             </td>
-                            <td className="py-3 text-xs max-w-[200px] truncate" title={getSourceNode(a)}>
+                            <td
+                              className="py-3 text-xs max-w-[200px] truncate"
+                              title={getSourceNode(a)}
+                            >
                               {getSourceNode(a)}
                             </td>
                             <td className="py-3 font-mono-data text-xs text-right whitespace-nowrap">
-                              {a.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} {a.unit}
+                              {a.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}{' '}
+                              {a.unit}
                             </td>
                             <td className="py-3 pr-2 font-mono-data text-xs text-right font-semibold text-foreground whitespace-nowrap">
                               {formatKg(a.emissionsKg)}
@@ -350,7 +444,10 @@ export default function DashboardPage() {
                     limit={pagination.limit}
                     total={pagination.total}
                     onPageChange={setPage}
-                    onLimitChange={(l) => { setLimit(l); setPage(1); }}
+                    onLimitChange={(l) => {
+                      setLimit(l);
+                      setPage(1);
+                    }}
                   />
                 </div>
               )}

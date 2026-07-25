@@ -39,7 +39,7 @@ type WithCoords<T> = T & { latitude: number; longitude: number };
 // for a finite number rather than truthiness. A `latitude && longitude` check
 // treats 0 as "missing" and would silently drop those entities from the map.
 function hasCoords<T extends { latitude: number | null; longitude: number | null }>(
-  entity: T,
+  entity: T
 ): entity is WithCoords<T> {
   return Number.isFinite(entity.latitude) && Number.isFinite(entity.longitude);
 }
@@ -87,7 +87,9 @@ export function MapView({
 
   const filteredRoutes = routes.filter((r) => {
     if (selectedMode !== 'ALL' && r.mode !== selectedMode) return false;
-    const origin = r.originSupplierId ? supplierById.get(r.originSupplierId) : facilityById.get(r.originFacilityId ?? '');
+    const origin = r.originSupplierId
+      ? supplierById.get(r.originSupplierId)
+      : facilityById.get(r.originFacilityId ?? '');
     const destination = facilityById.get(r.destinationId);
     if (!origin || !destination || !hasCoords(origin) || !hasCoords(destination)) return false;
     return true;
@@ -150,13 +152,18 @@ export function MapView({
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
-      <div 
+      <div
         ref={mapRef}
-        className="h-[420px] w-full overflow-hidden rounded-md border border-border relative" 
-        tabIndex={0} 
+        className="h-[420px] w-full overflow-hidden rounded-md border border-border relative"
+        tabIndex={0}
         aria-label="Map of supplier and facility locations"
       >
-        <MapContainer center={center} zoom={3} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
+        <MapContainer
+          center={center}
+          zoom={3}
+          style={{ height: '100%', width: '100%' }}
+          scrollWheelZoom
+        >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -192,9 +199,12 @@ export function MapView({
           ))}
 
           {filteredRoutes.map((r) => {
-            const origin = r.originSupplierId ? supplierById.get(r.originSupplierId) : facilityById.get(r.originFacilityId ?? '');
+            const origin = r.originSupplierId
+              ? supplierById.get(r.originSupplierId)
+              : facilityById.get(r.originFacilityId ?? '');
             const destination = facilityById.get(r.destinationId);
-            if (!origin || !destination || !hasCoords(origin) || !hasCoords(destination)) return null;
+            if (!origin || !destination || !hasCoords(origin) || !hasCoords(destination))
+              return null;
             return (
               <Polyline
                 key={r.id}
@@ -202,7 +212,11 @@ export function MapView({
                   [origin.latitude, origin.longitude],
                   [destination.latitude, destination.longitude],
                 ]}
-                pathOptions={{ color: MODE_COLOR[r.mode], weight: 3, dashArray: r.mode === 'AIR' ? '6 6' : undefined }}
+                pathOptions={{
+                  color: MODE_COLOR[r.mode],
+                  weight: 3,
+                  dashArray: r.mode === 'AIR' ? '6 6' : undefined,
+                }}
               >
                 <Popup>
                   <strong>Route Mode: {r.mode}</strong>
@@ -218,7 +232,11 @@ export function MapView({
         <div className="export-controls absolute top-4 right-4 z-[1000]">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 bg-background/80 backdrop-blur-sm">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 bg-background/80 backdrop-blur-sm"
+              >
                 <Download className="h-4 w-4" />
                 Export
               </Button>

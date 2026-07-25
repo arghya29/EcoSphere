@@ -34,7 +34,10 @@ export function validateEnvironment(): EnvValidationResult {
   }
 
   if (process.env.DATABASE_URL) {
-    if (!process.env.DATABASE_URL.startsWith('postgresql://') && !process.env.DATABASE_URL.startsWith('postgres://')) {
+    if (
+      !process.env.DATABASE_URL.startsWith('postgresql://') &&
+      !process.env.DATABASE_URL.startsWith('postgres://')
+    ) {
       warnings.push('DATABASE_URL should be a PostgreSQL connection string');
     }
   }
