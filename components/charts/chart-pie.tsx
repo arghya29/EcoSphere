@@ -9,7 +9,15 @@ interface ScopeDatum {
   color: string;
 }
 
-export function ChartPie({ scope1, scope2, scope3 }: { scope1: number; scope2: number; scope3: number }) {
+export function ChartPie({
+  scope1,
+  scope2,
+  scope3,
+}: {
+  scope1: number;
+  scope2: number;
+  scope3: number;
+}) {
   const data: ScopeDatum[] = [
     { name: 'Scope 1', value: scope1, color: 'hsl(var(--scope1))' },
     { name: 'Scope 2', value: scope2, color: 'hsl(var(--scope2))' },
@@ -24,7 +32,15 @@ export function ChartPie({ scope1, scope2, scope3 }: { scope1: number; scope2: n
     <div>
       <ResponsiveContainer width="100%" height={280}>
         <PieChart>
-          <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={(entry) => formatKg(entry.value)}>
+          <Pie
+            data={data}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={100}
+            label={(entry) => formatKg(entry.value)}
+          >
             {data.map((d) => (
               <Cell key={d.name} fill={d.color} />
             ))}
@@ -57,6 +73,8 @@ export function ChartPie({ scope1, scope2, scope3 }: { scope1: number; scope2: n
 
 export function EmptyChart({ message }: { message: string }) {
   return (
-    <div className="flex h-[280px] items-center justify-center text-sm text-muted-foreground">{message}</div>
+    <div className="flex h-[280px] items-center justify-center text-sm text-muted-foreground">
+      {message}
+    </div>
   );
 }

@@ -2,8 +2,7 @@ import { normalizeOptionalId } from '@/lib/utils';
 import type { RouteInput } from '@/lib/validations';
 
 export type NormalizeRoutesResult =
-  | { ok: true; routes: RouteInput[] }
-  | { ok: false; error: string };
+  { ok: true; routes: RouteInput[] } | { ok: false; error: string };
 
 // Normalizes each route's foreign keys (blank/whitespace optional origin IDs ->
 // undefined; required destinationId trimmed) and validates required-field

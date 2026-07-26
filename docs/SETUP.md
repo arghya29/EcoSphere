@@ -25,13 +25,13 @@ cp .env.example .env
 
 Edit `.env` with these values:
 
-| Variable | Description | Required |
-|---|---|---|
-| `DATABASE_URL` | Neon Postgres connection string | Yes |
-| `NEXTAUTH_SECRET` | Run `openssl rand -base64 32` to generate | Yes |
-| `NEXTAUTH_URL` | `http://localhost:3000` for local dev | Yes |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID | No (leave blank) |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | No (leave blank) |
+| Variable               | Description                               | Required         |
+| ---------------------- | ----------------------------------------- | ---------------- |
+| `DATABASE_URL`         | Neon Postgres connection string           | Yes              |
+| `NEXTAUTH_SECRET`      | Run `openssl rand -base64 32` to generate | Yes              |
+| `NEXTAUTH_URL`         | `http://localhost:3000` for local dev     | Yes              |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID                    | No (leave blank) |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                | No (leave blank) |
 
 ### 3. Set up the database
 
@@ -51,12 +51,14 @@ Open `http://localhost:3000`.
 ### 5. Setup Reduction Goals and Custom Emission Factors
 
 Once running, navigate to:
+
 - `/targets` to configure carbon limit reduction targets.
 - `/settings/factors` to define custom activity intensity coefficients.
 
 ### 5. Demo login
 
 Use these credentials to explore the app:
+
 - **Email:** `demo@ecosphere.dev`
 - **Password:** `EcoSphereDemo123!`
 
@@ -73,6 +75,7 @@ Check that your Neon database is active. Free tier databases may pause after 7 d
 ### Build fails with TypeScript errors
 
 Run `npx tsc --noEmit` to identify type errors. Common issues:
+
 - Missing types in `@types/*` packages (run `npm install` again)
 - Using `any` types without comments
 
@@ -107,16 +110,16 @@ npm run test:e2e     # Playwright E2E tests
 
 ## Available Scripts
 
-| Script | Purpose |
-|---|---|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Format code with Prettier |
-| `npm test` | Run Jest tests |
-| `npm run test:e2e` | Run Playwright tests |
-| `npm run db:push` | Push Prisma schema to database |
-| `npm run db:migrate` | Create a new migration |
-| `npm run db:seed` | Seed database with demo data |
-| `npm run db:studio` | Open Prisma Studio |
+| Script               | Purpose                        |
+| -------------------- | ------------------------------ |
+| `npm run dev`        | Start development server       |
+| `npm run build`      | Build for production           |
+| `npm run start`      | Start production server        |
+| `npm run lint`       | Run ESLint                     |
+| `npm run format`     | Format code with Prettier      |
+| `npm test`           | Run Jest tests                 |
+| `npm run test:e2e`   | Run Playwright tests           |
+| `npm run db:push`    | Push Prisma schema to database |
+| `npm run db:migrate` | Create a new migration         |
+| `npm run db:seed`    | Seed database with demo data   |
+| `npm run db:studio`  | Open Prisma Studio             |

@@ -7,12 +7,14 @@ We pledge to make participation in our community a harassment-free experience fo
 ## Our Standards
 
 Positive behavior includes:
+
 - Demonstrating empathy and kindness toward other people
 - Being respectful of differing opinions and experiences
 - Giving and gracefully accepting constructive feedback
 - Accepting responsibility and learning from mistakes
 
 Unacceptable behavior includes:
+
 - Sexualized language or imagery, and unwanted sexual attention
 - Trolling, insulting or derogatory comments, personal attacks
 - Public or private harassment

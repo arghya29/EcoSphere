@@ -12,22 +12,94 @@ const prisma = new PrismaClient();
 
 const FACTORS = [
   // Scope 1 — direct fuel combustion (kg CO2e per litre), DEFRA 2024 style figures
-  { category: 'diesel', scope: EmissionScope.SCOPE_1, value: 2.68, unit: 'kgCO2e/litre', source: 'DEFRA 2024 (indicative)' },
-  { category: 'petrol', scope: EmissionScope.SCOPE_1, value: 2.31, unit: 'kgCO2e/litre', source: 'DEFRA 2024 (indicative)' },
-  { category: 'natural_gas', scope: EmissionScope.SCOPE_1, value: 0.18, unit: 'kgCO2e/kWh', source: 'DEFRA 2024 (indicative)' },
-  { category: 'lpg', scope: EmissionScope.SCOPE_1, value: 1.51, unit: 'kgCO2e/litre', source: 'DEFRA 2024 (indicative)' },
+  {
+    category: 'diesel',
+    scope: EmissionScope.SCOPE_1,
+    value: 2.68,
+    unit: 'kgCO2e/litre',
+    source: 'DEFRA 2024 (indicative)',
+  },
+  {
+    category: 'petrol',
+    scope: EmissionScope.SCOPE_1,
+    value: 2.31,
+    unit: 'kgCO2e/litre',
+    source: 'DEFRA 2024 (indicative)',
+  },
+  {
+    category: 'natural_gas',
+    scope: EmissionScope.SCOPE_1,
+    value: 0.18,
+    unit: 'kgCO2e/kWh',
+    source: 'DEFRA 2024 (indicative)',
+  },
+  {
+    category: 'lpg',
+    scope: EmissionScope.SCOPE_1,
+    value: 1.51,
+    unit: 'kgCO2e/litre',
+    source: 'DEFRA 2024 (indicative)',
+  },
 
   // Scope 2 — purchased electricity (kg CO2e per kWh), grid-average indicative figures
-  { category: 'electricity_UK-grid', scope: EmissionScope.SCOPE_2, value: 0.207, unit: 'kgCO2e/kWh', source: 'UK grid average (indicative)' },
-  { category: 'electricity_US-grid', scope: EmissionScope.SCOPE_2, value: 0.386, unit: 'kgCO2e/kWh', source: 'EPA eGRID national average (indicative)' },
-  { category: 'electricity_EU-grid', scope: EmissionScope.SCOPE_2, value: 0.255, unit: 'kgCO2e/kWh', source: 'EU-27 average (indicative)' },
-  { category: 'electricity_renewable', scope: EmissionScope.SCOPE_2, value: 0.02, unit: 'kgCO2e/kWh', source: 'Renewable PPA (indicative residual)' },
+  {
+    category: 'electricity_UK-grid',
+    scope: EmissionScope.SCOPE_2,
+    value: 0.207,
+    unit: 'kgCO2e/kWh',
+    source: 'UK grid average (indicative)',
+  },
+  {
+    category: 'electricity_US-grid',
+    scope: EmissionScope.SCOPE_2,
+    value: 0.386,
+    unit: 'kgCO2e/kWh',
+    source: 'EPA eGRID national average (indicative)',
+  },
+  {
+    category: 'electricity_EU-grid',
+    scope: EmissionScope.SCOPE_2,
+    value: 0.255,
+    unit: 'kgCO2e/kWh',
+    source: 'EU-27 average (indicative)',
+  },
+  {
+    category: 'electricity_renewable',
+    scope: EmissionScope.SCOPE_2,
+    value: 0.02,
+    unit: 'kgCO2e/kWh',
+    source: 'Renewable PPA (indicative residual)',
+  },
 
   // Scope 3 — freight, kg CO2e per tonne-km, by mode
-  { category: 'truck_freight', scope: EmissionScope.SCOPE_3, value: 0.096, unit: 'kgCO2e/tonne-km', source: 'GHG Protocol / EcoInvent (indicative)' },
-  { category: 'rail_freight', scope: EmissionScope.SCOPE_3, value: 0.028, unit: 'kgCO2e/tonne-km', source: 'GHG Protocol / EcoInvent (indicative)' },
-  { category: 'sea_freight', scope: EmissionScope.SCOPE_3, value: 0.012, unit: 'kgCO2e/tonne-km', source: 'IMO / EcoInvent (indicative)' },
-  { category: 'air_freight', scope: EmissionScope.SCOPE_3, value: 0.602, unit: 'kgCO2e/tonne-km', source: 'ICAO / EcoInvent (indicative)' },
+  {
+    category: 'truck_freight',
+    scope: EmissionScope.SCOPE_3,
+    value: 0.096,
+    unit: 'kgCO2e/tonne-km',
+    source: 'GHG Protocol / EcoInvent (indicative)',
+  },
+  {
+    category: 'rail_freight',
+    scope: EmissionScope.SCOPE_3,
+    value: 0.028,
+    unit: 'kgCO2e/tonne-km',
+    source: 'GHG Protocol / EcoInvent (indicative)',
+  },
+  {
+    category: 'sea_freight',
+    scope: EmissionScope.SCOPE_3,
+    value: 0.012,
+    unit: 'kgCO2e/tonne-km',
+    source: 'IMO / EcoInvent (indicative)',
+  },
+  {
+    category: 'air_freight',
+    scope: EmissionScope.SCOPE_3,
+    value: 0.602,
+    unit: 'kgCO2e/tonne-km',
+    source: 'ICAO / EcoInvent (indicative)',
+  },
 ];
 
 async function main() {
@@ -67,34 +139,90 @@ async function main() {
   });
 
   const supplierA = await prisma.supplier.create({
-    data: { organizationId: org.id, name: 'Supplier A — Electronics', location: 'Shenzhen, CN', category: 'Electronics', latitude: 22.5431, longitude: 114.0579 },
+    data: {
+      organizationId: org.id,
+      name: 'Supplier A — Electronics',
+      location: 'Shenzhen, CN',
+      category: 'Electronics',
+      latitude: 22.5431,
+      longitude: 114.0579,
+    },
   });
   const supplierB = await prisma.supplier.create({
-    data: { organizationId: org.id, name: 'Supplier B — Packaging', location: 'Rotterdam, NL', category: 'Packaging', latitude: 51.9244, longitude: 4.4777 },
+    data: {
+      organizationId: org.id,
+      name: 'Supplier B — Packaging',
+      location: 'Rotterdam, NL',
+      category: 'Packaging',
+      latitude: 51.9244,
+      longitude: 4.4777,
+    },
   });
 
   const factory = await prisma.facility.create({
-    data: { organizationId: org.id, name: 'Factory A', type: 'Manufacturing', location: 'Manchester, UK', latitude: 53.4839, longitude: -2.2446 },
+    data: {
+      organizationId: org.id,
+      name: 'Factory A',
+      type: 'Manufacturing',
+      location: 'Manchester, UK',
+      latitude: 53.4839,
+      longitude: -2.2446,
+    },
   });
   const warehouse = await prisma.facility.create({
-    data: { organizationId: org.id, name: 'Warehouse B', type: 'Storage', location: 'London, UK', latitude: 51.5074, longitude: -0.1278 },
+    data: {
+      organizationId: org.id,
+      name: 'Warehouse B',
+      type: 'Storage',
+      location: 'London, UK',
+      latitude: 51.5074,
+      longitude: -0.1278,
+    },
   });
 
   const routeAirFromA = await prisma.route.create({
-    data: { organizationId: org.id, originSupplierId: supplierA.id, destinationId: factory.id, mode: TransportMode.AIR, distanceKm: 8000 },
+    data: {
+      organizationId: org.id,
+      originSupplierId: supplierA.id,
+      destinationId: factory.id,
+      mode: TransportMode.AIR,
+      distanceKm: 8000,
+    },
   });
   const routeTruckToWarehouse = await prisma.route.create({
-    data: { organizationId: org.id, originFacilityId: factory.id, destinationId: warehouse.id, mode: TransportMode.TRUCK, distanceKm: 320 },
+    data: {
+      organizationId: org.id,
+      originFacilityId: factory.id,
+      destinationId: warehouse.id,
+      mode: TransportMode.TRUCK,
+      distanceKm: 320,
+    },
   });
   const routeSeaFromB = await prisma.route.create({
-    data: { organizationId: org.id, originSupplierId: supplierB.id, destinationId: factory.id, mode: TransportMode.SEA, distanceKm: 450 },
+    data: {
+      organizationId: org.id,
+      originSupplierId: supplierB.id,
+      destinationId: factory.id,
+      mode: TransportMode.SEA,
+      distanceKm: 450,
+    },
   });
 
-  const dieselFactor = await prisma.emissionFactor.findUniqueOrThrow({ where: { category: 'diesel' } });
-  const ukGridFactor = await prisma.emissionFactor.findUniqueOrThrow({ where: { category: 'electricity_UK-grid' } });
-  const airFactor = await prisma.emissionFactor.findUniqueOrThrow({ where: { category: 'air_freight' } });
-  const truckFactor = await prisma.emissionFactor.findUniqueOrThrow({ where: { category: 'truck_freight' } });
-  const seaFactor = await prisma.emissionFactor.findUniqueOrThrow({ where: { category: 'sea_freight' } });
+  const dieselFactor = await prisma.emissionFactor.findUniqueOrThrow({
+    where: { category: 'diesel' },
+  });
+  const ukGridFactor = await prisma.emissionFactor.findUniqueOrThrow({
+    where: { category: 'electricity_UK-grid' },
+  });
+  const airFactor = await prisma.emissionFactor.findUniqueOrThrow({
+    where: { category: 'air_freight' },
+  });
+  const truckFactor = await prisma.emissionFactor.findUniqueOrThrow({
+    where: { category: 'truck_freight' },
+  });
+  const seaFactor = await prisma.emissionFactor.findUniqueOrThrow({
+    where: { category: 'sea_freight' },
+  });
 
   await prisma.activity.createMany({
     data: [

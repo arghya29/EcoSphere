@@ -8,7 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
 import { useToast } from '@/components/ui/ToastProvider';
 import { AlertCircle, UserPlus, Users } from 'lucide-react';
 import { SkeletonCard } from '@/components/ui/skeleton';
@@ -94,10 +100,7 @@ export default function TeamSettingsPage() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="invite-role">Workspace Role</Label>
-                <Select
-                  value={role}
-                  onValueChange={(val) => setRole(val as Member['role'])}
-                >
+                <Select value={role} onValueChange={(val) => setRole(val as Member['role'])}>
                   <SelectTrigger id="invite-role">
                     <SelectValue placeholder="Select Role" />
                   </SelectTrigger>

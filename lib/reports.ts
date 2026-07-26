@@ -5,11 +5,20 @@ import { saveAs } from 'file-saver';
 import { formatKg } from './utils';
 import type { DashboardSummary, InsightRecord } from '@/types/api';
 
-export function downloadJsonReport(summary: DashboardSummary, insights: InsightRecord[], orgName: string) {
+export function downloadJsonReport(
+  summary: DashboardSummary,
+  insights: InsightRecord[],
+  orgName: string
+) {
   const payload = {
     organization: orgName,
     generatedAt: new Date().toISOString(),
-    totals: { scope1: summary.scope1, scope2: summary.scope2, scope3: summary.scope3, total: summary.total },
+    totals: {
+      scope1: summary.scope1,
+      scope2: summary.scope2,
+      scope3: summary.scope3,
+      total: summary.total,
+    },
     topSuppliers: summary.topSuppliers,
     topFacilities: summary.topFacilities,
     monthlyTrend: summary.monthlyTrend,
@@ -25,15 +34,25 @@ export function downloadCsvReport(summary: DashboardSummary) {
     { category: 'Scope 2', emissions_kg_co2e: summary.scope2 },
     { category: 'Scope 3', emissions_kg_co2e: summary.scope3 },
     { category: 'Total', emissions_kg_co2e: summary.total },
-    ...summary.topSuppliers.map((s) => ({ category: `Supplier: ${s.name}`, emissions_kg_co2e: s.emissionsKg })),
-    ...summary.topFacilities.map((f) => ({ category: `Facility: ${f.name}`, emissions_kg_co2e: f.emissionsKg })),
+    ...summary.topSuppliers.map((s) => ({
+      category: `Supplier: ${s.name}`,
+      emissions_kg_co2e: s.emissionsKg,
+    })),
+    ...summary.topFacilities.map((f) => ({
+      category: `Facility: ${f.name}`,
+      emissions_kg_co2e: f.emissionsKg,
+    })),
   ];
   const csv = Papa.unparse(rows);
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   saveAs(blob, `ecosphere-report-${dateStamp()}.csv`);
 }
 
-export function downloadPdfReport(summary: DashboardSummary, insights: InsightRecord[], orgName: string) {
+export function downloadPdfReport(
+  summary: DashboardSummary,
+  insights: InsightRecord[],
+  orgName: string
+) {
   const doc = new jsPDF();
 
   doc.setFontSize(18);

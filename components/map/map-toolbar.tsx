@@ -33,14 +33,22 @@ export function MapToolbar({
             onClick={() => setShowSuppliers(!showSuppliers)}
             className="flex items-center gap-1 hover:text-foreground transition-colors"
           >
-            {showSuppliers ? <ToggleRight className="text-primary h-5 w-5" /> : <ToggleLeft className="text-muted-foreground h-5 w-5" />}
+            {showSuppliers ? (
+              <ToggleRight className="text-primary h-5 w-5" />
+            ) : (
+              <ToggleLeft className="text-muted-foreground h-5 w-5" />
+            )}
             <span>Suppliers</span>
           </button>
           <button
             onClick={() => setShowFacilities(!showFacilities)}
             className="flex items-center gap-1 hover:text-foreground transition-colors"
           >
-            {showFacilities ? <ToggleRight className="text-primary h-5 w-5" /> : <ToggleLeft className="text-muted-foreground h-5 w-5" />}
+            {showFacilities ? (
+              <ToggleRight className="text-primary h-5 w-5" />
+            ) : (
+              <ToggleLeft className="text-muted-foreground h-5 w-5" />
+            )}
             <span>Facilities</span>
           </button>
         </div>

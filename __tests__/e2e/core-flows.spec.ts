@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Landing page', () => {
-  test('shows hero content and the interactive demo responds to scenario clicks', async ({ page }) => {
+  test('shows hero content and the interactive demo responds to scenario clicks', async ({
+    page,
+  }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: /supply chain/i })).toBeVisible();
 
@@ -11,9 +13,19 @@ test.describe('Landing page', () => {
 
     // Toggling Scope 3 visibility should change the total readout.
     const scope3Toggle = page.getByLabel('Show Scope 3 (transport)');
-    const totalBefore = await page.locator('text=Total estimated emissions').locator('..').locator('p').first().innerText();
+    const totalBefore = await page
+      .locator('text=Total estimated emissions')
+      .locator('..')
+      .locator('p')
+      .first()
+      .innerText();
     await scope3Toggle.uncheck();
-    const totalAfter = await page.locator('text=Total estimated emissions').locator('..').locator('p').first().innerText();
+    const totalAfter = await page
+      .locator('text=Total estimated emissions')
+      .locator('..')
+      .locator('p')
+      .first()
+      .innerText();
     expect(totalAfter).not.toBe(totalBefore);
   });
 

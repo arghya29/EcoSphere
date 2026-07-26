@@ -53,7 +53,13 @@ export function LoginForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" autoComplete="email" {...register('email')} aria-invalid={!!errors.email} />
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            {...register('email')}
+            aria-invalid={!!errors.email}
+          />
           {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
         </div>
         <div className="flex flex-col gap-1.5">
@@ -94,7 +100,10 @@ export function LoginForm() {
 
       <p className="mt-5 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <Link href="/signup" className="font-medium text-foreground underline-offset-4 hover:underline">
+        <Link
+          href="/signup"
+          className="font-medium text-foreground underline-offset-4 hover:underline"
+        >
           Sign up
         </Link>
       </p>

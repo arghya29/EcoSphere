@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { ErrorDisplay } from "@/components/ui/error-display";
+import { ErrorDisplay } from '@/components/ui/error-display';
 
 export default function GlobalError({
   error,

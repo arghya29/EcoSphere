@@ -62,7 +62,8 @@ export function aggregateByScope(activities: ActivityWithFactor[]): ScopeBreakdo
   const breakdown: ScopeBreakdown = { scope1: 0, scope2: 0, scope3: 0, total: 0 };
 
   for (const activity of activities) {
-    const emissions = activity.emissionsKg ?? calculateActivityEmissions(activity.amount, activity.factor.value);
+    const emissions =
+      activity.emissionsKg ?? calculateActivityEmissions(activity.amount, activity.factor.value);
     switch (activity.factor.scope) {
       case 'SCOPE_1':
         breakdown.scope1 += emissions;
@@ -107,7 +108,8 @@ export function aggregateByEntity(
           ? activity.facilityId
           : activity.routeId;
     if (!key) continue;
-    const emissions = activity.emissionsKg ?? calculateActivityEmissions(activity.amount, activity.factor.value);
+    const emissions =
+      activity.emissionsKg ?? calculateActivityEmissions(activity.amount, activity.factor.value);
     totals.set(key, (totals.get(key) ?? 0) + emissions);
   }
 
@@ -119,12 +121,15 @@ export function aggregateByEntity(
 /**
  * Emissions over time, bucketed by month, for trend charts.
  */
-export function aggregateByMonth(activities: ActivityWithFactor[]): { month: string; emissionsKg: number }[] {
+export function aggregateByMonth(
+  activities: ActivityWithFactor[]
+): { month: string; emissionsKg: number }[] {
   const totals = new Map<string, number>();
   for (const activity of activities) {
     const d = new Date(activity.dateRecorded);
     const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
-    const emissions = activity.emissionsKg ?? calculateActivityEmissions(activity.amount, activity.factor.value);
+    const emissions =
+      activity.emissionsKg ?? calculateActivityEmissions(activity.amount, activity.factor.value);
     totals.set(key, (totals.get(key) ?? 0) + emissions);
   }
   return Array.from(totals.entries())

@@ -11,12 +11,8 @@ function TestHarness() {
       <button onClick={() => toast.success('Success title', 'Success description')}>
         Show Success
       </button>
-      <button onClick={() => toast.error('Error title', 'Error description')}>
-        Show Error
-      </button>
-      <button onClick={() => toast.info('Info title')}>
-        Show Info
-      </button>
+      <button onClick={() => toast.error('Error title', 'Error description')}>Show Error</button>
+      <button onClick={() => toast.info('Info title')}>Show Info</button>
     </div>
   );
 }

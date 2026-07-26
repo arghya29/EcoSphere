@@ -23,7 +23,9 @@ export default function SettingsPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display text-2xl font-semibold">Settings</h1>
-        <p className="text-sm text-muted-foreground">Manage your account and organization profile.</p>
+        <p className="text-sm text-muted-foreground">
+          Manage your account and organization profile.
+        </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -102,8 +104,8 @@ export default function SettingsPage() {
             <Input id="account-email" value={session?.user?.email ?? ''} readOnly disabled />
           </div>
           <p className="text-xs text-muted-foreground sm:col-span-2">
-            Editing account details isn&apos;t available in this build yet — it&apos;s a natural next addition once
-            the MVP is live.
+            Editing account details isn&apos;t available in this build yet — it&apos;s a natural
+            next addition once the MVP is live.
           </p>
         </CardContent>
       </Card>

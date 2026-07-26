@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
-export type ApiErrorCode = 'VALIDATION_ERROR' | 'NOT_FOUND' | 'UNAUTHORIZED' | 'FORBIDDEN' | 'CONFLICT' | 'INTERNAL_ERROR';
+export type ApiErrorCode =
+  'VALIDATION_ERROR' | 'NOT_FOUND' | 'UNAUTHORIZED' | 'FORBIDDEN' | 'CONFLICT' | 'INTERNAL_ERROR';
 
 export interface ApiErrorBody {
   success: false;
@@ -44,10 +45,16 @@ export function validatePaginationParams(
   offset: number
 ): { valid: boolean; error?: NextResponse } {
   if (!Number.isFinite(limit) || limit < 1 || limit > 100) {
-    return { valid: false, error: apiError('Limit must be between 1 and 100', 400, 'VALIDATION_ERROR') };
+    return {
+      valid: false,
+      error: apiError('Limit must be between 1 and 100', 400, 'VALIDATION_ERROR'),
+    };
   }
   if (!Number.isFinite(offset) || offset < 0) {
-    return { valid: false, error: apiError('Offset must be a non-negative integer', 400, 'VALIDATION_ERROR') };
+    return {
+      valid: false,
+      error: apiError('Offset must be a non-negative integer', 400, 'VALIDATION_ERROR'),
+    };
   }
   return { valid: true };
 }

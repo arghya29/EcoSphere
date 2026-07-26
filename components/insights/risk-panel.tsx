@@ -33,19 +33,23 @@ export function RiskPanel() {
           Carbon Footprint Risk Assessment
         </CardTitle>
         <CardDescription>
-          Calculated based on logistical intensity, grid dependencies, and shipping footprint ratios.
+          Calculated based on logistical intensity, grid dependencies, and shipping footprint
+          ratios.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-lg bg-muted border">
-          <div className={`w-24 h-24 rounded-full border-4 flex flex-col items-center justify-center font-mono ${scoreColor[risk.level]}`}>
+          <div
+            className={`w-24 h-24 rounded-full border-4 flex flex-col items-center justify-center font-mono ${scoreColor[risk.level]}`}
+          >
             <span className="text-2xl font-bold">{risk.score}</span>
             <span className="text-xs font-semibold">{risk.level}</span>
           </div>
           <div className="flex-1 space-y-1">
             <h4 className="font-semibold text-sm">Carbon Intensity Risk Level: {risk.level}</h4>
             <p className="text-xs text-muted-foreground">
-              A higher score indicates high dependency on high-emission shipping (air freight) or high-intensity electricity grids.
+              A higher score indicates high dependency on high-emission shipping (air freight) or
+              high-intensity electricity grids.
             </p>
           </div>
         </div>

@@ -16,9 +16,21 @@ import { ActivityTable } from '@/components/analysis/activity-table';
 function exportChartData(summary: DashboardSummary) {
   const rows: string[][] = [
     ['Category', 'Emissions (kg CO2e)', 'Share'],
-    ['Scope 1', String(summary.scope1), summary.total > 0 ? `${Math.round((summary.scope1 / summary.total) * 100)}%` : '—'],
-    ['Scope 2', String(summary.scope2), summary.total > 0 ? `${Math.round((summary.scope2 / summary.total) * 100)}%` : '—'],
-    ['Scope 3', String(summary.scope3), summary.total > 0 ? `${Math.round((summary.scope3 / summary.total) * 100)}%` : '—'],
+    [
+      'Scope 1',
+      String(summary.scope1),
+      summary.total > 0 ? `${Math.round((summary.scope1 / summary.total) * 100)}%` : '—',
+    ],
+    [
+      'Scope 2',
+      String(summary.scope2),
+      summary.total > 0 ? `${Math.round((summary.scope2 / summary.total) * 100)}%` : '—',
+    ],
+    [
+      'Scope 3',
+      String(summary.scope3),
+      summary.total > 0 ? `${Math.round((summary.scope3 / summary.total) * 100)}%` : '—',
+    ],
     ['Total', String(summary.total), '100%'],
     [],
     ['Top Supplier', 'Emissions (kg CO2e)'],
@@ -61,7 +73,9 @@ export default function AnalysisPage() {
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h1 className="font-display text-2xl font-semibold">Emissions analysis</h1>
-          <p className="text-sm text-muted-foreground">Breakdown by scope, top emitters, and trend over time.</p>
+          <p className="text-sm text-muted-foreground">
+            Breakdown by scope, top emitters, and trend over time.
+          </p>
         </div>
         {summary && (
           <Button variant="outline" size="sm" onClick={handleExport} disabled={isExporting}>
@@ -72,7 +86,11 @@ export default function AnalysisPage() {
       </div>
 
       {isLoading ? (
-        <output className="flex flex-col gap-6" aria-live="polite" aria-label="Loading emissions analysis">
+        <output
+          className="flex flex-col gap-6"
+          aria-live="polite"
+          aria-label="Loading emissions analysis"
+        >
           <SkeletonTitle />
           <div className="grid gap-4 lg:grid-cols-2">
             <SkeletonChart className="h-80" />
@@ -111,7 +129,10 @@ export default function AnalysisPage() {
               </CardHeader>
               <CardContent>
                 <ChartBar
-                  data={summary.topSuppliers.map((s) => ({ name: s.name, emissionsKg: s.emissionsKg }))}
+                  data={summary.topSuppliers.map((s) => ({
+                    name: s.name,
+                    emissionsKg: s.emissionsKg,
+                  }))}
                   title="Suppliers"
                 />
               </CardContent>
@@ -124,7 +145,10 @@ export default function AnalysisPage() {
               </CardHeader>
               <CardContent>
                 <ChartBar
-                  data={summary.topFacilities.map((f) => ({ name: f.name, emissionsKg: f.emissionsKg }))}
+                  data={summary.topFacilities.map((f) => ({
+                    name: f.name,
+                    emissionsKg: f.emissionsKg,
+                  }))}
                   title="Facilities"
                 />
               </CardContent>
@@ -140,9 +164,15 @@ export default function AnalysisPage() {
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="border-b border-border text-muted-foreground">
-                      <th scope="col" className="py-2 font-medium">Category</th>
-                      <th scope="col" className="py-2 font-medium">Emissions (CO₂e)</th>
-                      <th scope="col" className="py-2 font-medium">Share of total</th>
+                      <th scope="col" className="py-2 font-medium">
+                        Category
+                      </th>
+                      <th scope="col" className="py-2 font-medium">
+                        Emissions (CO₂e)
+                      </th>
+                      <th scope="col" className="py-2 font-medium">
+                        Share of total
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="font-mono-data">
@@ -156,7 +186,9 @@ export default function AnalysisPage() {
                         <td className="py-2 font-sans">{row.label}</td>
                         <td className="py-2">{formatKg(row.value)}</td>
                         <td className="py-2">
-                          {summary.total > 0 ? `${Math.round((row.value / summary.total) * 100)}%` : '—'}
+                          {summary.total > 0
+                            ? `${Math.round((row.value / summary.total) * 100)}%`
+                            : '—'}
                         </td>
                       </tr>
                     ))}
@@ -169,7 +201,9 @@ export default function AnalysisPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-foreground">Activity Audit History</CardTitle>
-              <CardDescription>Audit, filter, paginated navigation, and bulk actions for activity logs.</CardDescription>
+              <CardDescription>
+                Audit, filter, paginated navigation, and bulk actions for activity logs.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ActivityTable />

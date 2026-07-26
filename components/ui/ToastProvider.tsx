@@ -13,7 +13,12 @@ interface ToastMessage {
 
 interface ToastContextValue {
   toast: {
-    (options: { title: string; description?: string; variant?: 'success' | 'error' | 'warning' | 'info' | 'destructive' | 'default'; duration?: number }): void;
+    (options: {
+      title: string;
+      description?: string;
+      variant?: 'success' | 'error' | 'warning' | 'info' | 'destructive' | 'default';
+      duration?: number;
+    }): void;
     success: (title: string, description?: string, duration?: number) => void;
     error: (title: string, description?: string, duration?: number) => void;
     warning: (title: string, description?: string, duration?: number) => void;
@@ -53,26 +58,38 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   );
 
   const toastCallable = React.useMemo(() => {
-    const fn = (options: { title: string; description?: string; variant?: 'success' | 'error' | 'warning' | 'info' | 'destructive' | 'default'; duration?: number }) => {
+    const fn = (options: {
+      title: string;
+      description?: string;
+      variant?: 'success' | 'error' | 'warning' | 'info' | 'destructive' | 'default';
+      duration?: number;
+    }) => {
       const mappedVariant: ToastVariant =
         options.variant === 'destructive'
           ? 'error'
           : options.variant === 'default'
-          ? 'info'
-          : (options.variant as ToastVariant) || 'info';
+            ? 'info'
+            : (options.variant as ToastVariant) || 'info';
 
       addToast(options.title, options.description, mappedVariant, options.duration);
     };
 
-    fn.success = (title: string, description?: string, duration?: number) => addToast(title, description, 'success', duration);
-    fn.error = (title: string, description?: string, duration?: number) => addToast(title, description, 'error', duration);
-    fn.warning = (title: string, description?: string, duration?: number) => addToast(title, description, 'warning', duration);
-    fn.info = (title: string, description?: string, duration?: number) => addToast(title, description, 'info', duration);
+    fn.success = (title: string, description?: string, duration?: number) =>
+      addToast(title, description, 'success', duration);
+    fn.error = (title: string, description?: string, duration?: number) =>
+      addToast(title, description, 'error', duration);
+    fn.warning = (title: string, description?: string, duration?: number) =>
+      addToast(title, description, 'warning', duration);
+    fn.info = (title: string, description?: string, duration?: number) =>
+      addToast(title, description, 'info', duration);
 
     return fn;
   }, [addToast]);
 
-  const contextValue = React.useMemo(() => ({ toast: toastCallable, dismiss }), [toastCallable, dismiss]);
+  const contextValue = React.useMemo(
+    () => ({ toast: toastCallable, dismiss }),
+    [toastCallable, dismiss]
+  );
 
   return (
     <ToastContext.Provider value={contextValue}>
@@ -108,4 +125,3 @@ export function useToast() {
 }
 
 export { DEFAULT_DURATIONS, MAX_TOASTS };
-

@@ -53,7 +53,11 @@ export async function requireOrg() {
     );
   }
 
-  return { userId, organizationId: membership.organizationId, organization: membership.organization };
+  return {
+    userId,
+    organizationId: membership.organizationId,
+    organization: membership.organization,
+  };
 }
 
 export function isErrorResponse(value: unknown): value is NextResponse {

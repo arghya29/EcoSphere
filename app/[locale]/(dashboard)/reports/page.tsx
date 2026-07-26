@@ -67,7 +67,9 @@ export default function ReportsPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display text-2xl font-semibold">Reports</h1>
-        <p className="text-sm text-muted-foreground">Export your footprint as PDF, CSV, or JSON — generated entirely in your browser.</p>
+        <p className="text-sm text-muted-foreground">
+          Export your footprint as PDF, CSV, or JSON — generated entirely in your browser.
+        </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -78,15 +80,15 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
-              <label htmlFor="custom-title" className="text-xs font-semibold text-muted-foreground">Report Header Title</label>
-              <Input
-                id="custom-title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+              <label htmlFor="custom-title" className="text-xs font-semibold text-muted-foreground">
+                Report Header Title
+              </label>
+              <Input id="custom-title" value={title} onChange={(e) => setTitle(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <label htmlFor="theme-color" className="text-xs font-semibold text-muted-foreground">Theme Color</label>
+              <label htmlFor="theme-color" className="text-xs font-semibold text-muted-foreground">
+                Theme Color
+              </label>
               <select
                 id="theme-color"
                 value={themeColor}
@@ -106,7 +108,9 @@ export default function ReportsPage() {
                 checked={includeSummary}
                 onChange={(e) => setIncludeSummary(e.target.checked)}
               />
-              <label htmlFor="inc-summary" className="text-xs font-semibold text-muted-foreground">Include Summary Section</label>
+              <label htmlFor="inc-summary" className="text-xs font-semibold text-muted-foreground">
+                Include Summary Section
+              </label>
             </div>
             <div className="flex items-center gap-2">
               <input
@@ -115,7 +119,9 @@ export default function ReportsPage() {
                 checked={includeDetails}
                 onChange={(e) => setIncludeDetails(e.target.checked)}
               />
-              <label htmlFor="inc-details" className="text-xs font-semibold text-muted-foreground">Include Detailed Table Section</label>
+              <label htmlFor="inc-details" className="text-xs font-semibold text-muted-foreground">
+                Include Detailed Table Section
+              </label>
             </div>
           </CardContent>
         </Card>
@@ -163,9 +169,14 @@ export default function ReportsPage() {
           ) : (
             <ul className="flex flex-col gap-2">
               {history.map((r) => (
-                <li key={r.id} className="flex items-center justify-between border-b border-border pb-2 text-sm last:border-0">
+                <li
+                  key={r.id}
+                  className="flex items-center justify-between border-b border-border pb-2 text-sm last:border-0"
+                >
                   <span className="font-medium">{r.format}</span>
-                  <span className="text-muted-foreground">{new Date(r.createdAt).toLocaleString()}</span>
+                  <span className="text-muted-foreground">
+                    {new Date(r.createdAt).toLocaleString()}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -194,7 +205,9 @@ function ExportCard({
   return (
     <Card>
       <CardContent className="flex flex-col gap-3 pt-5">
-        <div className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-muted">{icon}</div>
+        <div className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-muted">
+          {icon}
+        </div>
         <div>
           <p className="font-medium">{title}</p>
           <p className="text-sm text-muted-foreground">{description}</p>

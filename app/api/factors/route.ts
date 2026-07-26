@@ -90,7 +90,10 @@ export async function DELETE(req: NextRequest) {
     });
 
     if (!factor) {
-      return NextResponse.json({ success: false, error: 'Factor not found or unauthorized' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: 'Factor not found or unauthorized' },
+        { status: 404 }
+      );
     }
 
     await prisma.customEmissionFactor.delete({ where: { id } });

@@ -75,7 +75,7 @@ describe('Rate Limiting Middleware', () => {
   it('sets correct rate limit headers for first request', () => {
     const req = mockRequest('/api/upload');
     const res = middleware(req) as any;
-    
+
     expect(res.headers.get('X-RateLimit-Limit')).toBe('5');
     expect(res.headers.get('X-RateLimit-Remaining')).toBe('4');
     expect(res.headers.get('X-RateLimit-Reset')).toBeDefined();

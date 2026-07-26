@@ -4,18 +4,18 @@ import * as React from 'react';
 import { useApi } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Pagination } from '@/components/ui/Pagination';
-import { 
-  PlusCircle, 
-  Trash2, 
-  UploadCloud, 
-  LogIn, 
-  UserPlus, 
-  FileText, 
+import {
+  PlusCircle,
+  Trash2,
+  UploadCloud,
+  LogIn,
+  UserPlus,
+  FileText,
   Calendar,
   User,
   Shield,
   Activity,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 import { SkeletonCard } from '@/components/ui/skeleton';
 
@@ -90,7 +90,9 @@ export default function AuditSettingsPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display text-2xl font-semibold">Audit Logs</h1>
-        <p className="text-sm text-muted-foreground">Trace all critical actions performed across your organization.</p>
+        <p className="text-sm text-muted-foreground">
+          Trace all critical actions performed across your organization.
+        </p>
       </div>
 
       <Card className="border-border bg-card">
@@ -99,7 +101,9 @@ export default function AuditSettingsPage() {
             <Shield className="h-5 w-5 text-primary" />
             Security Timeline
           </CardTitle>
-          <CardDescription>A chronological audit trail of all changes made to your supply-chain data.</CardDescription>
+          <CardDescription>
+            A chronological audit trail of all changes made to your supply-chain data.
+          </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           {isLoading ? (
@@ -118,7 +122,9 @@ export default function AuditSettingsPage() {
             <div className="text-center py-12 border-2 border-dashed border-border rounded-lg">
               <Activity className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
               <p className="font-medium text-foreground">No audit logs found</p>
-              <p className="text-sm text-muted-foreground mt-1">Activities will appear here once critical actions are performed.</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Activities will appear here once critical actions are performed.
+              </p>
             </div>
           ) : (
             <div className="relative border-l border-border ml-3 pl-6 space-y-6">
@@ -144,12 +150,12 @@ export default function AuditSettingsPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/50 pb-4">
                       <div className="space-y-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${getActionBadgeColor(log.action)}`}>
+                          <span
+                            className={`text-xs font-semibold px-2 py-0.5 rounded-full ${getActionBadgeColor(log.action)}`}
+                          >
                             {log.action}
                           </span>
-                          <span className="font-medium text-foreground text-sm">
-                            {log.entity}
-                          </span>
+                          <span className="font-medium text-foreground text-sm">{log.entity}</span>
                           {log.entityId && (
                             <span className="font-mono text-xs text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded">
                               ID: {log.entityId}
@@ -160,13 +166,20 @@ export default function AuditSettingsPage() {
                         {log.metadata && typeof log.metadata === 'object' && (
                           <div className="text-xs text-muted-foreground bg-muted/30 p-2 rounded border border-border/50 mt-1 max-w-xl">
                             {log.action === 'UPLOAD' && log.metadata.rowCount !== undefined && (
-                              <p>Uploaded <span className="font-semibold text-foreground">{log.metadata.rowCount}</span> record(s) successfully.</p>
+                              <p>
+                                Uploaded{' '}
+                                <span className="font-semibold text-foreground">
+                                  {log.metadata.rowCount}
+                                </span>{' '}
+                                record(s) successfully.
+                              </p>
                             )}
                             {Object.entries(log.metadata).map(([key, val]) => {
                               if (key === 'rowCount') return null;
                               return (
                                 <p key={key} className="truncate">
-                                  <span className="capitalize">{key}</span>: <span className="font-medium text-foreground">{String(val)}</span>
+                                  <span className="capitalize">{key}</span>:{' '}
+                                  <span className="font-medium text-foreground">{String(val)}</span>
                                 </p>
                               );
                             })}
@@ -181,7 +194,9 @@ export default function AuditSettingsPage() {
                         </div>
                         <div className="flex items-center gap-1 sm:mt-0.5">
                           <Calendar className="h-3.5 w-3.5" />
-                          <span>{formattedDate} · {formattedTime}</span>
+                          <span>
+                            {formattedDate} · {formattedTime}
+                          </span>
                         </div>
                       </div>
                     </div>

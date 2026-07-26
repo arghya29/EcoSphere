@@ -65,7 +65,10 @@ export async function POST(req: NextRequest) {
       metadata: { name: user.name, email: user.email },
     });
 
-    return NextResponse.json({ success: true, data: { id: user.id, email: user.email } }, { status: 201 });
+    return NextResponse.json(
+      { success: true, data: { id: user.id, email: user.email } },
+      { status: 201 }
+    );
   } catch (err) {
     // A concurrent signup with the same email can pass the findUnique check
     // above and then lose the race on the unique email constraint. Map that to
@@ -77,6 +80,9 @@ export async function POST(req: NextRequest) {
       );
     }
     console.error('Signup error:', err);
-    return NextResponse.json({ success: false, error: 'Something went wrong. Please try again.' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Something went wrong. Please try again.' },
+      { status: 500 }
+    );
   }
 }

@@ -12,7 +12,12 @@ interface UseMutationOptions<TReq, TRes> {
   onMutate?: (variables?: TReq) => Promise<unknown> | unknown;
   onSuccess?: (data: TRes, variables?: TReq, context?: unknown) => void;
   onError?: (error: string, variables?: TReq, context?: unknown) => void;
-  onSettled?: (data: TRes | null, error: string | null, variables?: TReq, context?: unknown) => void;
+  onSettled?: (
+    data: TRes | null,
+    error: string | null,
+    variables?: TReq,
+    context?: unknown
+  ) => void;
 }
 
 interface UseMutationResult<TReq, TRes> extends MutationState<TRes> {
@@ -23,7 +28,15 @@ interface UseMutationResult<TReq, TRes> extends MutationState<TRes> {
 export function useMutation<TReq = Record<string, unknown>, TRes = Record<string, unknown>>(
   options: UseMutationOptions<TReq, TRes>
 ): UseMutationResult<TReq, TRes> {
-  const { url, method = 'POST', headers = EMPTY_HEADERS, onMutate, onSuccess, onError, onSettled } = options;
+  const {
+    url,
+    method = 'POST',
+    headers = EMPTY_HEADERS,
+    onMutate,
+    onSuccess,
+    onError,
+    onSettled,
+  } = options;
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [data, setData] = React.useState<TRes | null>(null);
