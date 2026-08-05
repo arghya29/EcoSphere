@@ -1,0 +1,47 @@
+# ==============================================================================
+# EcoSphere CODEOWNERS
+# ==============================================================================
+# This file defines who owns specific code paths in the repository.
+# GitHub will automatically request reviews from the individuals or teams
+# listed below when a pull request modifies files matching the pattern.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Default Owners
+# ------------------------------------------------------------------------------
+# By default, any file that does not match a more specific rule below
+# requires review from the core maintainer.
+*                                   @arghya29
+
+# ------------------------------------------------------------------------------
+# GitHub & CI/CD Configuration
+# ------------------------------------------------------------------------------
+# Changes to GitHub Actions workflows, PR templates, and dependabot
+# configurations require strict review to prevent CI/CD breakage.
+/.github/workflows/                 @arghya29
+/.github/dependabot.yml             @arghya29
+/.github/PULL_REQUEST_TEMPLATE.md   @arghya29
+
+# ------------------------------------------------------------------------------
+# Project Configuration & Build Tools
+# ------------------------------------------------------------------------------
+# Modifications to dependencies, package management, or formatting rules.
+/package.json                       @arghya29
+/package-lock.json                  @arghya29
+/.prettierrc                        @arghya29
+
+# ------------------------------------------------------------------------------
+# Documentation
+# ------------------------------------------------------------------------------
+# Anyone can contribute to docs, but they are reviewed by the core team
+# to ensure accuracy, high-quality formatting, and correct mermaid diagrams.
+/docs/                              @arghya29
+/README.md                          @arghya29
+/SECURITY.md                        @arghya29
+
+# ------------------------------------------------------------------------------
+# Core Application Code
+# ------------------------------------------------------------------------------
+# The primary source code for the application.
+/src/                               @arghya29
+/public/                            @arghya29
