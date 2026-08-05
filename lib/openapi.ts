@@ -151,8 +151,7 @@ registry.registerPath({
   method: 'delete',
   path: '/api/suppliers/{id}',
   summary: 'Delete Supplier',
-  description:
-    'Remove a supplier from the organization. Will block if supplier is still referenced by any routes.',
+  description: 'Remove a supplier from the organization. Will block if supplier is still referenced by any routes.',
   security: [{ cookieAuth: [] }],
   request: {
     params: z.object({
@@ -380,14 +379,12 @@ registry.registerPath({
 
 export function generateOpenApiSpec() {
   const generator = new OpenApiGeneratorV3(registry.definitions);
-
   return generator.generateDocument({
     openapi: '3.0.0',
     info: {
       title: 'EcoSphere API Documentation',
       version: '1.0.0',
-      description:
-        'API contract and endpoints for the EcoSphere Supply-Chain Carbon Intelligence Platform.',
+      description: 'API contract and endpoints for the EcoSphere Supply-Chain Carbon Intelligence Platform.',
     },
     servers: [
       {
