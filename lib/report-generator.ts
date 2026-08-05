@@ -1,3 +1,7 @@
+/**
+ * Report generation customization options, metadata formatting, and option validation utilities.
+ */
+
 export interface ReportThemeOptions {
   title: string;
   themeColor: string;
@@ -5,6 +9,9 @@ export interface ReportThemeOptions {
   includeDetails: boolean;
 }
 
+/**
+ * Formats metadata and configuration parameters for carbon footprint reports.
+ */
 export function formatReportMetadata(options: ReportThemeOptions) {
   return {
     generatedAt: new Date().toISOString(),
@@ -17,6 +24,9 @@ export function formatReportMetadata(options: ReportThemeOptions) {
   };
 }
 
+/**
+ * Validates report customization options against title length and hex color format rules.
+ */
 export function validateReportOptions(options: Partial<ReportThemeOptions>): boolean {
   if (options.title && options.title.length > 100) return false;
   if (options.themeColor && !/^#[0-9A-F]{6}$/i.test(options.themeColor)) return false;
