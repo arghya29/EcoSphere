@@ -5,6 +5,9 @@ import { saveAs } from 'file-saver';
 import { formatKg } from './utils';
 import type { DashboardSummary, InsightRecord } from '@/types/api';
 
+/**
+ * Generates and triggers download for a JSON carbon footprint report.
+ */
 export function downloadJsonReport(
   summary: DashboardSummary,
   insights: InsightRecord[],
@@ -28,6 +31,9 @@ export function downloadJsonReport(
   saveAs(blob, `ecosphere-report-${dateStamp()}.json`);
 }
 
+/**
+ * Generates and triggers download for a CSV carbon footprint report.
+ */
 export function downloadCsvReport(summary: DashboardSummary) {
   const rows = [
     { category: 'Scope 1', emissions_kg_co2e: summary.scope1 },
@@ -48,6 +54,9 @@ export function downloadCsvReport(summary: DashboardSummary) {
   saveAs(blob, `ecosphere-report-${dateStamp()}.csv`);
 }
 
+/**
+ * Generates and triggers download for a PDF carbon footprint report using jsPDF and autoTable.
+ */
 export function downloadPdfReport(
   summary: DashboardSummary,
   insights: InsightRecord[],
