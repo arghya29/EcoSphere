@@ -1,0 +1,64 @@
+# Comprehensive Dependabot Configuration for EcoSphere
+# This configuration tracks dependencies across NPM and GitHub Actions,
+# applies specific labels, groups minor/patch updates to reduce noise,
+# and ensures security vulnerabilities are patched promptly.
+
+version: 2
+updates:
+  # ---------------------------------------------------------
+  # NPM Dependencies (Backend/Frontend)
+  # ---------------------------------------------------------
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '04:00'
+      timezone: 'Asia/Kolkata'
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'npm'
+    assignees:
+      - 'arghya29'
+    reviewers:
+      - 'arghya29'
+    # Group minor and patch updates together to reduce PR fatigue
+    groups:
+      npm-minor-patch:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  # ---------------------------------------------------------
+  # GitHub Actions Workflow Dependencies
+  # ---------------------------------------------------------
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '05:00'
+      timezone: 'Asia/Kolkata'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'ci'
+    labels:
+      - 'dependencies'
+      - 'actions'
+    assignees:
+      - 'arghya29'
+    reviewers:
+      - 'arghya29'
+    groups:
+      actions-minor-patch:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
