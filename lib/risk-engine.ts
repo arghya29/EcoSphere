@@ -1,3 +1,8 @@
+/**
+ * Carbon risk assessment and scoring engine.
+ * Evaluates emission volumes, air freight intensity ratios, and electricity grid dependencies.
+ */
+
 export interface RiskScoreResult {
   score: number; // 0 to 100
   level: 'LOW' | 'MEDIUM' | 'HIGH';
