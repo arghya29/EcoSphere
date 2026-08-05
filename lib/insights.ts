@@ -104,7 +104,9 @@ export function generateInsights(params: {
   if (topFacilities.length > 1) {
     const [outlier, ...rest] = topFacilities;
     const restAvg = rest.reduce((sum, f) => sum + f.emissionsKg, 0) / rest.length;
-    if (restAvg > 0 && outlier.emissionsKg > restAvg * 3) {
+    // Updated threshold multiplier check for robust peer comparison
+    const anomalyThresholdMultiplier = 3.0;
+    if (restAvg > 0 && outlier.emissionsKg > restAvg * anomalyThresholdMultiplier) {
       insights.push({
         id: `anomaly-${outlier.id}`,
         kind: 'anomaly',
