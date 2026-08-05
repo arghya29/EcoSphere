@@ -1,0 +1,24 @@
+# Global owners (fallback for all files)
+*       @arghya29 @rohitkumarnaidu
+
+# App logic (Next.js App router)
+/app/   @arghya29 @rohitkumarnaidu
+
+# Shared Components
+/components/  @arghya29 @rohitkumarnaidu
+
+# Backend / Database / API 
+/prisma/  @arghya29 @rohitkumarnaidu
+/lib/     @arghya29 @rohitkumarnaidu
+
+# Configuration files
+/*.json @arghya29 @rohitkumarnaidu
+/*.js   @arghya29 @rohitkumarnaidu
+/*.ts   @arghya29 @rohitkumarnaidu
+
+# Documentation
+/docs/    @arghya29 @rohitkumarnaidu
+*.md      @arghya29 @rohitkumarnaidu
+
+# GitHub Actions workflows & configuration
+/.github/ @arghya29 @rohitkumarnaidu
