@@ -60,6 +60,9 @@ export async function requireOrg() {
   };
 }
 
+/**
+ * Type guard helper to check if a resolved context value is a short-circuit NextResponse error.
+ */
 export function isErrorResponse(value: unknown): value is NextResponse {
   return value instanceof NextResponse;
 }
