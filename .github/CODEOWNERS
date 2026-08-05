@@ -1,24 +1,47 @@
-# Global owners (fallback for all files)
-*       @arghya29 @rohitkumarnaidu
+# ==============================================================================
+# EcoSphere CODEOWNERS
+# ==============================================================================
+# This file defines who owns specific code paths in the repository.
+# GitHub will automatically request reviews from the individuals or teams
+# listed below when a pull request modifies files matching the pattern.
+# ==============================================================================
 
-# App logic (Next.js App router)
-/app/   @arghya29 @rohitkumarnaidu
+# ------------------------------------------------------------------------------
+# Default Owners
+# ------------------------------------------------------------------------------
+# By default, any file that does not match a more specific rule below
+# requires review from the core maintainer.
+*                                   @arghya29
 
-# Shared Components
-/components/  @arghya29 @rohitkumarnaidu
+# ------------------------------------------------------------------------------
+# GitHub & CI/CD Configuration
+# ------------------------------------------------------------------------------
+# Changes to GitHub Actions workflows, PR templates, and dependabot
+# configurations require strict review to prevent CI/CD breakage.
+/.github/workflows/                 @arghya29
+/.github/dependabot.yml             @arghya29
+/.github/PULL_REQUEST_TEMPLATE.md   @arghya29
 
-# Backend / Database / API 
-/prisma/  @arghya29 @rohitkumarnaidu
-/lib/     @arghya29 @rohitkumarnaidu
+# ------------------------------------------------------------------------------
+# Project Configuration & Build Tools
+# ------------------------------------------------------------------------------
+# Modifications to dependencies, package management, or formatting rules.
+/package.json                       @arghya29
+/package-lock.json                  @arghya29
+/.prettierrc                        @arghya29
 
-# Configuration files
-/*.json @arghya29 @rohitkumarnaidu
-/*.js   @arghya29 @rohitkumarnaidu
-/*.ts   @arghya29 @rohitkumarnaidu
-
+# ------------------------------------------------------------------------------
 # Documentation
-/docs/    @arghya29 @rohitkumarnaidu
-*.md      @arghya29 @rohitkumarnaidu
+# ------------------------------------------------------------------------------
+# Anyone can contribute to docs, but they are reviewed by the core team
+# to ensure accuracy, high-quality formatting, and correct mermaid diagrams.
+/docs/                              @arghya29
+/README.md                          @arghya29
+/SECURITY.md                        @arghya29
 
-# GitHub Actions workflows & configuration
-/.github/ @arghya29 @rohitkumarnaidu
+# ------------------------------------------------------------------------------
+# Core Application Code
+# ------------------------------------------------------------------------------
+# The primary source code for the application.
+/src/                               @arghya29
+/public/                            @arghya29
